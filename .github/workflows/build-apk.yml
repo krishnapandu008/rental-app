@@ -38,11 +38,19 @@ jobs:
         run: npm install --legacy-peer-deps
         working-directory: ./mobile-app
 
-      - name: Build APK
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Login to Expo (using token)
+        run: eas login --non-interactive --token ${{ secrets.EXPO_TOKEN }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build APK with EAS (local)
         run: |
-          cd mobile-app/android
-          chmod +x gradlew
-          ./gradlew assembleRelease -DEXPO_USE_COMMUNITY_AUTOLINKING=1
+          export EXPO_USE_COMMUNITY_AUTOLINKING=1
+          cd mobile-app
+          eas build -p android --profile preview --local --output=app-release.apk
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
 
@@ -50,4 +58,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: mobile-app/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: mobile-app/app-release.apk
