@@ -41,11 +41,6 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Login to Expo (using token)
-        run: eas login --non-interactive --token ${{ secrets.EXPO_TOKEN }}
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
       - name: Build APK with EAS (local)
         run: |
           export EXPO_USE_COMMUNITY_AUTOLINKING=1
@@ -53,6 +48,7 @@ jobs:
           eas build -p android --profile preview --local --output=app-release.apk
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
