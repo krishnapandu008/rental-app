@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -38,7 +38,11 @@ jobs:
         run: npm install --legacy-peer-deps
         working-directory: ./mobile-app
 
-      - name: Add system property to gradle.properties
+      - name: Remove existing android folder (if any)
+        run: rm -rf android
+        working-directory: ./mobile-app
+
+      - name: Add system property to gradle.properties (for autolinking)
         run: |
           echo "systemProp.EXPO_USE_COMMUNITY_AUTOLINKING=1" >> android/gradle.properties
         working-directory: ./mobile-app
@@ -46,6 +50,7 @@ jobs:
       - name: Prebuild and build APK
         run: |
           cd mobile-app
+          export CI=1
           npx expo prebuild --clean --non-interactive
           cd android
           chmod +x gradlew
