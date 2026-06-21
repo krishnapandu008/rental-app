@@ -38,22 +38,6 @@ jobs:
         run: npm install --legacy-peer-deps
         working-directory: ./mobile-app
 
-      - name: Remove existing android folder (if any)
-        run: rm -rf android
-        working-directory: ./mobile-app
-
-      - name: Prebuild (generate android folder)
-        run: |
-          cd mobile-app
-          export CI=1
-          npx expo prebuild --clean
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
-
-      - name: Add system property to gradle.properties
-        run: |
-          echo "systemProp.EXPO_USE_COMMUNITY_AUTOLINKING=1" >> mobile-app/android/gradle.properties
-
       - name: Build APK
         run: |
           cd mobile-app/android
