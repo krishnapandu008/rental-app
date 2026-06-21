@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK (Gradle)
 
 on:
   push:
@@ -38,20 +38,16 @@ jobs:
         run: npm install --legacy-peer-deps
         working-directory: ./mobile-app
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      - name: Build APK with EAS (local)
+      - name: Build APK with Gradle
         run: |
-          export EXPO_USE_COMMUNITY_AUTOLINKING=1
-          cd mobile-app
-          eas build -p android --profile preview --local --output=app-release.apk
+          cd mobile-app/android
+          chmod +x gradlew
+          ./gradlew assembleRelease -DEXPO_USE_COMMUNITY_AUTOLINKING=1
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: mobile-app/app-release.apk
+          path: mobile-app/android/app/build/outputs/apk/release/app-release-unsigned.apk
