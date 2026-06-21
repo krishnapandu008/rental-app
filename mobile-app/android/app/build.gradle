@@ -3,8 +3,8 @@ apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 project.ext.packageName = "com.anonymous.mobileapp"
 
-// Use relative path from app module to the project root (monorepo-safe)
-def projectRoot = file("../../").absolutePath
+// Derive project root from the Gradle build root (monorepo-safe)
+def projectRoot = rootProject.projectDir.getParent()
 
 /**
  * This is the configuration block to customize your React Native Android app.
