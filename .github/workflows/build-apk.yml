@@ -42,17 +42,21 @@ jobs:
         run: rm -rf android
         working-directory: ./mobile-app
 
-      - name: Add system property to gradle.properties (for autolinking)
-        run: |
-          echo "systemProp.EXPO_USE_COMMUNITY_AUTOLINKING=1" >> android/gradle.properties
-        working-directory: ./mobile-app
-
-      - name: Prebuild and build APK
+      - name: Prebuild (generate android folder)
         run: |
           cd mobile-app
           export CI=1
-          npx expo prebuild --clean --non-interactive
-          cd android
+          npx expo prebuild --clean
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+
+      - name: Add system property to gradle.properties
+        run: |
+          echo "systemProp.EXPO_USE_COMMUNITY_AUTOLINKING=1" >> mobile-app/android/gradle.properties
+
+      - name: Build APK
+        run: |
+          cd mobile-app/android
           chmod +x gradlew
           ./gradlew assembleRelease -DEXPO_USE_COMMUNITY_AUTOLINKING=1
         env:
