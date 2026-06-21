@@ -4,7 +4,7 @@ apply plugin: "com.facebook.react"
 project.ext.packageName = "com.anonymous.mobileapp"
 
 // Use the app module's own directory to find the project root (monorepo-safe)
-def projectRoot = projectDir.getParentFile().getParentFile().getAbsolutePath()
+def projectRoot = new File(projectDir, "../..").getCanonicalPath()
 
 /**
  * This is the configuration block to customize your React Native Android app.
