@@ -28,21 +28,28 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
+
       - name: Install dependencies (root)
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Install dependencies (mobile-app)
-        run: npm install
+        run: npm install --legacy-peer-deps
         working-directory: ./mobile-app
 
-      - name: Set environment variable and build
+      - name: Add system property to gradle.properties
         run: |
-          export EXPO_USE_COMMUNITY_AUTOLINKING=1
+          echo "systemProp.EXPO_USE_COMMUNITY_AUTOLINKING=1" >> android/gradle.properties
+        working-directory: ./mobile-app
+
+      - name: Prebuild and build APK
+        run: |
           cd mobile-app
-          npx expo prebuild --clean
+          npx expo prebuild --clean --non-interactive
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease -DEXPO_USE_COMMUNITY_AUTOLINKING=1
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
 
