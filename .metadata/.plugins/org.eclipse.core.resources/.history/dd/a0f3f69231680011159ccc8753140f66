@@ -1,0 +1,19 @@
+package com.rental.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import jakarta.servlet.http.HttpServletRequest;
+
+@Controller
+public class ReactRoutingForwardController {
+
+    @RequestMapping(value = "/**")
+    public String redirect(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // Skip API calls and actual file requests (those with a dot extension)
+        if (path.startsWith("/api/") || path.contains(".")) {
+            return null; // let Spring handle normally (REST or static file)
+        }
+        return "forward:/index.html";
+    }
+}

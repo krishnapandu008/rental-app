@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rental_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8585
+  address: 0.0.0.0          # bind to all interfaces (local and network)
+
+jwt:
+  secret: mySecretKeyThatShouldBeAtLeast256BitsLongForHSWithSHA256Algorithm
+  expiration: 86400000

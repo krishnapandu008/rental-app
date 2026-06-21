@@ -1,0 +1,35 @@
+package com.rental.service;
+
+import com.rental.dto.OwnerLoginDto;
+import com.rental.dto.OwnerRegisterDto;
+import com.rental.entity.Owner;
+import com.rental.exception.ResourceNotFoundException;
+import com.rental.repository.OwnerRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class OwnerService {
+	 private static final Logger logger = LoggerFactory.getLogger(OwnerService.class);
+	    private final OwnerRepository ownerRepository;
+
+	    public Owner register(OwnerRegisterDto dto) {
+	        logger.info("Registering owner with email: {}", dto.getEmail());
+	        Owner owner = Owner.builder()
+	                .email(dto.getEmail())
+	                .password(dto.getPassword())
+	                .name(dto.getName())
+	                .phone(dto.getPhone())
+	                .build();
+	        return ownerRepository.save(owner);
+	    }
+
+    public Owner login(OwnerLoginDto dto) {
+        Owner owner = ownerRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
+        if (!owner.getPassword().equals(dto.getPassword()))
+            throw new RuntimeException("Invalid credentials");
+        return owner;
+    }
+}

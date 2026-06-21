@@ -1,0 +1,110 @@
+# ================
+# Spring Boot / Backend
+# ================
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.log
+*.pid
+*.lock
+application-*.yml
+application-*.yaml
+application-*.properties
+logs/
+
+# Maven wrapper (keep these committed)
+!/.mvn/wrapper/maven-wrapper.jar
+!mvnw
+!mvnw.cmd
+
+# ================
+# Node.js / Frontend / Mobile
+# ================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+*.local
+*.tsbuildinfo
+
+# ================
+# Expo / React Native (Mobile)
+# ================
+.expo/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+android/          # ← matches mobile-app/android (no leading slash)
+ios/              # ← matches mobile-app/ios (no leading slash)
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# ================
+# Environment Variables (keep secrets safe)
+# ================
+.env
+.env*.local
+.env.local
+.env.*.local
+
+# ================
+# IDEs & Editors
+# ================
+# STS / Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ================
+# OS / System
+# ================
+.DS_Store
+Thumbs.db
+*.pem
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ================
+# Other
+# ================
+*.iml
+*.orig

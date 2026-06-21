@@ -1,0 +1,17 @@
+{
+  "name": "rental-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run web\" \"npm run mobile\"",
+    "backend": "cd backend && java -jar target/backend-0.0.1-SNAPSHOT.jar",
+    "web": "cd web-admin && npm run dev",
+    "mobile": "cd mobile-app && npx expo start --lan",
+    "build:web": "cd web-admin && npm run build",
+    "build:backend": "cd backend && mvnw.cmd clean package -DskipTests",
+    "build": "npm run build:web && npm run build:backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

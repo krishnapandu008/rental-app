@@ -1,0 +1,40 @@
+package com.rental.controller;
+
+import com.rental.dto.PropertyRequestDto;
+import com.rental.dto.PropertyResponseDto;
+import com.rental.service.PropertyService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/properties")
+@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
+public class PropertyController {
+    private final PropertyService propertyService;
+
+    @GetMapping
+    public List<PropertyResponseDto> getAllAvailable() {
+        return propertyService.getAllAvailable();
+    }
+
+    @GetMapping("/owner/{ownerId}")
+    public List<PropertyResponseDto> getByOwner(@PathVariable Long ownerId) {
+        return propertyService.getByOwner(ownerId);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PropertyResponseDto create(@Valid @RequestBody PropertyRequestDto dto) {
+        return propertyService.create(dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        propertyService.delete(id);
+    }
+}

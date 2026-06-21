@@ -1,0 +1,29 @@
+package com.rental.controller;
+
+import com.rental.dto.OwnerLoginDto;
+import com.rental.dto.OwnerRegisterDto;
+import com.rental.entity.Owner;
+import com.rental.service.OwnerService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/owners")
+@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
+public class OwnerController {
+    private final OwnerService ownerService;
+
+   @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Owner register(@Valid @RequestBody OwnerRegisterDto dto) {
+        return ownerService.register(dto);
+    }
+
+    @PostMapping("/login")
+    public Owner login(@Valid @RequestBody OwnerLoginDto dto) {
+        return ownerService.login(dto);
+    }
+}
