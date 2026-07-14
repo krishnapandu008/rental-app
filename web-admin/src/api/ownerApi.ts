@@ -1,3 +1,4 @@
+// ownerApi.ts
 import { api } from './client';
 import { Owner } from '../types';
 
@@ -6,3 +7,5 @@ export const registerOwner = (data: { email: string; password: string; name: str
 
 export const loginOwner = (credentials: { email: string; password: string }) =>
   api.post<Owner>('/owners/login', credentials);
+
+export const getAllOwners = () => api.get<Owner[]>('/owners'); // admin-only

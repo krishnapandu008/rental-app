@@ -108,3 +108,31 @@ Thumbs.db
 # ================
 *.iml
 *.orig
+# Open .gitignore or add these lines
+echo "# IDE files" >> .gitignore
+echo ".metadata/" >> .gitignore
+echo "backend/.metadata/" >> .gitignore
+
+echo "# Backup files" >> .gitignore
+echo "*.zip" >> .gitignore
+echo "*.tar.gz" >> .gitignore
+
+echo "# User uploaded files" >> .gitignore
+echo "backend/data/" >> .gitignore
+echo "*.jpg" >> .gitignore
+echo "*.jpeg" >> .gitignore
+echo "*.png" >> .gitignore
+echo "*.gif" >> .gitignore
+
+echo "# Build files" >> .gitignore
+echo "**/node_modules/" >> .gitignore
+echo "**/build/" >> .gitignore
+echo "**/dist/" >> .gitignore
+echo "**/.expo/" >> .gitignore
+
+echo "# Tree dump files" >> .gitignore
+echo "tree_*.txt" >> .gitignore
+
+echo "# Mobile specific" >> .gitignore
+echo "mobile-app/rental-release.keystore" >> .gitignore
+echo "mobile-app/package-lock.json" >> .gitignore

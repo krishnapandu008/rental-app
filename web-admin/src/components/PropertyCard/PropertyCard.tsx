@@ -5,20 +5,67 @@ import styles from './PropertyCard.module.scss';
 
 interface Props {
   property: Property;
-  onDelete: (id: number) => void;
+  onOpen: (property: Property) => void; // Renamed from onView
 }
 
-const PropertyCard: React.FC<Props> = ({ property, onDelete }) => {
+const PropertyCard: React.FC<Props> = ({ property, onOpen }) => {
+  const imageUrl = property.imageUrls && property.imageUrls.length > 0 
+    ? property.imageUrls[0] 
+    : null;
+
+  const imageCount = property.imageUrls?.length || 0;
+
   return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <h3>{property.title}</h3>
-        <span className={styles.rent}>{formatCurrency(property.rent)}/month</span>
+    <div className={styles.card} onClick={() => onOpen(property)}>
+      {/* Image Section */}
+      <div className={styles.imageWrapper}>
+        {imageUrl ? (
+          <>
+            <img 
+              src={imageUrl} 
+              alt={property.title} 
+              className={styles.image}
+            />
+            {imageCount > 1 && (
+              <span className={styles.imageCount}>
+                +{imageCount - 1} more
+              </span>
+            )}
+          </>
+        ) : (
+          <div className={styles.imagePlaceholder} />
+        )}
+        
+        {property.available && (
+          <span className={styles.availabilityBadge}>Available</span>
+        )}
       </div>
-      <p className={styles.location}>{property.location}</p>
-      <p className={styles.bedrooms}>{property.bedrooms} BHK</p>
-      <p className={styles.contact}>📞 {property.contactNumber}</p>
-      <button onClick={() => onDelete(property.id)} className={styles.deleteBtn}>Delete</button>
+
+      {/* Content Section - NO BUTTONS HERE */}
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <h3>{property.title}</h3>
+          <span className={styles.rent}>{formatCurrency(property.rent)}</span>
+        </div>
+        
+        <div className={styles.location}>
+          {property.location}
+        </div>
+        
+        <div className={styles.details}>
+          <span>🛏️ {property.bedrooms} BHK</span>
+          {property.description && (
+            <span>📝 {property.description.length > 30 
+              ? property.description.slice(0, 30) + '...' 
+              : property.description}
+            </span>
+          )}
+        </div>
+        
+        <div className={styles.contact}>
+          📞 {property.contactNumber}
+        </div>
+      </div>
     </div>
   );
 };

@@ -15,4 +15,5 @@ public class LoginResponseDto {
     private String name;
     private String phone;
     private String token;
+    private String refreshToken;
 }

@@ -7,4 +7,5 @@ export interface Property {
   bedrooms: number;
   contactNumber: string;
   available: boolean;
+  imageUrls?: string[];
 }  

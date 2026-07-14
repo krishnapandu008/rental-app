@@ -15,4 +15,5 @@ public class RegisterResponseDto {
     private String name;
     private String phone;
     private String token;
+    private String refreshToken;
 }

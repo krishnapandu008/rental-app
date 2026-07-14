@@ -13,29 +13,33 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:mySecretKeyThatShouldBeAtLeast256BitsLongForHSWithSHA256Algorithm}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
+    @Value("${jwt.expiration}")
     private long jwtExpiration;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateToken(Long ownerId, String email) {
+    public String generateToken(Long ownerId, String email, String role) {
         return Jwts.builder()
                 .subject(email)
                 .claim("ownerId", ownerId)
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    public String getRoleFromToken(String token) {
+        return getAllClaimsFromToken(token).get("role", String.class);
+    }
+
     public Long getOwnerIdFromToken(String token) {
-        Claims claims = getAllClaimsFromToken(token);
-        return claims.get("ownerId", Long.class);
+        return getAllClaimsFromToken(token).get("ownerId", Long.class);
     }
 
     public String getEmailFromToken(String token) {
@@ -43,15 +47,11 @@ public class JwtUtil {
     }
 
     public boolean isTokenValid(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+        Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token);
+        return true;
     }
 
     private Claims getAllClaimsFromToken(String token) {

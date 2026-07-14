@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile-app",
-    "slug": "mobile-app",
+    "name": "Rental Finder",
+    "slug": "mobileapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,22 +10,23 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.sravania.mobileapp",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.mobileapp"
+      }
     },
+    "usesCleartextTraffic": true,
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "ff6b0d2d-f345-4991-b8e1-c1e959982475"
+        "projectId": "6de19d63-cbad-45c1-abf5-63008839af3c"
       }
-    }
+    },
+    "owner": "sravania"
   }
 }

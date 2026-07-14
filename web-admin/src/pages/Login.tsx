@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import styles from './Login.module.scss';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -20,21 +21,39 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto', padding: '1rem' }}>
-      <h2>Owner Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
+    <div className={styles.container}>
+      <h2 className={styles.title}>Owner Login</h2>
+      {error && <div className={styles.error}>{error}</div>}
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
           <label>Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.5rem' }} />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
+
+        <div className={styles.formGroup}>
           <label>Password</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required style={{ width: '100%', padding: '0.5rem' }} />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
-        <button type="submit" style={{ padding: '0.5rem 1rem', background: '#f4511e', color: 'white', border: 'none', borderRadius: '4px' }}>Login</button>
+
+        <button type="submit" className={styles.submitBtn}>
+          Login
+        </button>
       </form>
-      <p style={{ marginTop: '1rem' }}>Don't have an account? <Link to="/register">Register</Link></p>
+
+      <p className={styles.footer}>
+        Don't have an account? <Link to="/register">Register</Link>
+      </p>
     </div>
   );
 };

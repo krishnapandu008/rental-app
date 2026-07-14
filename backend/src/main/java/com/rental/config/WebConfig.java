@@ -1,5 +1,6 @@
 package com.rental.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -13,9 +14,13 @@ import java.io.IOException;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${app.storage.local.upload-dir}")
+    private String uploadDir;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        // Allow CORS across your entire API tree and static images path
+        registry.addMapping("/**")
                 .allowedOriginPatterns("*")
                 .allowCredentials(true)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -24,6 +29,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 1. Expose your upload directory over the network interface 
+        String formattedLocation = uploadDir.endsWith("/") ? "file:" + uploadDir : "file:" + uploadDir + "/";
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations(formattedLocation);
+
+        // 2. Your existing React/Angular single page web app fallback routes
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .resourceChain(true)
@@ -34,8 +45,8 @@ public class WebConfig implements WebMvcConfigurer {
                         if (requested.exists() && requested.isReadable()) {
                             return requested;
                         }
-                        // Skip API and actual file requests
-                        if (resourcePath.startsWith("api/") || resourcePath.contains(".")) {
+                        // Skip API, image folder, and actual file requests
+                        if (resourcePath.startsWith("api/") || resourcePath.startsWith("images/") || resourcePath.contains(".")) {
                             return null;
                         }
                         return new ClassPathResource("/static/index.html");

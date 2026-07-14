@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getMyProperties, deleteProperty } from '../api/propertyApi';
+import { getMyProperties } from '../api/propertyApi';
 import { Property } from '../types';
 import PropertyCard from '../components/PropertyCard/PropertyCard';
+import styles from './Dashboard.module.scss';
 
 const Dashboard: React.FC = () => {
   const { owner } = useAuth();
+  const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,23 +29,35 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    await deleteProperty(id);
-    setProperties(prev => prev.filter(p => p.id !== id));
+  const handleOpen = (property: Property) => {
+    navigate(`/property/${property.id}`, { state: { property } });
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!owner) return <div>Please login</div>;
+  if (loading) return <div className={styles.loading}>Loading...</div>;
+  if (!owner) return <div className={styles.loading}>Please login</div>;
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>My Properties</h2>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>My Properties</h2>
+        <button className={styles.addButton} onClick={() => navigate('/add')}>
+          + Add Property
+        </button>
+      </div>
+
       {properties.length === 0 ? (
-        <p>No properties added yet. <a href="/add">Add one</a></p>
+        <div className={styles.emptyState}>
+          <p>No properties added yet.</p>
+          <a href="/add">Add your first property →</a>
+        </div>
       ) : (
-        <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-          {properties.map(prop => (
-            <PropertyCard key={prop.id} property={prop} onDelete={handleDelete} />
+        <div className={styles.propertyGrid}>
+          {properties.map((prop) => (
+            <PropertyCard
+              key={prop.id}
+              property={prop}
+              onOpen={handleOpen}
+            />
           ))}
         </div>
       )}

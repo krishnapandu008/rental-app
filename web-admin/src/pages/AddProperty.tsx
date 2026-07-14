@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { addProperty } from '../api/propertyApi';
+import api from '../api/client';
+import styles from './AddProperty.module.scss';
 
 const AddProperty: React.FC = () => {
   const { owner } = useAuth();
@@ -14,10 +15,22 @@ const AddProperty: React.FC = () => {
     bedrooms: 1,
     contactNumber: '',
   });
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selected = Array.from(e.target.files);
+      setFiles(selected);
+      const urls = selected.map(file => URL.createObjectURL(file));
+      setPreviews(urls);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,48 +40,128 @@ const AddProperty: React.FC = () => {
       return;
     }
     try {
-      await addProperty({
+      setUploading(true);
+
+      const formData = new FormData();
+      const propertyPayload = {
         ...form,
         rent: Number(form.rent),
         bedrooms: Number(form.bedrooms),
         ownerId: owner.id,
+      };
+      const propertyBlob = new Blob([JSON.stringify(propertyPayload)], {
+        type: 'application/json',
       });
+      formData.append('property', propertyBlob);
+      files.forEach(file => formData.append('images', file));
+
+      await api.post('/properties', formData);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to add property');
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: '2rem auto', padding: '1rem' }}>
-      <h2>Add New Property</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
+    <div className={styles.container}>
+      <h2 className={styles.title}>Add New Property</h2>
+      {error && <div className={styles.error}>{error}</div>}
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
           <label>Title</label>
-          <input name="title" value={form.title} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem' }} />
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            required
+          />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
+
+        <div className={styles.formGroup}>
           <label>Description</label>
-          <textarea name="description" value={form.description} onChange={handleChange} style={{ width: '100%', padding: '0.5rem' }} />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+          />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
+
+        <div className={styles.formGroup}>
           <label>Location</label>
-          <input name="location" value={form.location} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem' }} />
+          <input
+            name="location"
+            value={form.location}
+            onChange={handleChange}
+            required
+          />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
+
+        <div className={styles.formGroup}>
           <label>Rent (₹)</label>
-          <input type="number" name="rent" value={form.rent} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem' }} />
+          <input
+            type="number"
+            name="rent"
+            value={form.rent}
+            onChange={handleChange}
+            required
+          />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
+
+        <div className={styles.formGroup}>
           <label>Bedrooms</label>
-          <input type="number" name="bedrooms" value={form.bedrooms} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem' }} />
+          <input
+            type="number"
+            name="bedrooms"
+            value={form.bedrooms}
+            onChange={handleChange}
+            required
+          />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
+
+        <div className={styles.formGroup}>
           <label>Contact Number</label>
-          <input name="contactNumber" value={form.contactNumber} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem' }} />
+          <input
+            name="contactNumber"
+            value={form.contactNumber}
+            onChange={handleChange}
+            required
+          />
         </div>
-        <button type="submit" style={{ padding: '0.5rem 1rem', background: '#f4511e', color: 'white', border: 'none', borderRadius: '4px' }}>Add Property</button>
+
+        <div className={styles.formGroup}>
+          <label>Images (select multiple)</label>
+          <div className={styles.fileInputWrapper}>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          </div>
+          {previews.length > 0 && (
+            <div className={styles.previewGrid}>
+              {previews.map((url, idx) => (
+                <img
+                  key={idx}
+                  src={url}
+                  alt={`preview-${idx}`}
+                  className={styles.previewImage}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          disabled={uploading}
+          className={styles.submitBtn}
+        >
+          {uploading ? 'Uploading...' : 'Add Property'}
+        </button>
       </form>
     </div>
   );

@@ -1,5 +1,7 @@
 package com.rental.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -12,4 +14,6 @@ public class PropertyResponseDto {
     private Integer bedrooms;
     private String contactNumber;
     private Boolean available;
+    private List<String> imageUrls;
+    private Long ownerId;
 }

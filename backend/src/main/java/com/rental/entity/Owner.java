@@ -22,4 +22,6 @@ public class Owner {
 
     private String name;
     private String phone;
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'USER'")
+private String role;
 }

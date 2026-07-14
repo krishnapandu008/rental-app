@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { loginOwner, registerOwner } from '../api/ownerApi';
+import { logout as logoutApi } from '../api/authApi';
 import { Owner } from '../types';
 
 interface AuthContextType {
@@ -25,30 +26,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   }, []);
 
+  const persistSession = (data: Owner) => {
+    setOwner(data);
+    localStorage.setItem('owner', JSON.stringify(data));
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('refreshToken', data.refreshToken);
+  };
+
   const login = async (email: string, password: string) => {
-  try {
     const res = await loginOwner({ email, password });
-    console.log('Login response:', res.data);   // 👈 ADD THIS
-    setOwner(res.data);
-    localStorage.setItem('owner', JSON.stringify(res.data));
-    localStorage.setItem('token', res.data.token);
-    console.log('Token stored:', localStorage.getItem('token')); // 👈 ADD THIS
-  } catch (error) {
-    console.error('Login error:', error);
-  }
-};
+    persistSession(res.data);
+  };
 
   const register = async (data: { email: string; password: string; name: string; phone: string }) => {
     const res = await registerOwner(data);
-    setOwner(res.data);
-    localStorage.setItem('owner', JSON.stringify(res.data));
-    localStorage.setItem('token', res.data.token);
+    persistSession(res.data);
   };
 
   const logout = () => {
+    const rt = localStorage.getItem('refreshToken');
+    if (rt) logoutApi(rt).catch(() => {}); // best-effort server-side revoke
     setOwner(null);
     localStorage.removeItem('owner');
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
   };
 
   return (

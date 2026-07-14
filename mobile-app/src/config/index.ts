@@ -1,12 +1,15 @@
 // src/config/index.ts
 
-// Set this to your PC's local IP address (the one that worked in the browser test)
-// const DEV_API_URL = 'http://192.168.31.151:8585/api';   // ← UPDATE THIS IP
+// Local Environment: Your active PC Wi-Fi IP and custom Spring Boot port
+const DEV_API_URL = 'http://192.168.31.151:8585/api';   
 
-// Production URL (for later, when you deploy to Hetzner)
-// const PROD_API_URL = 'https://ksdcnit.com/api';
+// For Android Studio Emulator testing (Uncomment if using emulator instead of physical phone)
+// const DEV_API_URL = 'http://10.0.2.2:8585/api'; 
 
-// React Native's __DEV__ is true when running in Expo Go (development)
-// and false in a standalone production build (APK/IPA).
-// export const API_BASE_URL = __DEV__ ? DEV_API_URL : PROD_API_URL;
-export const API_BASE_URL = 'https://ksdcnit.com/api';
+// Production Environment: Hetzner cloud URL
+const PROD_API_URL = 'https://ksdcnit.com/api';
+
+// 🌟 Safe Check: Check if __DEV__ exists in the global scope safely without throwing errors
+const isDevelopment = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+
+export const API_BASE_URL = isDevelopment ? DEV_API_URL : PROD_API_URL;

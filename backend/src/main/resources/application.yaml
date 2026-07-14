@@ -1,18 +1,14 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/rental_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+  profiles:
+    active: dev # 👈 This is where you call/toggle the active profile!
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
 server:
   port: 8585
-  address: 0.0.0.0          # bind to all interfaces (local and network)
+  address: 0.0.0.0
 
 jwt:
   secret: mySecretKeyThatShouldBeAtLeast256BitsLongForHSWithSHA256Algorithm
-  expiration: 86400000
+  expiration: 86400000            # access token lifetime: 24h (ms)
+  refresh-expiration: 2592000000  # refresh token lifetime: 30 days (ms)

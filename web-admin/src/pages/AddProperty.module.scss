@@ -1,0 +1,58 @@
+@use '../styles/variables' as *;
+@use '../styles/mixins' as *;
+
+.container {
+  @include container-center(600px);
+}
+
+.title {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: $text-dark;
+  margin-bottom: $spacing-xl;
+}
+
+.error {
+  color: $red;
+  padding: $spacing-md $spacing-lg;
+  background: #fff5f5;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-xl;
+  border: 1px solid #fcc;
+}
+
+.form {
+  @include card-base;
+}
+
+.formGroup {
+  @include form-group;
+}
+
+.fileInputWrapper {
+  margin-top: $spacing-sm;
+
+  input[type='file'] {
+    @include file-input;
+  }
+}
+
+.previewGrid {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  margin-top: $spacing-md;
+}
+
+.previewImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: $radius-sm;
+}
+
+.submitBtn {
+  @include primary-button;
+  width: 100%;
+  margin-top: $spacing-sm;
+}

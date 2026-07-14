@@ -2,6 +2,7 @@ package com.rental.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import java.util.List; // if you have it, but not needed for this fix
 
 @Data
 public class PropertyRequestDto {
@@ -12,4 +13,5 @@ public class PropertyRequestDto {
     @Min(1) private Integer bedrooms;
     @NotBlank private String contactNumber;
     private Long ownerId;
+    private Boolean available;   // <-- Add this line
 }
