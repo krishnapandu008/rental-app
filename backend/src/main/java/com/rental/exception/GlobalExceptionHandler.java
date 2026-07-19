@@ -1,14 +1,17 @@
 package com.rental.exception;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -60,5 +63,13 @@ public class GlobalExceptionHandler {
         // Log the full stack trace!
         logger.error("Unexpected error occurred", ex);
         return new ApiResponse(false, "Internal server error: " + ex.getMessage());
+    }
+
+    // ✅ Handler for IllegalArgumentException (e.g., missing image URL)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        // Optional: Log the warning for debugging
+        logger.warn("Illegal argument: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(new ApiResponse(false, ex.getMessage()));
     }
 }

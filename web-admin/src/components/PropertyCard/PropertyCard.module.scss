@@ -5,7 +5,7 @@
   background: $bg-white;
   border-radius: $radius-md;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-card;
   transition: $transition-slow;
   display: flex;
   flex-direction: column;
@@ -36,7 +36,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform $transition-slow;
+  transition: $transition-slow;
 }
 
 .imagePlaceholder {
@@ -73,6 +73,7 @@
   backdrop-filter: blur(4px);
 }
 
+// ===== BADGES =====
 .availabilityBadge {
   position: absolute;
   top: 8px;
@@ -85,6 +86,61 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+// Visibility badge (top-right)
+.visibilityBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: $font-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+
+  &.public {
+    background: $green;
+    color: #fff;
+  }
+
+  &.private {
+    background: $orange; // or define $yellow: #ffc107
+    color: #333;
+  }
+
+  &.unlisted {
+    background: $red;
+    color: #fff;
+  }
+}
+
+// Inactive overlay
+.inactiveOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  border-radius: 8px 8px 0 0;
+  backdrop-filter: blur(2px);
+
+  span {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: rgba($red, 0.9);
+    padding: 4px 16px;
+    border-radius: 20px;
+  }
 }
 
 .content {

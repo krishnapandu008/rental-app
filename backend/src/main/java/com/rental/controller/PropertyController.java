@@ -1,18 +1,30 @@
 package com.rental.controller;
 
 import java.util.List;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import java.util.Map;  // ✅ NEW IMPORT
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.rental.dto.PropertyRequestDto;
 import com.rental.dto.PropertyResponseDto;
-import com.rental.exception.ForbiddenException;
 import com.rental.exception.UnauthorizedException;
+import com.rental.security.OwnerPrincipal;
 import com.rental.service.PropertyService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -20,90 +32,91 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/properties")
 @RequiredArgsConstructor
 public class PropertyController {
+
     private final PropertyService propertyService;
 
+    // ---------- Public Listing ----------
     @GetMapping
-    public List<PropertyResponseDto> getAllAvailable() {
-        return propertyService.getAllAvailable();
+    public List<PropertyResponseDto> getAllProperties(@AuthenticationPrincipal OwnerPrincipal principal) {
+        Long ownerId = principal != null ? principal.getId() : null;
+        String role = principal != null ? principal.getRole() : null;
+        return propertyService.getVisibleProperties(ownerId, role);
     }
 
+    // ---------- Single Property ----------
+    @GetMapping("/{id}")
+    public PropertyResponseDto getProperty(@PathVariable Long id,
+                                           @AuthenticationPrincipal OwnerPrincipal principal) {
+        Long ownerId = principal != null ? principal.getId() : null;
+        String role = principal != null ? principal.getRole() : null;
+        return propertyService.getPropertyById(id, ownerId, role);
+    }
+
+    // ---------- Owner's Own Properties ----------
     @GetMapping("/owner/{ownerId}")
-    public List<PropertyResponseDto> getByOwner(@PathVariable Long ownerId, @AuthenticationPrincipal String principal) {
-        if (principal == null) {
-            throw new UnauthorizedException("Unauthorized: JWT token required");
-        }
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        Long requesterId = Long.valueOf(principal);
-        if (!isAdmin && !requesterId.equals(ownerId)) {
-            throw new ForbiddenException("Forbidden: You can only view your own properties");
+    public List<PropertyResponseDto> getByOwner(@PathVariable Long ownerId,
+                                                @AuthenticationPrincipal OwnerPrincipal principal) {
+        if (principal == null ||
+            (!principal.getId().equals(ownerId) && !"ADMIN".equalsIgnoreCase(principal.getRole()))) {
+            throw new UnauthorizedException("You can only view your own properties");
         }
         return propertyService.getByOwner(ownerId);
     }
 
-    // Admin-only: properties across every owner (SecurityConfig restricts this to ROLE_ADMIN)
-    @GetMapping("/admin/all")
-    public List<PropertyResponseDto> getAllForAdmin() {
-        return propertyService.getAllProperties();
+    // ---------- Create (with optional images) ----------
+    @PostMapping
+    public PropertyResponseDto create(@RequestPart("dto") @Valid PropertyRequestDto dto,
+                                      @RequestPart(value = "images", required = false) List<MultipartFile> images,
+                                      @AuthenticationPrincipal OwnerPrincipal principal) {
+        if (principal == null) throw new UnauthorizedException("Authentication required");
+        return propertyService.create(dto, principal.getId(), images);
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id, @AuthenticationPrincipal String principal) {
-        if (principal == null) {
-            throw new UnauthorizedException("Unauthorized: JWT token required");
-        }
-        Long ownerId = Long.valueOf(principal);
-        propertyService.deleteByIdAndOwnerId(id, ownerId);
-    }
-
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public PropertyResponseDto create(
-            @Valid @RequestPart("property") PropertyRequestDto dto,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images, 
-            @AuthenticationPrincipal String principal) {
-        
-        if (principal == null) {
-            throw new UnauthorizedException("Unauthorized: JWT token required");
-        }
-        
-        Long ownerId = Long.valueOf(principal);
-        if (!ownerId.equals(dto.getOwnerId())) {
-            throw new ForbiddenException("Forbidden: Cannot create property for another owner");
-        }
-        return propertyService.create(dto, images);
-    }
-
-    @GetMapping("/{id}")
-    public PropertyResponseDto getPropertyById(@PathVariable Long id) {
-        return propertyService.getPropertyById(id);
-    }
-
+    // ---------- Update ----------
     @PutMapping("/{id}")
-    public PropertyResponseDto updateProperty(
-            @PathVariable Long id,
-            @Valid @RequestBody PropertyRequestDto dto,
-            @AuthenticationPrincipal String principal) {
-        
-        if (principal == null) {
-            throw new UnauthorizedException("Unauthorized: JWT token required");
-        }
-        Long ownerId = Long.valueOf(principal);
-        return propertyService.update(id, dto, ownerId);
+    public PropertyResponseDto update(@PathVariable Long id,
+                                      @RequestBody @Valid PropertyRequestDto dto,
+                                      @AuthenticationPrincipal OwnerPrincipal principal) {
+        if (principal == null) throw new UnauthorizedException("Authentication required");
+        return propertyService.update(id, dto, principal.getId(), principal.getRole());
     }
 
-    @PostMapping("/{id}/images")
-    @ResponseStatus(HttpStatus.CREATED)
-    public List<String> uploadImages(
-            @PathVariable Long id,
-            @RequestPart("images") List<MultipartFile> images,
-            @AuthenticationPrincipal String principal) {
-        
-        if (principal == null) {
-            throw new UnauthorizedException("Unauthorized: JWT token required");
+    // ---------- Delete Property ----------
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id,
+                                    @AuthenticationPrincipal OwnerPrincipal principal) {
+        if (principal == null) throw new UnauthorizedException("Authentication required");
+        propertyService.delete(id, principal.getId(), principal.getRole());
+        return ResponseEntity.ok().build();
+    }
+
+    // ---------- Delete Individual Image ----------
+    @DeleteMapping("/images")
+    public ResponseEntity<?> deleteImage(@RequestBody Map<String, String> payload,
+                                         @AuthenticationPrincipal OwnerPrincipal principal) {
+        if (principal == null) throw new UnauthorizedException("Authentication required");
+        String imageUrl = payload.get("url");
+        if (imageUrl == null || imageUrl.isBlank()) {
+            throw new IllegalArgumentException("Image URL is required");
         }
-        Long ownerId = Long.valueOf(principal);
-        return propertyService.uploadImages(id, images, ownerId);
+        propertyService.deleteImage(imageUrl, principal.getId(), principal.getRole());
+        return ResponseEntity.ok().build();
+    }
+
+    // ---------- Upload extra images ----------
+    @PostMapping("/{id}/images")
+    public List<String> uploadImages(@PathVariable Long id,
+                                     @RequestParam("images") List<MultipartFile> images,
+                                     @AuthenticationPrincipal OwnerPrincipal principal) {
+        if (principal == null) throw new UnauthorizedException("Authentication required");
+        return propertyService.uploadImages(id, images, principal.getId(), principal.getRole());
+    }
+
+    // ---------- Admin only: toggle active ----------
+    @PatchMapping("/admin/{id}/active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> toggleActive(@PathVariable Long id, @RequestParam boolean active) {
+        propertyService.toggleActive(id, active);
+        return ResponseEntity.ok().build();
     }
 }

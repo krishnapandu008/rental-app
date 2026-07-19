@@ -6,9 +6,15 @@ export const api = axios.create({ baseURL: API_BASE_URL });
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers['Authorization'] = `Bearer ${token}`;
-  if (!(config.data instanceof FormData)) {
+
+  // CRITICAL: Do NOT set Content-Type for FormData
+  // Let Axios handle it automatically.
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  } else {
     config.headers['Content-Type'] = 'application/json';
   }
+
   return config;
 });
 

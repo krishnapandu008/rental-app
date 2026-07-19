@@ -5,7 +5,7 @@ import styles from './PropertyCard.module.scss';
 
 interface Props {
   property: Property;
-  onOpen: (property: Property) => void; // Renamed from onView
+  onOpen: (property: Property) => void;
 }
 
 const PropertyCard: React.FC<Props> = ({ property, onOpen }) => {
@@ -36,12 +36,25 @@ const PropertyCard: React.FC<Props> = ({ property, onOpen }) => {
           <div className={styles.imagePlaceholder} />
         )}
         
+        {/* Availability Badge */}
         {property.available && (
           <span className={styles.availabilityBadge}>Available</span>
         )}
+        
+        {/* Visibility Badge */}
+        <span className={`${styles.visibilityBadge} ${styles[property.visibility?.toLowerCase() || 'public']}`}>
+          {property.visibility || 'PUBLIC'}
+        </span>
+
+        {/* Inactive Overlay */}
+        {!property.isActive && (
+          <div className={styles.inactiveOverlay}>
+            <span>Inactive</span>
+          </div>
+        )}
       </div>
 
-      {/* Content Section - NO BUTTONS HERE */}
+      {/* Content Section */}
       <div className={styles.content}>
         <div className={styles.header}>
           <h3>{property.title}</h3>

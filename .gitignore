@@ -9,18 +9,27 @@ target/
 *.log
 *.pid
 *.lock
-application-*.yml
-application-*.yaml
-application-*.properties
-logs/
 
 # Maven wrapper (keep these committed)
 !/.mvn/wrapper/maven-wrapper.jar
 !mvnw
 !mvnw.cmd
 
+# Backend generated & user-uploaded files
+backend/data/
+backend/.metadata/
+backend/.settings/
+backend/.classpath
+backend/.project
+.metadata/
+
+# Application config (keep secrets out)
+application-*.yml
+application-*.yaml
+application-*.properties
+
 # ================
-# Node.js / Frontend / Mobile
+# Node.js / Frontend (web-admin) & Mobile
 # ================
 node_modules/
 npm-debug.log*
@@ -108,31 +117,18 @@ Thumbs.db
 # ================
 *.iml
 *.orig
-# Open .gitignore or add these lines
-echo "# IDE files" >> .gitignore
-echo ".metadata/" >> .gitignore
-echo "backend/.metadata/" >> .gitignore
+*.zip
+*.tar.gz
+*.gz
+*.rar
 
-echo "# Backup files" >> .gitignore
-echo "*.zip" >> .gitignore
-echo "*.tar.gz" >> .gitignore
+# Logs & temporary files
+logs/
+*.log
 
-echo "# User uploaded files" >> .gitignore
-echo "backend/data/" >> .gitignore
-echo "*.jpg" >> .gitignore
-echo "*.jpeg" >> .gitignore
-echo "*.png" >> .gitignore
-echo "*.gif" >> .gitignore
+# Tree dumps (if any)
+tree_*.txt
 
-echo "# Build files" >> .gitignore
-echo "**/node_modules/" >> .gitignore
-echo "**/build/" >> .gitignore
-echo "**/dist/" >> .gitignore
-echo "**/.expo/" >> .gitignore
-
-echo "# Tree dump files" >> .gitignore
-echo "tree_*.txt" >> .gitignore
-
-echo "# Mobile specific" >> .gitignore
-echo "mobile-app/rental-release.keystore" >> .gitignore
-echo "mobile-app/package-lock.json" >> .gitignore
+# Mobile-specific (keystore, package-lock if you don't want it)
+mobile-app/rental-release.keystore
+mobile-app/package-lock.json   # optional – commit or ignore as per team policy

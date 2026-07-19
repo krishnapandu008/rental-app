@@ -15,11 +15,14 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (owner) {
       loadProperties();
+    } else {
+      setLoading(false);
     }
   }, [owner]);
 
   const loadProperties = async () => {
     try {
+      // This returns the owner's own properties (including private/unlisted)
       const res = await getMyProperties(owner!.id);
       setProperties(res.data);
     } catch (err) {

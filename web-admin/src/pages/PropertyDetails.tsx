@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Property } from '../types';
 import { formatCurrency } from '../utils/helpers';
-import { deleteProperty } from '../api/propertyApi';
+import { deleteProperty, togglePropertyActive } from '../api/propertyApi';
 import { api } from '../api/client';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './PropertyDetails.module.scss';
 
 // ===== ICON COMPONENTS =====
@@ -192,6 +193,7 @@ const PropertyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const { owner } = useAuth();
 
   const [property, setProperty] = useState<Property | null>(
     location.state?.property || null
@@ -201,6 +203,9 @@ const PropertyDetails: React.FC = () => {
   const [mainImage, setMainImage] = useState<string>('');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [togglingActive, setTogglingActive] = useState(false);
+
+  const isAdmin = owner?.role === 'ADMIN';
 
   // Fetch property if not passed via state
   useEffect(() => {
@@ -295,6 +300,21 @@ const PropertyDetails: React.FC = () => {
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
+  };
+
+  // Admin-only: toggle active status
+  const handleToggleActive = async () => {
+    if (!property || !isAdmin) return;
+    try {
+      setTogglingActive(true);
+      await togglePropertyActive(property.id, !property.isActive);
+      setProperty((prev) => prev ? { ...prev, isActive: !prev.isActive } : null);
+      alert(`Property ${!property.isActive ? 'activated' : 'deactivated'} successfully.`);
+    } catch (err) {
+      alert('Failed to change active status.');
+    } finally {
+      setTogglingActive(false);
+    }
   };
 
   if (loading) {
@@ -431,7 +451,29 @@ const PropertyDetails: React.FC = () => {
           {property.description && (
             <p><strong>📝 Description:</strong> {property.description}</p>
           )}
+          {/* NEW FIELDS */}
+          <p><strong>👁️ Visibility:</strong> {property.visibility}</p>
+          <p>
+            <strong>📌 Status:</strong> 
+            <span className={property.isActive ? styles.activeBadge : styles.inactiveBadge}>
+              {property.isActive ? 'Active' : 'Inactive (hidden)'}
+            </span>
+          </p>
         </div>
+
+        {/* Admin-only toggle for active status */}
+        {isAdmin && (
+          <div className={styles.adminActions}>
+            <button
+              onClick={handleToggleActive}
+              disabled={togglingActive}
+              className={styles.toggleActiveBtn}
+            >
+              {togglingActive ? 'Processing...' : property.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+            <span className={styles.adminHint}>Admin: toggle visibility for all users</span>
+          </div>
+        )}
       </div>
 
       {/* ===== LIGHTBOX ===== */}

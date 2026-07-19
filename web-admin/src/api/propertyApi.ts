@@ -4,26 +4,55 @@ import { Property } from '../types';
 export const getProperties = () => api.get<Property[]>('/properties');
 export const getMyProperties = (ownerId: number) => api.get<Property[]>(`/properties/owner/${ownerId}`);
 
+// Create – always use FormData (even if no images)
 export const addProperty = (
-  data: Omit<Property, 'id' | 'available' | 'imageUrls'>,
+  data: Omit<Property, 'id' | 'available' | 'imageUrls' | 'ownerId' | 'isActive'>,
   images?: File[]
 ) => {
   const formData = new FormData();
-  formData.append('property', new Blob([JSON.stringify(data)], { type: 'application/json' }));
-  images?.forEach((file) => formData.append('images', file));
-  return api.post<Property>('/properties', formData);
+
+  const payload = {
+    title: data.title,
+    description: data.description,
+    location: data.location,
+    rent: data.rent,
+    bedrooms: data.bedrooms,
+    contactNumber: data.contactNumber,
+    visibility: data.visibility || 'PUBLIC',
+  };
+  formData.append('dto', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+
+  if (images && images.length > 0) {
+    images.forEach((file) => formData.append('images', file));
+  }
+
+  // Return the POST with a custom header to force multipart
+  return api.post<Property>('/properties', formData, {
+    headers: {
+      // Explicitly set Content-Type to multipart/form-data
+      // Axios will automatically add the boundary
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
-export const updateProperty = (id: number, data: Partial<Property>) =>
-  api.put<Property>(`/properties/${id}`, data); // this one IS plain JSON on the backend
+export const updateProperty = (id: number, data: Partial<Pick<Property, 'title' | 'description' | 'location' | 'rent' | 'bedrooms' | 'contactNumber' | 'available' | 'visibility'>>) =>
+  api.put<Property>(`/properties/${id}`, data);
 
 export const uploadImages = (id: number, images: File[]) => {
   const formData = new FormData();
   images.forEach((file) => formData.append('images', file));
-  return api.post<string[]>(`/properties/${id}/images`, formData);
+  return api.post<string[]>(`/properties/${id}/images`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 export const deleteProperty = (id: number) => api.delete(`/properties/${id}`);
 
-// Admin-only
+// Admin-only endpoints
+export const togglePropertyActive = (id: number, active: boolean) =>
+  api.patch(`/properties/admin/${id}/active?active=${active}`);
+
 export const getAllPropertiesAdmin = () => api.get<Property[]>('/properties/admin/all');

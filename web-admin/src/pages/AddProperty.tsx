@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../api/client';
+import { addProperty } from '../api/propertyApi';
 import styles from './AddProperty.module.scss';
 
 const AddProperty: React.FC = () => {
@@ -14,14 +14,16 @@ const AddProperty: React.FC = () => {
     rent: 0,
     bedrooms: 1,
     contactNumber: '',
+    visibility: 'PUBLIC' as 'PUBLIC' | 'PRIVATE' | 'UNLISTED',
   });
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,21 +43,7 @@ const AddProperty: React.FC = () => {
     }
     try {
       setUploading(true);
-
-      const formData = new FormData();
-      const propertyPayload = {
-        ...form,
-        rent: Number(form.rent),
-        bedrooms: Number(form.bedrooms),
-        ownerId: owner.id,
-      };
-      const propertyBlob = new Blob([JSON.stringify(propertyPayload)], {
-        type: 'application/json',
-      });
-      formData.append('property', propertyBlob);
-      files.forEach(file => formData.append('images', file));
-
-      await api.post('/properties', formData);
+      await addProperty(form, files);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to add property');
@@ -129,6 +117,16 @@ const AddProperty: React.FC = () => {
             onChange={handleChange}
             required
           />
+        </div>
+
+        {/* NEW: Visibility Dropdown */}
+        <div className={styles.formGroup}>
+          <label>Visibility</label>
+          <select name="visibility" value={form.visibility} onChange={handleChange}>
+            <option value="PUBLIC">Public (anyone can view)</option>
+            <option value="PRIVATE">Private (only you and admins)</option>
+            <option value="UNLISTED">Unlisted (only admins)</option>
+          </select>
         </div>
 
         <div className={styles.formGroup}>

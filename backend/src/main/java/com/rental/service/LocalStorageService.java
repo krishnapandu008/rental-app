@@ -18,9 +18,8 @@ public class LocalStorageService {
     @Value("${app.storage.local.upload-dir}")
     private String uploadDir;
 
-    // ✅ Changed to use app.image.base-url with a fallback default
-    @Value("${app.image.base-url:http://localhost:8585}")
-    private String baseUrl;
+    @Value("${app.storage.local.base-url}")
+    private String baseUrl; // e.g., http://localhost:8585 (no trailing slash)
 
     public String saveFile(MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
@@ -38,15 +37,21 @@ public class LocalStorageService {
         Files.write(filePath, file.getBytes());
         log.info("File saved: {}", filePath);
 
-        return baseUrl + "/images/" + filename; // ✅ Ensure path includes /images/
+        // ✅ Build URL correctly: baseUrl + "/images/" + filename
+        return baseUrl + "/images/" + filename;
     }
 
     public void deleteFile(String fileUrl) {
         try {
+            // Extract filename from URL (last part after last '/')
             String filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
             Path filePath = Paths.get(uploadDir, filename);
-            Files.deleteIfExists(filePath);
-            log.info("File deleted: {}", filePath);
+            boolean deleted = Files.deleteIfExists(filePath);
+            if (deleted) {
+                log.info("File deleted: {}", filePath);
+            } else {
+                log.warn("File not found: {}", filePath);
+            }
         } catch (IOException e) {
             log.error("Failed to delete file: {}", fileUrl, e);
         }

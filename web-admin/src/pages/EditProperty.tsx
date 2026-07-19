@@ -44,6 +44,7 @@ const EditProperty: React.FC = () => {
     bedrooms: 1,
     contactNumber: '',
     available: true,
+    visibility: 'PUBLIC' as 'PUBLIC' | 'PRIVATE' | 'UNLISTED',
   });
 
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -65,6 +66,7 @@ const EditProperty: React.FC = () => {
           bedrooms: data.bedrooms || 1,
           contactNumber: data.contactNumber || '',
           available: data.available ?? true,
+          visibility: data.visibility || 'PUBLIC',
         });
         setExistingImages(data.imageUrls || []);
         setLoading(false);
@@ -76,11 +78,12 @@ const EditProperty: React.FC = () => {
       });
   }, [id, owner]);
 
-  // Form field changes
+  // Form field changes (supports input, textarea, and select)
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
     setForm((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -273,6 +276,16 @@ const EditProperty: React.FC = () => {
             />
             Available
           </label>
+        </div>
+
+        {/* ===== NEW: Visibility Dropdown ===== */}
+        <div className={styles.formGroup}>
+          <label>Visibility</label>
+          <select name="visibility" value={form.visibility} onChange={handleChange}>
+            <option value="PUBLIC">Public (anyone can view)</option>
+            <option value="PRIVATE">Private (only you and admins)</option>
+            <option value="UNLISTED">Unlisted (only admins)</option>
+          </select>
         </div>
 
         {/* ===== IMAGE SECTION ===== */}

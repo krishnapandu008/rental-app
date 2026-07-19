@@ -2,6 +2,9 @@ package com.rental.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rental.enums.Visibility;
+
 import lombok.Data;
 
 @Data
@@ -16,4 +19,7 @@ public class PropertyResponseDto {
     private Boolean available;
     private List<String> imageUrls;
     private Long ownerId;
+    private Visibility visibility;
+    @JsonProperty("isActive")   // ✅ Force JSON key to "isActive"
+    private boolean isActive;
 }

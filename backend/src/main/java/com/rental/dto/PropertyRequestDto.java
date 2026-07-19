@@ -1,8 +1,12 @@
 package com.rental.dto;
 
-import jakarta.validation.constraints.*;
+import com.rental.enums.Visibility;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
-import java.util.List; // if you have it, but not needed for this fix
 
 @Data
 public class PropertyRequestDto {
@@ -12,6 +16,6 @@ public class PropertyRequestDto {
     @NotNull @Positive private Double rent;
     @Min(1) private Integer bedrooms;
     @NotBlank private String contactNumber;
-    private Long ownerId;
-    private Boolean available;   // <-- Add this line
+    private Boolean available;
+    private Visibility visibility;        // optional, default PUBLIC in service
 }

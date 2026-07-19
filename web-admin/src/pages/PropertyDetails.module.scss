@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../styles/variables' as *;
 @use '../styles/mixins' as *;
 
@@ -164,10 +165,69 @@
   p {
     margin: 0;
   }
+
+  // ===== STATUS BADGES inside details =====
+  .activeBadge {
+    display: inline-block;
+    background: $green;
+    color: #fff;
+    padding: 2px 12px;
+    border-radius: 12px;
+    margin-left: 8px;
+    font-size: $font-sm;
+    font-weight: 600;
+  }
+
+  .inactiveBadge {
+    display: inline-block;
+    background: $red;
+    color: #fff;
+    padding: 2px 12px;
+    border-radius: 12px;
+    margin-left: 8px;
+    font-size: $font-sm;
+    font-weight: 600;
+  }
 }
 
 // ============================================
-// CUSTOM LIGHTBOX STYLES
+// ADMIN ACTIONS (toggle active)
+// ============================================
+.adminActions {
+  margin-top: $spacing-xl;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  flex-wrap: wrap;
+}
+
+.toggleActiveBtn {
+  @include primary-button;
+  background: $blue;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($blue, $lightness: -10%);
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.adminHint {
+  font-size: $font-sm;
+  color: $text-muted;
+  font-style: italic;
+}
+
+// ============================================
+// CUSTOM LIGHTBOX STYLES (unchanged)
 // ============================================
 
 // Overlay (full-screen dark background)

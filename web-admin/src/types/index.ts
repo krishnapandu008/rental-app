@@ -7,8 +7,10 @@ export interface Property {
   bedrooms: number;
   contactNumber: string;
   available: boolean;
-  ownerId: number;        // ← backend added this
-  imageUrls: string[];    // ← backend returns this, currently invisible to you
+  ownerId: number;
+  imageUrls: string[];
+  visibility: 'PUBLIC' | 'PRIVATE' | 'UNLISTED'; // NEW
+  isActive: boolean; // NEW
 }
 
 export interface Owner {
@@ -17,6 +19,6 @@ export interface Owner {
   name: string;
   phone: string;
   token: string;
-  refreshToken: string;   // ← new, required for refresh flow
-  role: string;           // ← new, "OWNER" | "ADMIN" — you'll need this for admin UI
+  refreshToken: string;
+  role: string; // "OWNER" | "ADMIN"
 }

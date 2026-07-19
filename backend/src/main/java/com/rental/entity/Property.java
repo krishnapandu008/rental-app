@@ -4,10 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.rental.enums.Visibility;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,4 +45,9 @@ public class Property {
 	private List<String> imageUrls = new ArrayList<>();
 	private Long ownerId;
 	private LocalDateTime createdAt;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Visibility visibility = Visibility.PUBLIC;
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean isActive = true;
 }
