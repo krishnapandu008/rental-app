@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getMyProperties } from '../api/propertyApi';
+import { getProperties } from '../api/propertyApi';  // ✅ changed import
 import { Property } from '../types';
 import PropertyCard from '../components/PropertyCard/PropertyCard';
 import styles from './Dashboard.module.scss';
@@ -22,8 +22,8 @@ const Dashboard: React.FC = () => {
 
   const loadProperties = async () => {
     try {
-      // This returns the owner's own properties (including private/unlisted)
-      const res = await getMyProperties(owner!.id);
+      // ✅ Fetch ALL visible properties (PUBLIC + owner's own PRIVATE/UNLISTED)
+      const res = await getProperties();
       setProperties(res.data);
     } catch (err) {
       console.error(err);
@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>My Properties</h2>
+        <h2 className={styles.title}>Properties</h2>  {/* ✅ updated title */}
         <button className={styles.addButton} onClick={() => navigate('/add')}>
           + Add Property
         </button>
@@ -50,7 +50,7 @@ const Dashboard: React.FC = () => {
 
       {properties.length === 0 ? (
         <div className={styles.emptyState}>
-          <p>No properties added yet.</p>
+          <p>No properties available.</p>  {/* ✅ updated empty message */}
           <a href="/add">Add your first property →</a>
         </div>
       ) : (
