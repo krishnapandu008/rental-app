@@ -22,7 +22,14 @@ const Navbar: React.FC = () => {
           <>
             <Link to="/">Dashboard</Link>
             <Link to="/add">Add Property</Link>
-            <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
+            {owner.role === 'ADMIN' && (
+              <Link to="/admin" className={styles.adminLink}>
+                Admin Panel
+              </Link>
+            )}
+            <button onClick={handleLogout} className={styles.logoutBtn}>
+              Logout
+            </button>
           </>
         ) : (
           <>

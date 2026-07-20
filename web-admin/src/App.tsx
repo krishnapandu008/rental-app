@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import AddProperty from './pages/AddProperty';
 import EditProperty from './pages/EditProperty';
 import PropertyDetails from './pages/PropertyDetails';
+import AdminPanel from './pages/AdminPanel';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { owner, loading } = useAuth();
@@ -56,8 +57,8 @@ function App() {
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/add" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute><EditProperty /></ProtectedRoute>} />
-          {/* NEW: View Property Details Route */}
           <Route path="/property/:id" element={<ProtectedRoute><PropertyDetails /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
