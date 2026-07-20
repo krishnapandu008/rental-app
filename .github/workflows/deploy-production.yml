@@ -85,17 +85,19 @@ jobs:
       # =======================================================
 
       - name: Set deployment paths and service name
-        id: env
-        run: |
-          if [[ "${{ github.ref_name }}" == "dev" ]]; then
-            echo "APP_PATH=/opt/rental-app-staging" >> $GITHUB_OUTPUT
-            echo "WEB_PATH=/var/www/rental-admin-staging" >> $GITHUB_OUTPUT
-            echo "SERVICE_NAME=rental-app-staging" >> $GITHUB_OUTPUT
-          else
-            echo "APP_PATH=/opt/rental-app" >> $GITHUB_OUTPUT
-            echo "WEB_PATH=/var/www/rental-admin" >> $GITHUB_OUTPUT
-            echo "SERVICE_NAME=rental-app" >> $GITHUB_OUTPUT
-          fi
+  id: env
+  run: |
+    if [[ "${{ github.ref_name }}" == "dev" ]]; then
+      echo "APP_PATH=/opt/rental-app-staging" >> $GITHUB_OUTPUT
+      echo "WEB_PATH=/var/www/rental-admin-staging" >> $GITHUB_OUTPUT
+      echo "SERVICE_NAME=rental-app-staging" >> $GITHUB_OUTPUT
+      echo "BACKEND_PORT=8586" >> $GITHUB_OUTPUT
+    else
+      echo "APP_PATH=/opt/rental-app" >> $GITHUB_OUTPUT
+      echo "WEB_PATH=/var/www/rental-admin" >> $GITHUB_OUTPUT
+      echo "SERVICE_NAME=rental-app" >> $GITHUB_OUTPUT
+      echo "BACKEND_PORT=8585" >> $GITHUB_OUTPUT
+    fi
 
       # ---------------------------------------------------
       # 7a. SSH setup
