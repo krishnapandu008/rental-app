@@ -34,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin")
+// ✅ @CrossOrigin REMOVED – global CorsFilter handles it
 @RequiredArgsConstructor
 public class AdminController {
 
