@@ -19,22 +19,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // Allow CORS across your entire API tree and static images path
         registry.addMapping("/**")
                 .allowedOriginPatterns("*")
                 .allowCredentials(true)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                // ✅ Added PATCH to allowed methods
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*");
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. Expose your upload directory over the network interface 
         String formattedLocation = uploadDir.endsWith("/") ? "file:" + uploadDir : "file:" + uploadDir + "/";
         registry.addResourceHandler("/images/**")
                 .addResourceLocations(formattedLocation);
 
-        // 2. Your existing React/Angular single page web app fallback routes
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .resourceChain(true)
@@ -45,7 +43,6 @@ public class WebConfig implements WebMvcConfigurer {
                         if (requested.exists() && requested.isReadable()) {
                             return requested;
                         }
-                        // Skip API, image folder, and actual file requests
                         if (resourcePath.startsWith("api/") || resourcePath.startsWith("images/") || resourcePath.contains(".")) {
                             return null;
                         }
