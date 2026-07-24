@@ -38,6 +38,7 @@ public class OwnerController {
                 .phone(owner.getPhone())
                 .token(token)
                 .refreshToken(refreshToken.getToken())
+                .role(owner.getRole())   // ✅ Add role to registration response
                 .build();
     }
 
@@ -53,6 +54,7 @@ public class OwnerController {
                 .phone(owner.getPhone())
                 .token(token)
                 .refreshToken(refreshToken.getToken())
+                .role(owner.getRole())   // ✅ Add role to login response
                 .build();
     }
 
