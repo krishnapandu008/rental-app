@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "*")   // ✅ Allows all methods including PATCH
+// ✅ @CrossOrigin REMOVED – global CorsFilter handles it
 @RequiredArgsConstructor
 public class AdminController {
 
