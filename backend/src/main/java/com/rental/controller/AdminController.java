@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
+@CrossOrigin(origins = "*", allowedMethods = {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"})
 @RequiredArgsConstructor
 public class AdminController {
 
