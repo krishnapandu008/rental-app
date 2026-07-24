@@ -34,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "*", allowedMethods = {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"})
 @RequiredArgsConstructor
 public class AdminController {
 
