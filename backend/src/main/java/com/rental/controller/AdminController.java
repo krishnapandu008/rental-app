@@ -46,7 +46,15 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<OwnerSummaryDto> getAllUsers() {
         return ownerRepository.findAll().stream()
-                .map(o -> new OwnerSummaryDto(o.getId(), o.getEmail(), o.getName(), o.getPhone(), o.getRole()))
+                .map(o -> OwnerSummaryDto.builder()
+                        .id(o.getId())
+                        .email(o.getEmail())
+                        .name(o.getName())
+                        .phone(o.getPhone())
+                        .role(o.getRole())
+                        .isActive(o.isActive())
+                        .createdAt(o.getCreatedAt())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -82,9 +90,15 @@ public class AdminController {
                 "Created user: " + created.getEmail(),
                 request
         );
-        return ResponseEntity.ok(new OwnerSummaryDto(
-                created.getId(), created.getEmail(), created.getName(), created.getPhone(), created.getRole()
-        ));
+        return ResponseEntity.ok(OwnerSummaryDto.builder()
+                .id(created.getId())
+                .email(created.getEmail())
+                .name(created.getName())
+                .phone(created.getPhone())
+                .role(created.getRole())
+                .isActive(created.isActive())
+                .createdAt(created.getCreatedAt())
+                .build());
     }
 
     // ---------- Update user (SUPER_ADMIN only) ----------
@@ -101,9 +115,15 @@ public class AdminController {
                 "Updated user: " + updated.getEmail(),
                 request
         );
-        return ResponseEntity.ok(new OwnerSummaryDto(
-                updated.getId(), updated.getEmail(), updated.getName(), updated.getPhone(), updated.getRole()
-        ));
+        return ResponseEntity.ok(OwnerSummaryDto.builder()
+                .id(updated.getId())
+                .email(updated.getEmail())
+                .name(updated.getName())
+                .phone(updated.getPhone())
+                .role(updated.getRole())
+                .isActive(updated.isActive())
+                .createdAt(updated.getCreatedAt())
+                .build());
     }
 
     // ---------- Update role (SUPER_ADMIN only) ----------
@@ -122,9 +142,15 @@ public class AdminController {
                 "Changed role of " + owner.getEmail() + " from " + oldRole + " to " + dto.getRole(),
                 request
         );
-        return ResponseEntity.ok(new OwnerSummaryDto(
-                owner.getId(), owner.getEmail(), owner.getName(), owner.getPhone(), owner.getRole()
-        ));
+        return ResponseEntity.ok(OwnerSummaryDto.builder()
+                .id(owner.getId())
+                .email(owner.getEmail())
+                .name(owner.getName())
+                .phone(owner.getPhone())
+                .role(owner.getRole())
+                .isActive(owner.isActive())
+                .createdAt(owner.getCreatedAt())
+                .build());
     }
 
     // ---------- Toggle active (soft delete) – Admins and SUPER_ADMIN ----------
@@ -141,9 +167,15 @@ public class AdminController {
                 owner.isActive() ? "Restored user: " + owner.getEmail() : "Deactivated user: " + owner.getEmail(),
                 request
         );
-        return ResponseEntity.ok(new OwnerSummaryDto(
-                owner.getId(), owner.getEmail(), owner.getName(), owner.getPhone(), owner.getRole()
-        ));
+        return ResponseEntity.ok(OwnerSummaryDto.builder()
+                .id(owner.getId())
+                .email(owner.getEmail())
+                .name(owner.getName())
+                .phone(owner.getPhone())
+                .role(owner.getRole())
+                .isActive(owner.isActive())
+                .createdAt(owner.getCreatedAt())
+                .build());
     }
 
     // ---------- Delete user (hard delete – SUPER_ADMIN only) ----------
