@@ -70,13 +70,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long ownerId = jwtUtil.getOwnerIdFromToken(token);
                 String email = jwtUtil.getEmailFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
+                logger.info("Extracted role from token: {}", role);
+
+                // Normalize role (default to "OWNER" if missing)
                 if (role == null || role.isBlank()) {
                     role = "OWNER";
                 }
 
+                // ✅ Create authorities ONLY ONCE after normalization
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                logger.info("Authorities: {}", authorities);
+
                 // Create principal object
                 OwnerPrincipal principal = new OwnerPrincipal(ownerId, email, role);
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
                 // Set authentication in Spring Security context
                 Authentication auth = new UsernamePasswordAuthenticationToken(principal, null, authorities);

@@ -9,8 +9,8 @@ export interface Property {
   available: boolean;
   ownerId: number;
   imageUrls: string[];
-  visibility: 'PUBLIC' | 'PRIVATE' | 'UNLISTED'; // NEW
-  isActive: boolean; // NEW
+  visibility: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
+  isActive: boolean;
 }
 
 export interface Owner {
@@ -20,5 +20,20 @@ export interface Owner {
   phone: string;
   token: string;
   refreshToken: string;
-  role: string; // "OWNER" | "ADMIN"
+  role: string; // "USER" | "ADMIN" | "SUPER_ADMIN"
+  isActive?: boolean;
+  isLocked?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  lastLoginAt?: string;
+}
+
+export interface AuditLog {
+  id: number;
+  adminId: number;
+  adminEmail: string;
+  action: string;
+  details: string;
+  ipAddress: string;
+  timestamp: string;
 }

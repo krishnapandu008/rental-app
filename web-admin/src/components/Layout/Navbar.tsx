@@ -12,6 +12,8 @@ const Navbar: React.FC = () => {
     navigate('/login');
   };
 
+  const isAdmin = owner?.role === 'ADMIN' || owner?.role === 'SUPER_ADMIN';
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -22,7 +24,7 @@ const Navbar: React.FC = () => {
           <>
             <Link to="/">Dashboard</Link>
             <Link to="/add">Add Property</Link>
-            {owner.role === 'ADMIN' && (
+            {isAdmin && (
               <Link to="/admin" className={styles.adminLink}>
                 Admin Panel
               </Link>

@@ -2,6 +2,10 @@ package com.rental.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "owners")
@@ -22,6 +26,21 @@ public class Owner {
 
     private String name;
     private String phone;
+
     @Column(nullable = false, columnDefinition = "varchar(255) default 'USER'")
-private String role;
+    private String role;   // USER, ADMIN, SUPER_ADMIN
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean isActive = true;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean isLocked = false;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    private LocalDateTime lastLoginAt;
 }
