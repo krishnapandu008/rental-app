@@ -136,9 +136,11 @@ const AdminPanel: React.FC = () => {
             + Create User
           </button>
         )}
-        <button className={styles.auditBtn} onClick={() => setShowAudit(!showAudit)}>
-          {showAudit ? 'Hide Audit Logs' : 'Show Audit Logs'}
-        </button>
+        {isSuperAdmin && (
+  <button className={styles.auditBtn} onClick={() => setShowAudit(!showAudit)}>
+    {showAudit ? 'Hide Audit Logs' : 'Show Audit Logs'}
+  </button>
+)}
       </div>
 
       {/* Users Table */}
