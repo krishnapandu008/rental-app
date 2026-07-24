@@ -22,11 +22,13 @@ on:
 # =======================================================
 env:
   JAR_NAME: backend-0.0.1-SNAPSHOT.jar   # name of the built JAR file
-  # BACKEND_PORT is set dynamically per branch, so we don't define it here.
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest   # GitHub-hosted Linux runner
+    runs-on: ubuntu-latest
+    # ✅ GitHub Environments – enables branch‑specific approvals and variable overrides
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
 
     steps:
       # ---------------------------------------------------
@@ -34,7 +36,6 @@ jobs:
       # ---------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
-        # This pulls the latest code from the branch that triggered the workflow.
 
       # ---------------------------------------------------
       # 2. Set up Java 17 (required for Spring Boot 3)
@@ -43,8 +44,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'   # Adoptium/OpenJDK distribution
-        # Ensures the correct JDK version is available for Maven.
+          distribution: 'temurin'
 
       # ---------------------------------------------------
       # 3. Cache Maven dependencies to speed up builds
@@ -55,8 +55,6 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-        # If pom.xml hasn't changed, we reuse the cached ~/.m2 folder,
-        # avoiding re‑downloading all dependencies.
 
       # ---------------------------------------------------
       # 4. Build the backend (Spring Boot) – creates a JAR file
@@ -65,8 +63,6 @@ jobs:
         run: |
           cd backend
           mvn clean package -DskipTests
-        # 'clean' removes old artifacts, 'package' builds the JAR.
-        # -DskipTests skips unit tests to save time in CI.
 
       # ---------------------------------------------------
       # 5. Set up Node.js 18 (required for Vite + React)
@@ -77,7 +73,6 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: web-admin/package-lock.json
-        # Caches npm dependencies based on package-lock.json, speeding up install.
 
       # ---------------------------------------------------
       # 6. Build the frontend (React + Vite) – creates dist/ folder
@@ -87,7 +82,6 @@ jobs:
           cd web-admin
           npm install
           npm run build
-        # Installs dependencies and runs the Vite build, outputting static files.
 
       # =======================================================
       # 7. Deployment – environment selection based on branch
@@ -97,7 +91,7 @@ jobs:
       # 7a. Set environment‑specific variables (paths, service name, port)
       # ---------------------------------------------------
       - name: Set deployment paths and service name
-        id: env   # This id allows later steps to reference outputs (e.g., steps.env.outputs.APP_PATH)
+        id: env
         run: |
           if [[ "${{ github.ref_name }}" == "dev" ]]; then
             # Staging environment (dev branch)
@@ -112,8 +106,6 @@ jobs:
             echo "SERVICE_NAME=rental-app" >> $GITHUB_OUTPUT
             echo "BACKEND_PORT=8585" >> $GITHUB_OUTPUT
           fi
-        # Using a conditional to set different paths and ports for staging vs production.
-        # This keeps the rest of the workflow branch‑agnostic.
 
       # ---------------------------------------------------
       # 7b. SSH Authentication – inject the private key
@@ -122,8 +114,6 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        # The private key is stored as a GitHub secret, never exposed in logs.
-        # The ssh‑agent makes it available for subsequent SSH/SCP commands.
 
       # ---------------------------------------------------
       # 7c. Add the server to known_hosts to avoid host key verification prompt
@@ -132,8 +122,6 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-        # ssh-keyscan retrieves the server's public key and adds it to known_hosts,
-        # so SSH won't block the connection waiting for user confirmation.
 
       # ---------------------------------------------------
       # 7d. Backup the current JAR (optional rollback)
@@ -142,9 +130,6 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cp ${{ steps.env.outputs.APP_PATH }}/${{ env.JAR_NAME }} ${{ steps.env.outputs.APP_PATH }}/${{ env.JAR_NAME }}.backup || true"
-        # Copies the existing JAR to a .backup file (if it exists).
-        # The '|| true' prevents the step from failing if the file doesn't exist yet.
-        # This enables a quick manual rollback if needed.
 
       # ---------------------------------------------------
       # 7e. Copy the new JAR to the server
@@ -152,7 +137,6 @@ jobs:
       - name: Copy Backend JAR
         run: |
           scp backend/target/${{ env.JAR_NAME }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ steps.env.outputs.APP_PATH }}/
-        # Uses SCP to transfer the newly built JAR to the correct environment folder.
 
       # ---------------------------------------------------
       # 7f. Restart the systemd service for the specific environment
@@ -160,7 +144,6 @@ jobs:
       - name: Restart Backend Service
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "systemctl restart ${{ steps.env.outputs.SERVICE_NAME }}"
-        # systemd restarts the service (staging or production), loading the new JAR.
 
       # ---------------------------------------------------
       # 7g. Health check – wait for the backend to become responsive
@@ -172,9 +155,6 @@ jobs:
                curl -s -o /dev/null -w '%{http_code}' http://localhost:${{ steps.env.outputs.BACKEND_PORT }}/api/properties | grep 200 && echo 'Backend is ready' && break || \
                echo 'Waiting for backend...' && sleep 2; \
              done"
-        # This loop attempts to GET the /api/properties endpoint up to 30 times (60 seconds).
-        # It waits for a 200 OK response before proceeding.
-        # This prevents Nginx from proxying to a dead service (which would cause 502 errors).
 
       # ---------------------------------------------------
       # 7h. Sync the frontend static files using rsync
@@ -183,12 +163,6 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ steps.env.outputs.WEB_PATH }}"
           rsync -avz --delete web-admin/dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ steps.env.outputs.WEB_PATH }}/
-        # rsync is more efficient than scp -r:
-        #   - -a : archive mode (preserves permissions, timestamps)
-        #   - -v : verbose (shows what's happening)
-        #   - -z : compress during transfer
-        #   - --delete : removes files on the server that no longer exist in dist/
-        # This keeps the web folder clean and avoids stale assets.
 
       # ---------------------------------------------------
       # 7i. Reload Nginx gracefully (if config changes)
@@ -196,5 +170,3 @@ jobs:
       - name: Reload Nginx
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "nginx -t && systemctl reload nginx"
-        # First, test the Nginx configuration syntax (nginx -t).
-        # If valid, reload Nginx without dropping existing connections (graceful).
