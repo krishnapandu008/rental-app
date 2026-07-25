@@ -52,12 +52,16 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/property/:id" element={<PropertyDetails />} />
+
+          {/* Protected routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> {/* Optional alias */}
           <Route path="/add" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute><EditProperty /></ProtectedRoute>} />
-          <Route path="/property/:id" element={<ProtectedRoute><PropertyDetails /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>

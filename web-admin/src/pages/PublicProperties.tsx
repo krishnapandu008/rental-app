@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { getProperties } from '../api/propertyApi';
 import { Property } from '../types';
 import PropertyCard from '../components/PropertyCard/PropertyCard';
-import styles from './Dashboard.module.scss';
+import styles from './PublicProperties.module.scss';
 
-const Dashboard: React.FC = () => {
-  const { owner } = useAuth();
+const PublicProperties: React.FC = () => {
   const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +16,7 @@ const Dashboard: React.FC = () => {
 
   const loadProperties = async () => {
     try {
-      const res = await getProperties(); // Returns PUBLIC + owner's private (if logged in)
+      const res = await getProperties(); // Only returns PUBLIC & isActive=true properties
       setProperties(res.data);
     } catch (err) {
       console.error(err);
@@ -35,28 +33,15 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Available Rentals</h2>
-        {owner && (
-          <button className={styles.addButton} onClick={() => navigate('/add')}>
-            + Add Property
-          </button>
-        )}
-      </div>
-
+      <h2 className={styles.title}>Available Rentals</h2>
       {properties.length === 0 ? (
         <div className={styles.emptyState}>
-          <p>No properties available.</p>
-          {owner && <a href="/add">Add your first property →</a>}
+          <p>No properties available right now.</p>
         </div>
       ) : (
         <div className={styles.propertyGrid}>
           {properties.map((prop) => (
-            <PropertyCard
-              key={prop.id}
-              property={prop}
-              onOpen={handleOpen}
-            />
+            <PropertyCard key={prop.id} property={prop} onOpen={handleOpen} />
           ))}
         </div>
       )}
@@ -64,4 +49,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default PublicProperties;
