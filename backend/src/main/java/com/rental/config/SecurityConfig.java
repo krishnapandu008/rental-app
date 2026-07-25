@@ -15,8 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;  // ✅ ADD THIS IMPORT
-
+import org.springframework.web.filter.CorsFilter;
 import com.rental.filter.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
