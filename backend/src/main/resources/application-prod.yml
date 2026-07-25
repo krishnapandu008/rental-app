@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rental_db
+    username: postgres
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  storage:
+    local:
+      upload-dir: /var/www/rental-images/properties
+      base-url: https://ksdcnit.com   # ✅ No trailing slash, no /images/
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.web.servlet.config.annotation.CorsRegistry: TRACE

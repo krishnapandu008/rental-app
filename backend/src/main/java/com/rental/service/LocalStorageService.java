@@ -19,7 +19,7 @@ public class LocalStorageService {
     private String uploadDir;
 
     @Value("${app.storage.local.base-url}")
-    private String baseUrl; // e.g., http://localhost:8585 (no trailing slash)
+    private String baseUrl; // Should be like https://ksdcnit.com (no trailing slash)
 
     public String saveFile(MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
@@ -37,13 +37,18 @@ public class LocalStorageService {
         Files.write(filePath, file.getBytes());
         log.info("File saved: {}", filePath);
 
-        // ✅ Build URL correctly: baseUrl + "/images/" + filename
-        return baseUrl + "/images/" + filename;
+        // ✅ Robust URL construction: ensure no double slashes
+        String base = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+        // If base already ends with /images, don't add it again
+        if (base.endsWith("/images")) {
+            return base + "/" + filename;
+        } else {
+            return base + "/images/" + filename;
+        }
     }
 
     public void deleteFile(String fileUrl) {
         try {
-            // Extract filename from URL (last part after last '/')
             String filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
             Path filePath = Paths.get(uploadDir, filename);
             boolean deleted = Files.deleteIfExists(filePath);
