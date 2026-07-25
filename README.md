@@ -289,3 +289,29 @@ git pull origin main
 ## 📝 License
 
 This project is proprietary. All rights reserved.
+
+
+manual process to Deployment# Build the JAR locally
+cd backend
+mvn clean package -DskipTests
+
+# Upload to staging
+scp -i C:\Users\Krishnappa.Guvappa\.ssh\id_ed25519_new target/backend-0.0.1-SNAPSHOT.jar root@91.99.92.169:/opt/rental-app-staging/
+
+# Restart the staging service
+ssh -i C:\Users\Krishnappa.Guvappa\.ssh\id_ed25519_new root@91.99.92.169 "systemctl restart rental-app-staging"
+
+✅ Fix – Rebuild and Redeploy the Frontend to Staging
+On your local machine, rebuild the frontend:
+
+bash
+cd web-admin
+npm run build
+Upload the new build to the staging folder:
+
+bash
+scp -i C:\Users\Krishnappa.Guvappa\.ssh\id_ed25519_new -r dist/* root@91.99.92.169:/var/www/rental-admin-staging/
+Verify the upload (check the timestamp of index.html):
+
+bash
+ssh -i C:\Users\Krishnappa.Guvappa\.ssh\id_ed25519_new root@91.99.92.169 "ls -la /var/www/rental-admin-staging/index.html"

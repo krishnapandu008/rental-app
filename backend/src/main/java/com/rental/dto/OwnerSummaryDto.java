@@ -1,5 +1,6 @@
 package com.rental.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class OwnerSummaryDto {
     private String name;
     private String phone;
     private String role;
-    private boolean isActive;          // ✅ added
-    private LocalDateTime createdAt;   // ✅ added
+    @JsonProperty("isActive") // ✅ force JSON key to "isActive"
+    private boolean isActive;
+    private LocalDateTime createdAt;
 }
