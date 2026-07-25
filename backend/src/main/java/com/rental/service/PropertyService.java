@@ -32,9 +32,9 @@ public class PropertyService {
     private final LocalStorageService storageService;
     private final PropertyAccessService accessService;
 
-    // ---------- Public / Visible Listings ----------
-    public List<PropertyResponseDto> getVisibleProperties(Long ownerId, String role) {
-        return propertyRepository.findVisibleForUser(ownerId, role)
+    // ---------- Public / Visible Listings (with optional location filter) ----------
+    public List<PropertyResponseDto> getVisibleProperties(Long ownerId, String role, String location) {
+        return propertyRepository.findVisibleForUser(ownerId, role, location)
                 .stream().map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -134,7 +134,7 @@ public class PropertyService {
     // ---------- Delete Individual Image ----------
     @Transactional
     public void deleteImage(String imageUrl, Long ownerId, String role) {
-        log.info("Attempting to delete image: {}", imageUrl); // ✅ Log URL
+        log.info("Attempting to delete image: {}", imageUrl);
 
         Property property = propertyRepository.findByImageUrl(imageUrl)
                 .orElseThrow(() -> {
@@ -156,7 +156,6 @@ public class PropertyService {
             log.info("Property saved after removal");
         }
 
-        // Delete physical file (ignore errors)
         storageService.deleteFile(imageUrl);
     }
 

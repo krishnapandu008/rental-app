@@ -1,7 +1,7 @@
 package com.rental.controller;
 
 import java.util.List;
-import java.util.Map;  // ✅ NEW IMPORT
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,12 +35,14 @@ public class PropertyController {
 
     private final PropertyService propertyService;
 
-    // ---------- Public Listing ----------
+    // ---------- Public Listing (with optional location filter) ----------
     @GetMapping
-    public List<PropertyResponseDto> getAllProperties(@AuthenticationPrincipal OwnerPrincipal principal) {
+    public List<PropertyResponseDto> getAllProperties(
+            @AuthenticationPrincipal OwnerPrincipal principal,
+            @RequestParam(required = false) String location) {  // ✅ Added location param
         Long ownerId = principal != null ? principal.getId() : null;
         String role = principal != null ? principal.getRole() : null;
-        return propertyService.getVisibleProperties(ownerId, role);
+        return propertyService.getVisibleProperties(ownerId, role, location);
     }
 
     // ---------- Single Property ----------

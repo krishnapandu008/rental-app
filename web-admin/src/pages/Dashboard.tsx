@@ -11,20 +11,32 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchLocation, setSearchLocation] = useState('');
 
   useEffect(() => {
     loadProperties();
   }, []);
 
-  const loadProperties = async () => {
+  const loadProperties = async (location?: string) => {
     try {
-      const res = await getProperties(); // Returns PUBLIC + owner's private (if logged in)
+      setLoading(true);
+      const res = await getProperties(location ? { location } : undefined);
       setProperties(res.data);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    loadProperties(searchLocation.trim() || undefined);
+  };
+
+  const handleReset = () => {
+    setSearchLocation('');
+    loadProperties();
   };
 
   const handleOpen = (property: Property) => {
@@ -44,9 +56,26 @@ const Dashboard: React.FC = () => {
         )}
       </div>
 
+      {/* Search Bar */}
+      <form className={styles.searchForm} onSubmit={handleSearch}>
+        <input
+          type="text"
+          placeholder="Search by location..."
+          value={searchLocation}
+          onChange={(e) => setSearchLocation(e.target.value)}
+          className={styles.searchInput}
+        />
+        <button type="submit" className={styles.searchBtn}>Search</button>
+        {searchLocation && (
+          <button type="button" className={styles.resetBtn} onClick={handleReset}>
+            Reset
+          </button>
+        )}
+      </form>
+
       {properties.length === 0 ? (
         <div className={styles.emptyState}>
-          <p>No properties available.</p>
+          <p>No properties found matching your criteria.</p>
           {owner && <a href="/add">Add your first property →</a>}
         </div>
       ) : (

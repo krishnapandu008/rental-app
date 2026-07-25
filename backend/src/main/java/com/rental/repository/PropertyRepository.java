@@ -17,11 +17,15 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     List<Property> findByLocationContainingIgnoreCase(String location);
 
+    // ✅ Updated query to include optional location filter
     @Query("SELECT p FROM Property p WHERE p.isActive = true AND " +
-           "(p.visibility = 'PUBLIC' OR :ownerId IS NOT NULL AND p.ownerId = :ownerId OR :role = 'ADMIN')")
-    List<Property> findVisibleForUser(@Param("ownerId") Long ownerId, @Param("role") String role);
+           "(p.visibility = 'PUBLIC' OR :ownerId IS NOT NULL AND p.ownerId = :ownerId OR :role = 'ADMIN') AND " +
+           "(:location IS NULL OR LOWER(p.location) LIKE LOWER(CONCAT('%', :location, '%')))")
+    List<Property> findVisibleForUser(@Param("ownerId") Long ownerId,
+                                      @Param("role") String role,
+                                      @Param("location") String location);
 
-    // ✅ FIXED: Use JOIN instead of MEMBER OF for better compatibility
+    // Query to find property by image URL
     @Query("SELECT p FROM Property p JOIN p.imageUrls url WHERE url = :imageUrl")
     Optional<Property> findByImageUrl(@Param("imageUrl") String imageUrl);
 }

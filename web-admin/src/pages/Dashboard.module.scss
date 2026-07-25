@@ -1,59 +1,42 @@
-@use '../styles/variables' as *;
-@use '../styles/mixins' as *;
-
-.container {
-  @include container-wide;
-}
-
-.header {
+/* ===== SEARCH FORM ===== */
+.searchForm {
   display: flex;
-  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
   align-items: center;
-  margin-bottom: $spacing-2xl;
 }
 
-.title {
-  font-size: $font-2xl;
-  font-weight: 700;
-  color: $text-dark;
-  margin: 0;
+.searchInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
-.addButton {
-  @include primary-button;
-}
-
-.loading {
-  padding: $spacing-2xl;
-  text-align: center;
-  color: $text-muted;
-  font-size: $font-lg;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: $bg-white;
-  border-radius: $radius-lg;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-  p {
-    font-size: $font-lg;
-    margin-bottom: $spacing-sm;
-    color: $text-muted;
-  }
-
-  a {
-    color: $primary;
-    font-weight: 500;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
+.searchBtn {
+  padding: 0.6rem 1.5rem;
+  background: #f4511e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  &:hover {
+    background: #d84315;
   }
 }
 
-.propertyGrid {
-  @include property-grid;
+.resetBtn {
+  padding: 0.6rem 1.5rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background: #5a6268;
+  }
 }

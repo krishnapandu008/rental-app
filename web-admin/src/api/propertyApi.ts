@@ -1,8 +1,12 @@
 import { api } from './client';
 import { Property } from '../types';
 
-export const getProperties = () => api.get<Property[]>('/properties');
-export const getMyProperties = (ownerId: number) => api.get<Property[]>(`/properties/owner/${ownerId}`);
+// ✅ Updated to accept optional query parameters (location search)
+export const getProperties = (params?: { location?: string }) =>
+  api.get<Property[]>('/properties', { params });
+
+export const getMyProperties = (ownerId: number) =>
+  api.get<Property[]>(`/properties/owner/${ownerId}`);
 
 // Create – always use FormData (even if no images)
 export const addProperty = (
@@ -29,15 +33,17 @@ export const addProperty = (
   // Return the POST with a custom header to force multipart
   return api.post<Property>('/properties', formData, {
     headers: {
-      // Explicitly set Content-Type to multipart/form-data
-      // Axios will automatically add the boundary
       'Content-Type': 'multipart/form-data',
     },
   });
 };
 
-export const updateProperty = (id: number, data: Partial<Pick<Property, 'title' | 'description' | 'location' | 'rent' | 'bedrooms' | 'contactNumber' | 'available' | 'visibility'>>) =>
-  api.put<Property>(`/properties/${id}`, data);
+export const updateProperty = (
+  id: number,
+  data: Partial<
+    Pick<Property, 'title' | 'description' | 'location' | 'rent' | 'bedrooms' | 'contactNumber' | 'available' | 'visibility'>
+  >
+) => api.put<Property>(`/properties/${id}`, data);
 
 export const uploadImages = (id: number, images: File[]) => {
   const formData = new FormData();
