@@ -19,7 +19,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     List<Property> findByLocationContainingIgnoreCase(String location);
 
-    // ✅ Fixed query with explicit parentheses and safe null handling
     @Query("SELECT p FROM Property p WHERE p.isActive = true AND " +
            "((p.visibility = 'PUBLIC') OR (:ownerId IS NOT NULL AND p.ownerId = :ownerId) OR (:role IS NOT NULL AND :role = 'ADMIN')) AND " +
            "(:location IS NULL OR LOWER(p.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +

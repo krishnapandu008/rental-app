@@ -97,8 +97,8 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: #ffffff;
-  color: #1f2937;
+  background: #ffffff !important;
+  color: #1f2937 !important;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 160px;
@@ -112,23 +112,23 @@
     width: 100%;
     padding: 0.6rem 1.2rem;
     text-align: left;
-    background: none;
+    background: none !important;
     border: none;
-    color: #1f2937;
+    color: #1f2937 !important;
     font-size: 0.95rem;
     cursor: pointer;
     transition: background 0.15s;
     text-decoration: none;
 
     &:hover {
-      background: #f8f9fa;
+      background: #f8f9fa !important;
       text-decoration: none;
     }
   }
 
   button {
     border-top: 1px solid #e9ecef;
-    color: #dc3545;
+    color: #dc3545 !important;
     font-weight: 500;
   }
 }
