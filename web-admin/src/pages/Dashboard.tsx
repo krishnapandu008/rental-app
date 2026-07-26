@@ -10,6 +10,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
+// Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -125,45 +126,71 @@ const Dashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Quick Location Chips */}
-      <div className={styles.quickLocations}>
-        <span className={styles.quickLabel}>📍 Quick Filter:</span>
-        <button
-          className={`${styles.quickBtn} ${activeQuickLocation === '' ? styles.activeQuick : ''}`}
-          onClick={() => handleQuickLocation('')}
-        >
-          Anywhere
-        </button>
-        <button
-          className={`${styles.quickBtn} ${activeQuickLocation === 'Kuppam' ? styles.activeQuick : ''}`}
-          onClick={() => handleQuickLocation('Kuppam')}
-        >
-          Kuppam
-        </button>
-        <button
-          className={`${styles.quickBtn} ${activeQuickLocation === 'Santhipuram' ? styles.activeQuick : ''}`}
-          onClick={() => handleQuickLocation('Santhipuram')}
-        >
-          Santhipuram
-        </button>
-      </div>
-
       {!showMyListings && (
         <form className={styles.searchForm} onSubmit={handleSearch}>
-          {/* Location Input */}
-          <div className={styles.filterGroup}>
-            <label htmlFor="location">Location</label>
-            <input
-              id="location"
-              type="text"
-              placeholder="Search by location..."
-              value={searchLocation}
-              onChange={(e) => {
-                setSearchLocation(e.target.value);
-                setActiveQuickLocation('');
-              }}
-              className={styles.searchInput}
-            />
+          {/* Enhanced Location Group */}
+          <div className={styles.locationGroup}>
+            <label htmlFor="location">📍 Location</label>
+            <div className={styles.locationInputWrapper}>
+              <span className={styles.searchIcon}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </span>
+              <input
+                id="location"
+                type="text"
+                placeholder="Search by location..."
+                value={searchLocation}
+                onChange={(e) => {
+                  setSearchLocation(e.target.value);
+                  setActiveQuickLocation('');
+                }}
+                className={styles.locationInput}
+              />
+              {searchLocation && (
+                <button
+                  type="button"
+                  className={styles.clearBtn}
+                  onClick={() => {
+                    setSearchLocation('');
+                    setActiveQuickLocation('');
+                    loadProperties();
+                  }}
+                  aria-label="Clear location"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <div className={styles.quickChips}>
+              <span className={styles.chipLabel}>Quick:</span>
+              <button
+                type="button"
+                className={`${styles.chip} ${activeQuickLocation === '' ? styles.activeChip : ''}`}
+                onClick={() => handleQuickLocation('')}
+              >
+                Anywhere
+              </button>
+              <button
+                type="button"
+                className={`${styles.chip} ${activeQuickLocation === 'Kuppam' ? styles.activeChip : ''}`}
+                onClick={() => handleQuickLocation('Kuppam')}
+              >
+                Kuppam
+              </button>
+              <button
+                type="button"
+                className={`${styles.chip} ${activeQuickLocation === 'Santhipuram' ? styles.activeChip : ''}`}
+                onClick={() => handleQuickLocation('Santhipuram')}
+              >
+                Santhipuram
+              </button>
+            </div>
           </div>
 
           {/* Price Range */}

@@ -80,55 +80,112 @@
   @include property-grid;
 }
 
-/* ===== QUICK LOCATION CHIPS ===== */
-.quickLocations {
+/* ===== ENHANCED LOCATION GROUP ===== */
+.locationGroup {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  flex: 2 1 280px;
+  min-width: 200px;
+  margin-bottom: 0.5rem;
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+}
+
+.locationInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.locationInput {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 40px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background: white;
+  height: 40px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  &:focus {
+    outline: none;
+    border-color: #f4511e;
+    box-shadow: 0 0 0 3px rgba(244, 81, 30, 0.2);
+  }
+}
+
+.clearBtn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  &:hover {
+    background: #e9ecef;
+    color: #333;
+  }
+}
+
+.quickChips {
+  display: flex;
+  gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-top: 0.35rem;
 }
 
-.quickLabel {
-  font-weight: 600;
-  color: #333;
-  margin-right: 0.25rem;
+.chipLabel {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6c757d;
+  margin-right: 0.15rem;
 }
 
-.quickBtn {
-  padding: 0.4rem 1rem;
-  background: #e9ecef;
-  border: 1px solid #ced4da;
-  border-radius: 20px;
+.chip {
+  padding: 0.2rem 0.8rem;
+  background: #f1f3f5;
+  border: 1px solid #dee2e6;
+  border-radius: 14px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s, border-color 0.2s;
+  font-size: 0.75rem;
+  color: #495057;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
   &:hover {
-    background: #dee2e6;
+    background: #e9ecef;
   }
-  &.activeQuick {
+  &.activeChip {
     background: #f4511e;
-    color: white;
     border-color: #f4511e;
+    color: white;
     &:hover {
       background: #d84315;
     }
   }
 }
 
-/* ===== SEARCH & FILTER FORM ===== */
-.searchForm {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  align-items: flex-end;
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-}
-
+/* ===== OTHER FILTER GROUPS ===== */
 .filterGroup {
   display: flex;
   flex-direction: column;
@@ -162,8 +219,17 @@
   }
 }
 
-.searchInput {
-  flex: 2 1 200px;
+/* ===== SEARCH FORM OVERALL ===== */
+.searchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-end;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
 }
 
 .searchBtn,
@@ -247,7 +313,8 @@
     flex-direction: column;
     align-items: stretch;
   }
-  .filterGroup {
+  .filterGroup,
+  .locationGroup {
     flex: 1 1 auto;
     min-width: 100%;
   }
