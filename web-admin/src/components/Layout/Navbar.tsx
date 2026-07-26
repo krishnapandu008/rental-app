@@ -24,6 +24,7 @@ const Navbar: React.FC = () => {
           <>
             <Link to="/">Dashboard</Link>
             <Link to="/add">Add Property</Link>
+            <Link to="/profile">Profile</Link>   {/* ✅ Added here */}
             {isAdmin && (
               <Link to="/admin" className={styles.adminLink}>
                 Admin Panel
@@ -37,7 +38,7 @@ const Navbar: React.FC = () => {
           <>
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
-            <Link to="/profile">Profile</Link>
+            {/* ❌ Removed Profile link from guest view */}
           </>
         )}
       </div>
