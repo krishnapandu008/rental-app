@@ -19,9 +19,9 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     List<Property> findByLocationContainingIgnoreCase(String location);
 
-    // ✅ Dynamic query with all filters and pagination
+    // ✅ Fixed query with explicit parentheses and safe null handling
     @Query("SELECT p FROM Property p WHERE p.isActive = true AND " +
-           "(p.visibility = 'PUBLIC' OR :ownerId IS NOT NULL AND p.ownerId = :ownerId OR :role = 'ADMIN') AND " +
+           "((p.visibility = 'PUBLIC') OR (:ownerId IS NOT NULL AND p.ownerId = :ownerId) OR (:role IS NOT NULL AND :role = 'ADMIN')) AND " +
            "(:location IS NULL OR LOWER(p.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
            "(:minPrice IS NULL OR p.rent >= :minPrice) AND " +
            "(:maxPrice IS NULL OR p.rent <= :maxPrice) AND " +
@@ -34,7 +34,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
                                          @Param("bedrooms") Integer bedrooms,
                                          Pageable pageable);
 
-    // Query to find property by image URL
     @Query("SELECT p FROM Property p JOIN p.imageUrls url WHERE url = :imageUrl")
     Optional<Property> findByImageUrl(@Param("imageUrl") String imageUrl);
 }

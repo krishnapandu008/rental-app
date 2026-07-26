@@ -42,26 +42,30 @@ const Dashboard: React.FC = () => {
   }, [currentPage, sortBy]); // reload when page or sort changes
 
   const loadProperties = async () => {
-    try {
-      setLoading(true);
-      const res = await getProperties({
-        location: searchLocation || undefined,
-        minPrice,
-        maxPrice,
-        bedrooms,
-        sortBy,
-        page: currentPage,
-        size: pageSize,
-      });
-      const pageData: PageResponse<Property> = res.data;
-      setProperties(pageData.content);
-      setTotalPages(pageData.totalPages);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const res = await getProperties({
+      location: searchLocation || undefined,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      sortBy,
+      page: currentPage,
+      size: pageSize,
+    });
+    // ✅ Safely access content, fallback to empty array
+    setProperties(res.data?.content || []);
+    setTotalPages(res.data?.totalPages || 0);
+  } catch (err: any) {
+    console.error('Error loading properties:', err);
+    setProperties([]);
+    setTotalPages(0);
+    // Optionally show a user-friendly message (e.g., via toast or alert)
+    // alert('Failed to load properties. Please try again later.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
