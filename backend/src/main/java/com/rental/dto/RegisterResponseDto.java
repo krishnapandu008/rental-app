@@ -16,5 +16,6 @@ public class RegisterResponseDto {
     private String phone;
     private String token;
     private String refreshToken;
-     private String role;
+    private String role;
+    private String avatarUrl;   // ✅ NEW
 }

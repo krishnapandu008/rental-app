@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Navbar.module.scss';
@@ -6,6 +6,7 @@ import styles from './Navbar.module.scss';
 const Navbar: React.FC = () => {
   const { owner, logout } = useAuth();
   const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -13,6 +14,16 @@ const Navbar: React.FC = () => {
   };
 
   const isAdmin = owner?.role === 'ADMIN' || owner?.role === 'SUPER_ADMIN';
+
+  // Get user initials (fallback)
+  const getInitials = () => {
+    if (!owner?.name) return 'U';
+    const parts = owner.name.trim().split(' ');
+    if (parts.length >= 2) return parts[0][0] + parts[1][0];
+    return parts[0][0];
+  };
+
+  const avatarUrl = owner?.avatarUrl;
 
   return (
     <nav className={styles.navbar}>
@@ -24,21 +35,38 @@ const Navbar: React.FC = () => {
           <>
             <Link to="/">Dashboard</Link>
             <Link to="/add">Add Property</Link>
-            <Link to="/profile">Profile</Link>   {/* ✅ Added here */}
-            {isAdmin && (
-              <Link to="/admin" className={styles.adminLink}>
-                Admin Panel
-              </Link>
-            )}
-            <button onClick={handleLogout} className={styles.logoutBtn}>
-              Logout
-            </button>
+
+            {/* Avatar with dropdown */}
+            <div className={styles.avatarWrapper}>
+              <div
+                className={styles.avatar}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" />
+                ) : (
+                  <span>{getInitials()}</span>
+                )}
+              </div>
+              {dropdownOpen && (
+                <div className={styles.dropdown}>
+                  <Link to="/profile" onClick={() => setDropdownOpen(false)}>
+                    Profile
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setDropdownOpen(false)}>
+                      Admin Panel
+                    </Link>
+                  )}
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <>
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
-            {/* ❌ Removed Profile link from guest view */}
           </>
         )}
       </div>

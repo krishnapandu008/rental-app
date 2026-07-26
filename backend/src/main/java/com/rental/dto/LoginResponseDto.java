@@ -17,4 +17,5 @@ public class LoginResponseDto {
     private String token;
     private String refreshToken;
     private String role;
+    private String avatarUrl;   // ✅ NEW
 }

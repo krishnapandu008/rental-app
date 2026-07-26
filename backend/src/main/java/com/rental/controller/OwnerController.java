@@ -40,6 +40,7 @@ public class OwnerController {
                 .token(token)
                 .refreshToken(refreshToken.getToken())
                 .role(owner.getRole())
+                .avatarUrl(owner.getAvatarUrl())   // ✅ add this
                 .build();
     }
 
@@ -56,6 +57,7 @@ public class OwnerController {
                 .token(token)
                 .refreshToken(refreshToken.getToken())
                 .role(owner.getRole())
+                .avatarUrl(owner.getAvatarUrl())   // ✅ add this
                 .build();
     }
 

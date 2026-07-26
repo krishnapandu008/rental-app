@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './Profile.module.scss';
 
 interface ProfileData {
@@ -13,6 +14,7 @@ interface ProfileData {
 }
 
 const Profile: React.FC = () => {
+  const { owner, updateOwner } = useAuth();   // ✅ Get updateOwner
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editForm, setEditForm] = useState({ email: '', name: '', phone: '' });
   const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '' });
@@ -46,6 +48,11 @@ const Profile: React.FC = () => {
       await api.put('/owners/profile', editForm);
       setMessage('Profile updated successfully');
       loadProfile();
+      // Update owner in context if needed (name/email/phone may change)
+      if (owner) {
+        const updatedOwner = { ...owner, ...editForm };
+        updateOwner(updatedOwner);
+      }
     } catch (err) {
       setMessage('Failed to update profile');
     }
@@ -68,11 +75,17 @@ const Profile: React.FC = () => {
     const formData = new FormData();
     formData.append('avatar', avatarFile);
     try {
-      await api.post('/owners/avatar', formData, {
+      const res = await api.post('/owners/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setMessage('Avatar uploaded successfully');
-      loadProfile();
+      // Update local profile
+      const newAvatarUrl = res.data; // Backend returns the URL
+      setProfile((prev) => prev ? { ...prev, avatarUrl: newAvatarUrl } : null);
+      // ✅ Update global owner in context
+      if (owner) {
+        updateOwner({ ...owner, avatarUrl: newAvatarUrl });
+      }
       setAvatarFile(null);
     } catch (err) {
       setMessage('Failed to upload avatar');

@@ -9,6 +9,7 @@ interface AuthContextType {
   register: (data: { email: string; password: string; name: string; phone: string }) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  updateOwner: (updated: Owner) => void;   // ✅ NEW
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -52,8 +53,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('refreshToken');
   };
 
+  // ✅ NEW: update owner in state and localStorage
+  const updateOwner = (updated: Owner) => {
+    setOwner(updated);
+    localStorage.setItem('owner', JSON.stringify(updated));
+  };
+
   return (
-    <AuthContext.Provider value={{ owner, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ owner, login, register, logout, loading, updateOwner }}>
       {children}
     </AuthContext.Provider>
   );

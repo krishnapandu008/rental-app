@@ -28,6 +28,7 @@ export interface Owner {
   createdAt?: string;
   updatedAt?: string;
   lastLoginAt?: string;
+  avatarUrl?: string;  // ✅ Added
 }
 
 export interface AuditLog {
@@ -40,7 +41,6 @@ export interface AuditLog {
   timestamp: string;
 }
 
-// ✅ Paginated response wrapper
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;
