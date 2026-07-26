@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,11 +34,12 @@ public class PropertyService {
     private final LocalStorageService storageService;
     private final PropertyAccessService accessService;
 
-    // ---------- Public / Visible Listings (with optional location filter) ----------
-    public List<PropertyResponseDto> getVisibleProperties(Long ownerId, String role, String location) {
-        return propertyRepository.findVisibleForUser(ownerId, role, location)
-                .stream().map(this::toDto)
-                .collect(Collectors.toList());
+    // ---------- Public / Visible Listings with filters and pagination ----------
+    public Page<PropertyResponseDto> getVisibleProperties(Long ownerId, String role, String location,
+                                                          Double minPrice, Double maxPrice, Integer bedrooms,
+                                                          Pageable pageable) {
+        Page<Property> page = propertyRepository.findVisibleWithFilters(ownerId, role, location, minPrice, maxPrice, bedrooms, pageable);
+        return page.map(this::toDto);
     }
 
     // ---------- Single Property with Access Check ----------
@@ -74,8 +77,8 @@ public class PropertyService {
                 .visibility(dto.getVisibility() != null ? dto.getVisibility() : Visibility.PUBLIC)
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
-                .latitude(dto.getLatitude())    // ✅ NEW
-                .longitude(dto.getLongitude())  // ✅ NEW
+                .latitude(dto.getLatitude())
+                .longitude(dto.getLongitude())
                 .build();
 
         Property saved = propertyRepository.save(property);
@@ -115,7 +118,6 @@ public class PropertyService {
         if (dto.getVisibility() != null) {
             property.setVisibility(dto.getVisibility());
         }
-        // ✅ Update lat/lng
         property.setLatitude(dto.getLatitude());
         property.setLongitude(dto.getLongitude());
 
@@ -204,8 +206,8 @@ public class PropertyService {
         dto.setOwnerId(property.getOwnerId());
         dto.setVisibility(property.getVisibility());
         dto.setActive(property.isActive());
-        dto.setLatitude(property.getLatitude());   // ✅ NEW
-        dto.setLongitude(property.getLongitude()); // ✅ NEW
+        dto.setLatitude(property.getLatitude());
+        dto.setLongitude(property.getLongitude());
         return dto;
     }
 }

@@ -3,6 +3,10 @@ package com.rental.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,14 +39,41 @@ public class PropertyController {
 
     private final PropertyService propertyService;
 
-    // ---------- Public Listing (with optional location filter) ----------
+    // ---------- Public Listing with filters, sorting, pagination ----------
     @GetMapping
-    public List<PropertyResponseDto> getAllProperties(
+    public Page<PropertyResponseDto> getAllProperties(
             @AuthenticationPrincipal OwnerPrincipal principal,
-            @RequestParam(required = false) String location) {  // ✅ Added location param
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer bedrooms,
+            @RequestParam(required = false) String sortBy,   // "price_asc", "price_desc", "newest"
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         Long ownerId = principal != null ? principal.getId() : null;
         String role = principal != null ? principal.getRole() : null;
-        return propertyService.getVisibleProperties(ownerId, role, location);
+
+        // Map sortBy to Sort object
+        Sort sort = Sort.by("createdAt").descending(); // default newest
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "price_asc":
+                    sort = Sort.by("rent").ascending();
+                    break;
+                case "price_desc":
+                    sort = Sort.by("rent").descending();
+                    break;
+                case "newest":
+                    sort = Sort.by("createdAt").descending();
+                    break;
+                default:
+                    sort = Sort.by("createdAt").descending();
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return propertyService.getVisibleProperties(ownerId, role, location, minPrice, maxPrice, bedrooms, pageable);
     }
 
     // ---------- Single Property ----------

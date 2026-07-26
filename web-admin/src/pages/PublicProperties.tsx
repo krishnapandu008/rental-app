@@ -16,8 +16,9 @@ const PublicProperties: React.FC = () => {
 
   const loadProperties = async () => {
     try {
-      const res = await getProperties(); // Only returns PUBLIC & isActive=true properties
-      setProperties(res.data);
+      const res = await getProperties(); // Now returns PageResponse<Property>
+      // ✅ Access the content array from the paginated response
+      setProperties(res.data.content || []);
     } catch (err) {
       console.error(err);
     } finally {

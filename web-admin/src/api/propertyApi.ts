@@ -1,8 +1,16 @@
 import { api } from './client';
-import { Property } from '../types';
+import { Property, PageResponse } from '../types';
 
-export const getProperties = (params?: { location?: string }) =>
-  api.get<Property[]>('/properties', { params });
+export const getProperties = (params?: {
+  location?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  bedrooms?: number;
+  sortBy?: string;   // "price_asc", "price_desc", "newest"
+  page?: number;
+  size?: number;
+}) =>
+  api.get<PageResponse<Property>>('/properties', { params });
 
 export const getMyProperties = (ownerId: number) =>
   api.get<Property[]>(`/properties/owner/${ownerId}`);
@@ -21,8 +29,8 @@ export const addProperty = (
     bedrooms: data.bedrooms,
     contactNumber: data.contactNumber,
     visibility: data.visibility || 'PUBLIC',
-    latitude: data.latitude,   // ✅ NEW
-    longitude: data.longitude, // ✅ NEW
+    latitude: data.latitude,
+    longitude: data.longitude,
   };
   formData.append('dto', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
 

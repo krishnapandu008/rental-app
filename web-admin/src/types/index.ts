@@ -11,8 +11,8 @@ export interface Property {
   imageUrls: string[];
   visibility: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
   isActive: boolean;
-  latitude?: number;   // ✅ NEW
-  longitude?: number;  // ✅ NEW
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Owner {
@@ -38,4 +38,15 @@ export interface AuditLog {
   details: string;
   ipAddress: string;
   timestamp: string;
+}
+
+// ✅ Paginated response wrapper
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
 }
