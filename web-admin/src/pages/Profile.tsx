@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api/client';
 import styles from './Profile.module.scss';
 
@@ -14,7 +13,6 @@ interface ProfileData {
 }
 
 const Profile: React.FC = () => {
-  const { owner } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editForm, setEditForm] = useState({ email: '', name: '', phone: '' });
   const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '' });
