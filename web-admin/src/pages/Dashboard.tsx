@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getProperties } from '../api/propertyApi';
-import { Property, PageResponse } from '../types';
+import { Property } from '../types';   // ✅ Removed PageResponse
 import PropertyCard from '../components/PropertyCard/PropertyCard';
 import styles from './Dashboard.module.scss';
 
@@ -23,14 +23,12 @@ const Dashboard: React.FC = () => {
   const { owner } = useAuth();
   const navigate = useNavigate();
 
-  // State for filters and pagination
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
 
-  // Filter states
   const [searchLocation, setSearchLocation] = useState('');
   const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
   const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
@@ -39,37 +37,34 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadProperties();
-  }, [currentPage, sortBy]); // reload when page or sort changes
+  }, [currentPage, sortBy]);
 
   const loadProperties = async () => {
-  try {
-    setLoading(true);
-    const res = await getProperties({
-      location: searchLocation || undefined,
-      minPrice,
-      maxPrice,
-      bedrooms,
-      sortBy,
-      page: currentPage,
-      size: pageSize,
-    });
-    // ✅ Safely access content, fallback to empty array
-    setProperties(res.data?.content || []);
-    setTotalPages(res.data?.totalPages || 0);
-  } catch (err: any) {
-    console.error('Error loading properties:', err);
-    setProperties([]);
-    setTotalPages(0);
-    // Optionally show a user-friendly message (e.g., via toast or alert)
-    // alert('Failed to load properties. Please try again later.');
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const res = await getProperties({
+        location: searchLocation || undefined,
+        minPrice,
+        maxPrice,
+        bedrooms,
+        sortBy,
+        page: currentPage,
+        size: pageSize,
+      });
+      setProperties(res.data?.content || []);
+      setTotalPages(res.data?.totalPages || 0);
+    } catch (err) {
+      console.error(err);
+      setProperties([]);
+      setTotalPages(0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(0); // reset to first page when searching
+    setCurrentPage(0);
     loadProperties();
   };
 
@@ -106,7 +101,6 @@ const Dashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Search & Filters */}
       <form className={styles.searchForm} onSubmit={handleSearch}>
         <input
           type="text"
@@ -155,10 +149,9 @@ const Dashboard: React.FC = () => {
         </button>
       </form>
 
-      {/* Map */}
       <div className={styles.mapContainer}>
         <MapContainer
-          center={[20.5937, 78.9629]} // Center of India
+          center={[20.5937, 78.9629]}
           zoom={5}
           style={{ height: '400px', width: '100%' }}
         >
@@ -179,7 +172,6 @@ const Dashboard: React.FC = () => {
         </MapContainer>
       </div>
 
-      {/* Property List */}
       {properties.length === 0 ? (
         <div className={styles.emptyState}>
           <p>No properties found matching your criteria.</p>
@@ -197,7 +189,6 @@ const Dashboard: React.FC = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className={styles.pagination}>
               <button
