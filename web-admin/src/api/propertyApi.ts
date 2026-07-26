@@ -6,7 +6,7 @@ export const getProperties = (params?: {
   minPrice?: number;
   maxPrice?: number;
   bedrooms?: number;
-  sortBy?: string;   // "price_asc", "price_desc", "newest"
+  sortBy?: string;
   page?: number;
   size?: number;
 }) =>
@@ -68,3 +68,13 @@ export const togglePropertyActive = (id: number, active: boolean) =>
   api.patch(`/properties/admin/${id}/active?active=${active}`);
 
 export const getAllPropertiesAdmin = () => api.get<Property[]>('/properties/admin/all');
+
+// ------ Favorites API ------
+export const toggleFavorite = (propertyId: number) =>
+  api.post<boolean>(`/favorites/${propertyId}`);
+
+export const getFavoriteIds = () =>
+  api.get<number[]>('/favorites');
+
+export const isFavorited = (propertyId: number) =>
+  api.get<boolean>(`/favorites/${propertyId}/status`);

@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
           <>
             <Link to="/">Dashboard</Link>
             <Link to="/add">Add Property</Link>
-
+            <Link to="/favorites">Favorites</Link>   {/* ✅ NEW */}
             <div className={styles.avatarWrapper}>
               <div
                 className={styles.avatar}
@@ -46,7 +46,6 @@ const Navbar: React.FC = () => {
                     alt="Avatar"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
-                      // Fallback to initials is handled by the parent span logic
                     }}
                   />
                 ) : (

@@ -13,6 +13,7 @@ export interface Property {
   isActive: boolean;
   latitude?: number;
   longitude?: number;
+  isFavorited?: boolean;   // ✅ NEW
 }
 
 export interface Owner {
@@ -28,7 +29,7 @@ export interface Owner {
   createdAt?: string;
   updatedAt?: string;
   lastLoginAt?: string;
-  avatarUrl?: string;  // ✅ Added
+  avatarUrl?: string;
 }
 
 export interface AuditLog {

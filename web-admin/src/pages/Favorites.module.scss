@@ -1,0 +1,48 @@
+@use '../styles/variables' as *;
+@use '../styles/mixins' as *;
+
+.container {
+  @include container-wide;
+}
+
+.title {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: $text-dark;
+  margin-bottom: $spacing-2xl;
+}
+
+.loading {
+  padding: $spacing-2xl;
+  text-align: center;
+  color: $text-muted;
+  font-size: $font-lg;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: $bg-white;
+  border-radius: $radius-lg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  p {
+    font-size: $font-lg;
+    margin-bottom: $spacing-sm;
+    color: $text-muted;
+  }
+
+  a {
+    color: $primary;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.propertyGrid {
+  @include property-grid;
+}

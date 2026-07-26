@@ -109,7 +109,7 @@
   }
 
   &.private {
-    background: $orange; // or define $yellow: #ffc107
+    background: $orange;
     color: #333;
   }
 
@@ -206,4 +206,42 @@
   margin: 0.25rem 0 0 0;
   font-size: $font-sm;
   color: #555;
+}
+
+// ===== FAVORITE BUTTON =====
+.favoriteBtn {
+  position: absolute;
+  top: 8px;
+  right: 56px;  // avoid overlap with visibility badge
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6c757d;
+  transition: all 0.2s ease;
+  z-index: 4;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0;
+
+  &:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.95);
+    color: #dc3545;
+  }
+
+  &.favorited {
+    color: #dc3545;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 }

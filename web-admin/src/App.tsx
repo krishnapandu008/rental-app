@@ -9,6 +9,7 @@ import EditProperty from './pages/EditProperty';
 import PropertyDetails from './pages/PropertyDetails';
 import AdminPanel from './pages/AdminPanel';
 import Profile from './pages/Profile';
+import Favorites from './pages/Favorites';   // ✅ NEW
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { owner, loading } = useAuth();
@@ -60,11 +61,12 @@ function App() {
           {/* Protected routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> {/* Optional alias */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/add" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute><EditProperty /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />   {/* ✅ NEW */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>
