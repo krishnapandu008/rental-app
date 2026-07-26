@@ -34,9 +34,11 @@ const Dashboard: React.FC = () => {
   const [bedrooms, setBedrooms] = useState<number | undefined>(undefined);
   const [sortBy, setSortBy] = useState('newest');
 
+  const [activeQuickLocation, setActiveQuickLocation] = useState<string>('');
+
   useEffect(() => {
     loadProperties();
-  }, [currentPage, sortBy, showMyListings]);
+  }, [currentPage, sortBy, showMyListings, searchLocation, minPrice, maxPrice, bedrooms]);
 
   const loadProperties = async () => {
     try {
@@ -71,11 +73,19 @@ const Dashboard: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(0);
+    setActiveQuickLocation('');
     loadProperties();
+  };
+
+  const handleQuickLocation = (location: string) => {
+    setSearchLocation(location);
+    setActiveQuickLocation(location);
+    setCurrentPage(0);
   };
 
   const handleReset = () => {
     setSearchLocation('');
+    setActiveQuickLocation('');
     setMinPrice(undefined);
     setMaxPrice(undefined);
     setBedrooms(undefined);
@@ -111,55 +121,115 @@ const Dashboard: React.FC = () => {
             <button className={styles.toggleBtn} onClick={toggleMyListings}>
               {showMyListings ? 'Show All Properties' : 'Show My Listings'}
             </button>
-            {/* ✅ Add Property button removed – it's already in the navbar */}
           </div>
         )}
       </div>
 
+      {/* Quick Location Chips */}
+      <div className={styles.quickLocations}>
+        <span className={styles.quickLabel}>📍 Quick Filter:</span>
+        <button
+          className={`${styles.quickBtn} ${activeQuickLocation === '' ? styles.activeQuick : ''}`}
+          onClick={() => handleQuickLocation('')}
+        >
+          Anywhere
+        </button>
+        <button
+          className={`${styles.quickBtn} ${activeQuickLocation === 'Kuppam' ? styles.activeQuick : ''}`}
+          onClick={() => handleQuickLocation('Kuppam')}
+        >
+          Kuppam
+        </button>
+        <button
+          className={`${styles.quickBtn} ${activeQuickLocation === 'Santhipuram' ? styles.activeQuick : ''}`}
+          onClick={() => handleQuickLocation('Santhipuram')}
+        >
+          Santhipuram
+        </button>
+      </div>
+
       {!showMyListings && (
         <form className={styles.searchForm} onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="Search by location..."
-            value={searchLocation}
-            onChange={(e) => setSearchLocation(e.target.value)}
-            className={styles.searchInput}
-          />
-          <input
-            type="number"
-            placeholder="Min Price"
-            value={minPrice ?? ''}
-            onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
-            className={styles.filterInput}
-          />
-          <input
-            type="number"
-            placeholder="Max Price"
-            value={maxPrice ?? ''}
-            onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
-            className={styles.filterInput}
-          />
-          <select
-            value={bedrooms ?? ''}
-            onChange={(e) => setBedrooms(e.target.value ? Number(e.target.value) : undefined)}
-            className={styles.filterSelect}
-          >
-            <option value="">All Bedrooms</option>
-            <option value="1">1 BHK</option>
-            <option value="2">2 BHK</option>
-            <option value="3">3 BHK</option>
-            <option value="4">4+ BHK</option>
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="newest">Newest First</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </select>
-          <button type="submit" className={styles.searchBtn}>Search</button>
+          {/* Location Input */}
+          <div className={styles.filterGroup}>
+            <label htmlFor="location">Location</label>
+            <input
+              id="location"
+              type="text"
+              placeholder="Search by location..."
+              value={searchLocation}
+              onChange={(e) => {
+                setSearchLocation(e.target.value);
+                setActiveQuickLocation('');
+              }}
+              className={styles.searchInput}
+            />
+          </div>
+
+          {/* Price Range */}
+          <div className={styles.filterGroup}>
+            <label htmlFor="minPrice">Min Price</label>
+            <input
+              id="minPrice"
+              type="number"
+              placeholder="₹ Min"
+              value={minPrice ?? ''}
+              onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
+              className={styles.filterInput}
+            />
+          </div>
+          <div className={styles.filterGroup}>
+            <label htmlFor="maxPrice">Max Price</label>
+            <input
+              id="maxPrice"
+              type="number"
+              placeholder="₹ Max"
+              value={maxPrice ?? ''}
+              onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
+              className={styles.filterInput}
+            />
+          </div>
+
+          {/* Bedrooms Dropdown */}
+          <div className={styles.filterGroup}>
+            <label htmlFor="bedrooms">Bedrooms</label>
+            <select
+              id="bedrooms"
+              value={bedrooms ?? ''}
+              onChange={(e) => setBedrooms(e.target.value ? Number(e.target.value) : undefined)}
+              className={styles.filterSelect}
+            >
+              <option value="">All</option>
+              <option value="1">1 BHK</option>
+              <option value="2">2 BHK</option>
+              <option value="3">3 BHK</option>
+              <option value="4">4+ BHK</option>
+            </select>
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className={styles.filterGroup}>
+            <label htmlFor="sortBy">Sort By</label>
+            <select
+              id="sortBy"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="newest">Newest First</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </select>
+          </div>
+
+          {/* Action Buttons */}
+          <button type="submit" className={styles.searchBtn}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            Search
+          </button>
           <button type="button" className={styles.resetBtn} onClick={handleReset}>
             Reset
           </button>
