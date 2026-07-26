@@ -45,6 +45,8 @@ const EditProperty: React.FC = () => {
     contactNumber: '',
     available: true,
     visibility: 'PUBLIC' as 'PUBLIC' | 'PRIVATE' | 'UNLISTED',
+    latitude: 0,   // ✅ NEW
+    longitude: 0,  // ✅ NEW
   });
 
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -67,6 +69,8 @@ const EditProperty: React.FC = () => {
           contactNumber: data.contactNumber || '',
           available: data.available ?? true,
           visibility: data.visibility || 'PUBLIC',
+          latitude: data.latitude || 0,   // ✅ NEW
+          longitude: data.longitude || 0, // ✅ NEW
         });
         setExistingImages(data.imageUrls || []);
         setLoading(false);
@@ -278,7 +282,7 @@ const EditProperty: React.FC = () => {
           </label>
         </div>
 
-        {/* ===== NEW: Visibility Dropdown ===== */}
+        {/* ===== Visibility Dropdown ===== */}
         <div className={styles.formGroup}>
           <label>Visibility</label>
           <select name="visibility" value={form.visibility} onChange={handleChange}>
@@ -286,6 +290,30 @@ const EditProperty: React.FC = () => {
             <option value="PRIVATE">Private (only you and admins)</option>
             <option value="UNLISTED">Unlisted (only admins)</option>
           </select>
+        </div>
+
+        {/* ✅ NEW: Latitude & Longitude inputs */}
+        <div className={styles.formGroup}>
+          <label>Latitude</label>
+          <input
+            type="number"
+            step="any"
+            name="latitude"
+            value={form.latitude || ''}
+            onChange={handleChange}
+            placeholder="e.g., 12.9716"
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Longitude</label>
+          <input
+            type="number"
+            step="any"
+            name="longitude"
+            value={form.longitude || ''}
+            onChange={handleChange}
+            placeholder="e.g., 77.5946"
+          />
         </div>
 
         {/* ===== IMAGE SECTION ===== */}

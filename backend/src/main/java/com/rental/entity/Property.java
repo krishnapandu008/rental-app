@@ -29,25 +29,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "properties")
 public class Property {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String title;
-	private String description;
-	private String location;
-	private Double rent;
-	private Integer bedrooms;
-	private String contactNumber;
-	private Boolean available;
-	@ElementCollection
-	@CollectionTable(name = "property_image_urls", joinColumns = @JoinColumn(name = "property_id"))
-	@Column(name = "image_url")
-	private List<String> imageUrls = new ArrayList<>();
-	private Long ownerId;
-	private LocalDateTime createdAt;
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private Visibility visibility = Visibility.PUBLIC;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String title;
+    private String description;
+    private String location;
+    private Double rent;
+    private Integer bedrooms;
+    private String contactNumber;
+    private Boolean available;
+    @ElementCollection
+    @CollectionTable(name = "property_image_urls", joinColumns = @JoinColumn(name = "property_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls = new ArrayList<>();
+    private Long ownerId;
+    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Visibility visibility = Visibility.PUBLIC;
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean isActive = true;
+
+    // ✅ NEW: Latitude and Longitude
+    private Double latitude;
+    private Double longitude;
 }

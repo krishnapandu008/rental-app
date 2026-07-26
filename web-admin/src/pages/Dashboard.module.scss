@@ -1,3 +1,142 @@
+@use 'sass:color';
+@use '../styles/variables' as *;
+@use '../styles/mixins' as *;
+
+.editContainer {
+  @include container-center(700px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-2xl;
+
+  .backButton {
+    @include back-button;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    justify-content: center;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  h2 {
+    margin: 0;
+    font-size: $font-xl;
+    font-weight: 700;
+    color: $text-dark;
+  }
+}
+
+.error {
+  color: $red;
+  padding: $spacing-md $spacing-lg;
+  background: #fff5f5;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-xl;
+  border: 1px solid #fcc;
+}
+
+.form {
+  @include card-base;
+}
+
+.formGroup {
+  @include form-group;
+}
+
+.imageSection {
+  margin-bottom: 1.25rem;
+
+  .sectionLabel {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: $text-label;
+    margin-bottom: $spacing-sm;
+  }
+
+  .imageGrid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: $spacing-sm;
+  }
+
+  .thumbnailWrapper {
+    @include thumbnail-wrapper;
+
+    &:hover {
+      border-color: $blue;
+
+      .imageControls {
+        opacity: 1;
+      }
+    }
+
+    .thumbnail {
+      @include thumbnail-img(80px);
+    }
+
+    .imageControls {
+      @include image-controls;
+
+      .controlBtn {
+        @include control-btn;
+
+        &.replaceBtn {
+          background: rgba(59, 130, 246, 0.9);
+        }
+
+        &.deleteBtn {
+          background: rgba(239, 68, 68, 0.9);
+        }
+      }
+    }
+  }
+
+  .fileInputWrapper {
+    input[type='file'] {
+      @include file-input;
+    }
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: $spacing-lg;
+  margin-top: $spacing-xl;
+  padding-top: $spacing-xl;
+  border-top: 1px solid $bg-hover;
+
+  .submitBtn {
+    @include primary-button;
+    flex: 1;
+  }
+
+  .cancelBtn {
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    color: $text-muted;
+    border: 1.5px solid $border-color;
+    border-radius: $radius-md;
+    font-weight: 500;
+    font-size: $font-base;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover {
+      background: $bg-hover;
+      border-color: color.adjust($border-color, $lightness: -10%);
+      color: $text-label;
+    }
+  }
+}
+
 /* ===== SEARCH FORM ===== */
 .searchForm {
   display: flex;
@@ -39,4 +178,12 @@
   &:hover {
     background: #5a6268;
   }
+}
+
+/* ✅ NEW: Map Container */
+.mapContainer {
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }

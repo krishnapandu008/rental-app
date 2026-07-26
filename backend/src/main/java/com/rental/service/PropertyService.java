@@ -74,6 +74,8 @@ public class PropertyService {
                 .visibility(dto.getVisibility() != null ? dto.getVisibility() : Visibility.PUBLIC)
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
+                .latitude(dto.getLatitude())    // ✅ NEW
+                .longitude(dto.getLongitude())  // ✅ NEW
                 .build();
 
         Property saved = propertyRepository.save(property);
@@ -113,6 +115,9 @@ public class PropertyService {
         if (dto.getVisibility() != null) {
             property.setVisibility(dto.getVisibility());
         }
+        // ✅ Update lat/lng
+        property.setLatitude(dto.getLatitude());
+        property.setLongitude(dto.getLongitude());
 
         propertyRepository.save(property);
         return toDto(property);
@@ -135,27 +140,19 @@ public class PropertyService {
     @Transactional
     public void deleteImage(String imageUrl, Long ownerId, String role) {
         log.info("Attempting to delete image: {}", imageUrl);
-
         Property property = propertyRepository.findByImageUrl(imageUrl)
                 .orElseThrow(() -> {
                     log.warn("No property found with image URL: {}", imageUrl);
                     return new ResourceNotFoundException("Image not found");
                 });
-
-        log.info("Found property id: {}", property.getId());
-
         if (!accessService.canManage(ownerId, role, property)) {
-            log.warn("User {} does not have permission to delete image from property {}", ownerId, property.getId());
             throw new ForbiddenException("You are not allowed to delete this image");
         }
-
         if (property.getImageUrls() != null) {
             boolean removed = property.getImageUrls().remove(imageUrl);
             log.info("Image removed from list: {}", removed);
             propertyRepository.save(property);
-            log.info("Property saved after removal");
         }
-
         storageService.deleteFile(imageUrl);
     }
 
@@ -175,7 +172,6 @@ public class PropertyService {
         if (!accessService.canManage(ownerId, role, property)) {
             throw new ForbiddenException("You can only add images to your own properties");
         }
-
         List<String> imageUrls = new ArrayList<>();
         for (MultipartFile file : images) {
             try {
@@ -185,7 +181,6 @@ public class PropertyService {
                 throw new RuntimeException("Failed to upload image", e);
             }
         }
-
         if (property.getImageUrls() == null) {
             property.setImageUrls(new ArrayList<>());
         }
@@ -209,6 +204,8 @@ public class PropertyService {
         dto.setOwnerId(property.getOwnerId());
         dto.setVisibility(property.getVisibility());
         dto.setActive(property.isActive());
+        dto.setLatitude(property.getLatitude());   // ✅ NEW
+        dto.setLongitude(property.getLongitude()); // ✅ NEW
         return dto;
     }
 }

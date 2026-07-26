@@ -15,6 +15,8 @@ const AddProperty: React.FC = () => {
     bedrooms: 1,
     contactNumber: '',
     visibility: 'PUBLIC' as 'PUBLIC' | 'PRIVATE' | 'UNLISTED',
+    latitude: 0,   // ✅ NEW
+    longitude: 0,  // ✅ NEW
   });
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -58,68 +60,31 @@ const AddProperty: React.FC = () => {
       {error && <div className={styles.error}>{error}</div>}
 
       <form className={styles.form} onSubmit={handleSubmit}>
+        {/* ... existing fields ... (keep them) */}
         <div className={styles.formGroup}>
           <label>Title</label>
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-          />
+          <input name="title" value={form.title} onChange={handleChange} required />
         </div>
-
         <div className={styles.formGroup}>
           <label>Description</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-          />
+          <textarea name="description" value={form.description} onChange={handleChange} />
         </div>
-
         <div className={styles.formGroup}>
           <label>Location</label>
-          <input
-            name="location"
-            value={form.location}
-            onChange={handleChange}
-            required
-          />
+          <input name="location" value={form.location} onChange={handleChange} required />
         </div>
-
         <div className={styles.formGroup}>
           <label>Rent (₹)</label>
-          <input
-            type="number"
-            name="rent"
-            value={form.rent}
-            onChange={handleChange}
-            required
-          />
+          <input type="number" name="rent" value={form.rent} onChange={handleChange} required />
         </div>
-
         <div className={styles.formGroup}>
           <label>Bedrooms</label>
-          <input
-            type="number"
-            name="bedrooms"
-            value={form.bedrooms}
-            onChange={handleChange}
-            required
-          />
+          <input type="number" name="bedrooms" value={form.bedrooms} onChange={handleChange} required />
         </div>
-
         <div className={styles.formGroup}>
           <label>Contact Number</label>
-          <input
-            name="contactNumber"
-            value={form.contactNumber}
-            onChange={handleChange}
-            required
-          />
+          <input name="contactNumber" value={form.contactNumber} onChange={handleChange} required />
         </div>
-
-        {/* NEW: Visibility Dropdown */}
         <div className={styles.formGroup}>
           <label>Visibility</label>
           <select name="visibility" value={form.visibility} onChange={handleChange}>
@@ -129,35 +94,45 @@ const AddProperty: React.FC = () => {
           </select>
         </div>
 
+        {/* ✅ NEW: Latitude & Longitude inputs */}
+        <div className={styles.formGroup}>
+          <label>Latitude</label>
+          <input
+            type="number"
+            step="any"
+            name="latitude"
+            value={form.latitude || ''}
+            onChange={handleChange}
+            placeholder="e.g., 12.9716"
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Longitude</label>
+          <input
+            type="number"
+            step="any"
+            name="longitude"
+            value={form.longitude || ''}
+            onChange={handleChange}
+            placeholder="e.g., 77.5946"
+          />
+        </div>
+
         <div className={styles.formGroup}>
           <label>Images (select multiple)</label>
           <div className={styles.fileInputWrapper}>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileChange}
-            />
+            <input type="file" multiple accept="image/*" onChange={handleFileChange} />
           </div>
           {previews.length > 0 && (
             <div className={styles.previewGrid}>
               {previews.map((url, idx) => (
-                <img
-                  key={idx}
-                  src={url}
-                  alt={`preview-${idx}`}
-                  className={styles.previewImage}
-                />
+                <img key={idx} src={url} alt={`preview-${idx}`} className={styles.previewImage} />
               ))}
             </div>
           )}
         </div>
 
-        <button
-          type="submit"
-          disabled={uploading}
-          className={styles.submitBtn}
-        >
+        <button type="submit" disabled={uploading} className={styles.submitBtn}>
           {uploading ? 'Uploading...' : 'Add Property'}
         </button>
       </form>

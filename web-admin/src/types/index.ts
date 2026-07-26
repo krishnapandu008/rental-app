@@ -11,6 +11,8 @@ export interface Property {
   imageUrls: string[];
   visibility: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
   isActive: boolean;
+  latitude?: number;   // ✅ NEW
+  longitude?: number;  // ✅ NEW
 }
 
 export interface Owner {
@@ -20,7 +22,7 @@ export interface Owner {
   phone: string;
   token: string;
   refreshToken: string;
-  role: string; // "USER" | "ADMIN" | "SUPER_ADMIN"
+  role: string;
   isActive?: boolean;
   isLocked?: boolean;
   createdAt?: string;

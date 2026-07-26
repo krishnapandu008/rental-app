@@ -6,6 +6,19 @@ import { Property } from '../types';
 import PropertyCard from '../components/PropertyCard/PropertyCard';
 import styles from './Dashboard.module.scss';
 
+// ✅ Leaflet imports
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// ✅ Fix marker icons using CDN URLs (no require)
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
 const Dashboard: React.FC = () => {
   const { owner } = useAuth();
   const navigate = useNavigate();
@@ -72,6 +85,30 @@ const Dashboard: React.FC = () => {
           </button>
         )}
       </form>
+
+      {/* ✅ Map */}
+      <div className={styles.mapContainer}>
+        <MapContainer
+          center={[20.5937, 78.9629]} // Center of India
+          zoom={5}
+          style={{ height: '400px', width: '100%' }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {properties.filter(p => p.latitude && p.longitude).map((p) => (
+            <Marker key={p.id} position={[p.latitude!, p.longitude!]}>
+              <Popup>
+                <strong>{p.title}</strong><br />
+                {p.location}<br />
+                ₹{p.rent}/month<br />
+                <a href={`/property/${p.id}`}>View Details</a>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
 
       {properties.length === 0 ? (
         <div className={styles.emptyState}>

@@ -17,5 +17,7 @@ public class PropertyRequestDto {
     @Min(1) private Integer bedrooms;
     @NotBlank private String contactNumber;
     private Boolean available;
-    private Visibility visibility;        // optional, default PUBLIC in service
+    private Visibility visibility;
+    private Double latitude;   // ✅ NEW
+    private Double longitude;  // ✅ NEW
 }

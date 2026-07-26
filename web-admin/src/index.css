@@ -1,15 +1,28 @@
-/* Global styles */ 
+/* ✅ Import Leaflet CSS for the map */
+@import 'leaflet/dist/leaflet.css';
+
+/* ===== Global resets & base styles ===== */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f5f5f5;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #f8fafc;
+  color: #1f2937;
 }
 
-#root {
-  min-height: 100vh;
+/* ===== Utility classes ===== */
+.text-center {
+  text-align: center;
 }
+
+.text-muted {
+  color: #6b7280;
+}
+
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 1.5rem; }

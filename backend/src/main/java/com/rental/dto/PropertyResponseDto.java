@@ -20,6 +20,8 @@ public class PropertyResponseDto {
     private List<String> imageUrls;
     private Long ownerId;
     private Visibility visibility;
-    @JsonProperty("isActive")   // ✅ Force JSON key to "isActive"
+    @JsonProperty("isActive")
     private boolean isActive;
+    private Double latitude;   // ✅ NEW
+    private Double longitude;  // ✅ NEW
 }
