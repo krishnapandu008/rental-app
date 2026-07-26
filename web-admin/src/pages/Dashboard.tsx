@@ -26,7 +26,7 @@ const Dashboard: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
-  const [showMyListings, setShowMyListings] = useState(false); // ✅ NEW
+  const [showMyListings, setShowMyListings] = useState(false);
 
   const [searchLocation, setSearchLocation] = useState('');
   const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
@@ -44,7 +44,6 @@ const Dashboard: React.FC = () => {
       let res;
       if (showMyListings && owner) {
         res = await getMyProperties(owner.id);
-        // For my listings, we treat the result as a plain array (not paginated)
         setProperties(res.data || []);
         setTotalPages(1);
       } else {
@@ -107,18 +106,14 @@ const Dashboard: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Available Rentals</h2>
-        <div className={styles.headerActions}>
-          {owner && (
+        {owner && (
+          <div className={styles.headerActions}>
             <button className={styles.toggleBtn} onClick={toggleMyListings}>
               {showMyListings ? 'Show All Properties' : 'Show My Listings'}
             </button>
-          )}
-          {owner && (
-            <button className={styles.addButton} onClick={() => navigate('/add')}>
-              + Add Property
-            </button>
-          )}
-        </div>
+            {/* ✅ Add Property button removed – it's already in the navbar */}
+          </div>
+        )}
       </div>
 
       {!showMyListings && (
