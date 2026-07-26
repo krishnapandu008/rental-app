@@ -36,6 +36,9 @@ public class Owner {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isLocked = false;
 
+    @Column(nullable = true)
+    private String avatarUrl;   // ✅ NEW
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

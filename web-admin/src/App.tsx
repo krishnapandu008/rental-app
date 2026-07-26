@@ -8,6 +8,7 @@ import AddProperty from './pages/AddProperty';
 import EditProperty from './pages/EditProperty';
 import PropertyDetails from './pages/PropertyDetails';
 import AdminPanel from './pages/AdminPanel';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { owner, loading } = useAuth();
@@ -63,6 +64,7 @@ function App() {
           <Route path="/add" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute><EditProperty /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

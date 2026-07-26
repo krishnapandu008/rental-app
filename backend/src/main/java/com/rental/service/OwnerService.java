@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class OwnerService {
     private final OwnerRepository ownerRepository;
     private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final LocalStorageService storageService;   // ✅ Injected
 
     // ---------- Existing methods ----------
     public Owner register(OwnerRegisterDto dto) {
@@ -32,7 +35,7 @@ public class OwnerService {
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
                 .phone(dto.getPhone())
-                .role("USER")   // default role
+                .role("USER")
                 .isActive(true)
                 .isLocked(false)
                 .build();
@@ -44,7 +47,6 @@ public class OwnerService {
                 .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
         if (!passwordEncoder.matches(dto.getPassword(), owner.getPassword()))
             throw new UnauthorizedException("Invalid credentials");
-        // Update last login time
         owner.setLastLoginAt(LocalDateTime.now());
         ownerRepository.save(owner);
         return jwtUtil.generateToken(owner.getId(), owner.getEmail(), owner.getRole());
@@ -72,7 +74,7 @@ public class OwnerService {
                 .collect(Collectors.toList());
     }
 
-    // ---------- NEW: Admin/SUPER_ADMIN methods ----------
+    // ---------- Admin/SUPER_ADMIN methods ----------
     public Owner createUser(CreateUserDto dto) {
         String role = dto.getRole() != null ? dto.getRole() : "USER";
         Owner owner = Owner.builder()
@@ -103,8 +105,37 @@ public class OwnerService {
 
     public Owner updateRole(Long id, String newRole) {
         Owner owner = findById(id);
-        // Prevent demoting SUPER_ADMIN if you are not SUPER_ADMIN – handled in controller
         owner.setRole(newRole);
         return ownerRepository.save(owner);
+    }
+
+    // ---------- Profile management ----------
+    public Owner updateProfile(Long id, UpdateProfileDto dto) {
+        Owner owner = findById(id);
+        owner.setEmail(dto.getEmail());
+        owner.setName(dto.getName());
+        owner.setPhone(dto.getPhone());
+        return ownerRepository.save(owner);
+    }
+
+    public void changePassword(Long id, ChangePasswordDto dto) {
+        Owner owner = findById(id);
+        if (!passwordEncoder.matches(dto.getOldPassword(), owner.getPassword())) {
+            throw new UnauthorizedException("Current password is incorrect");
+        }
+        owner.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        ownerRepository.save(owner);
+    }
+
+    public String uploadAvatar(Long id, MultipartFile file) throws IOException {
+        Owner owner = findById(id);
+        // Delete old avatar if exists
+        if (owner.getAvatarUrl() != null) {
+            storageService.deleteFile(owner.getAvatarUrl());
+        }
+        String avatarUrl = storageService.saveFile(file);
+        owner.setAvatarUrl(avatarUrl);
+        ownerRepository.save(owner);
+        return avatarUrl;
     }
 }

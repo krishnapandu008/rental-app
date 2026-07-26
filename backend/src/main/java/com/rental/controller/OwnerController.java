@@ -1,20 +1,21 @@
 package com.rental.controller;
 
-import com.rental.dto.LoginResponseDto;
-import com.rental.dto.OwnerLoginDto;
-import com.rental.dto.OwnerRegisterDto;
-import com.rental.dto.OwnerSummaryDto;
-import com.rental.dto.RegisterResponseDto;
+import com.rental.dto.*;
 import com.rental.entity.Owner;
 import com.rental.entity.RefreshToken;
+import com.rental.security.OwnerPrincipal;
 import com.rental.service.OwnerService;
 import com.rental.service.RefreshTokenService;
 import com.rental.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -38,7 +39,7 @@ public class OwnerController {
                 .phone(owner.getPhone())
                 .token(token)
                 .refreshToken(refreshToken.getToken())
-                .role(owner.getRole())   // ✅ Add role to registration response
+                .role(owner.getRole())
                 .build();
     }
 
@@ -54,13 +55,57 @@ public class OwnerController {
                 .phone(owner.getPhone())
                 .token(token)
                 .refreshToken(refreshToken.getToken())
-                .role(owner.getRole())   // ✅ Add role to login response
+                .role(owner.getRole())
                 .build();
     }
 
-    // Admin-only: list every owner account (SecurityConfig restricts this to ROLE_ADMIN)
+    // Admin-only: list every owner account
     @GetMapping
     public List<OwnerSummaryDto> getAllOwners() {
         return ownerService.getAllOwners();
+    }
+
+    // ---------- Profile endpoints ----------
+    @GetMapping("/profile")
+    public OwnerProfileDto getProfile(@AuthenticationPrincipal OwnerPrincipal principal) {
+        Owner owner = ownerService.findById(principal.getId());
+        return OwnerProfileDto.builder()
+                .id(owner.getId())
+                .email(owner.getEmail())
+                .name(owner.getName())
+                .phone(owner.getPhone())
+                .role(owner.getRole())
+                .avatarUrl(owner.getAvatarUrl())
+                .createdAt(owner.getCreatedAt())
+                .build();
+    }
+
+    @PutMapping("/profile")
+    public OwnerProfileDto updateProfile(@Valid @RequestBody UpdateProfileDto dto,
+                                         @AuthenticationPrincipal OwnerPrincipal principal) {
+        Owner updated = ownerService.updateProfile(principal.getId(), dto);
+        return OwnerProfileDto.builder()
+                .id(updated.getId())
+                .email(updated.getEmail())
+                .name(updated.getName())
+                .phone(updated.getPhone())
+                .role(updated.getRole())
+                .avatarUrl(updated.getAvatarUrl())
+                .createdAt(updated.getCreatedAt())
+                .build();
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDto dto,
+                                               @AuthenticationPrincipal OwnerPrincipal principal) {
+        ownerService.changePassword(principal.getId(), dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/avatar")
+    public ResponseEntity<String> uploadAvatar(@RequestParam("avatar") MultipartFile file,
+                                               @AuthenticationPrincipal OwnerPrincipal principal) throws IOException {
+        String avatarUrl = ownerService.uploadAvatar(principal.getId(), file);
+        return ResponseEntity.ok(avatarUrl);
     }
 }

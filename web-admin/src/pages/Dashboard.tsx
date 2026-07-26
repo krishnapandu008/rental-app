@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getProperties } from '../api/propertyApi';
-import { Property } from '../types';   // ✅ Removed PageResponse
+import { getProperties, getMyProperties } from '../api/propertyApi';
+import { Property } from '../types';
 import PropertyCard from '../components/PropertyCard/PropertyCard';
 import styles from './Dashboard.module.scss';
 
-// Leaflet imports
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -28,6 +26,7 @@ const Dashboard: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
+  const [showMyListings, setShowMyListings] = useState(false); // ✅ NEW
 
   const [searchLocation, setSearchLocation] = useState('');
   const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
@@ -37,22 +36,30 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadProperties();
-  }, [currentPage, sortBy]);
+  }, [currentPage, sortBy, showMyListings]);
 
   const loadProperties = async () => {
     try {
       setLoading(true);
-      const res = await getProperties({
-        location: searchLocation || undefined,
-        minPrice,
-        maxPrice,
-        bedrooms,
-        sortBy,
-        page: currentPage,
-        size: pageSize,
-      });
-      setProperties(res.data?.content || []);
-      setTotalPages(res.data?.totalPages || 0);
+      let res;
+      if (showMyListings && owner) {
+        res = await getMyProperties(owner.id);
+        // For my listings, we treat the result as a plain array (not paginated)
+        setProperties(res.data || []);
+        setTotalPages(1);
+      } else {
+        res = await getProperties({
+          location: searchLocation || undefined,
+          minPrice,
+          maxPrice,
+          bedrooms,
+          sortBy,
+          page: currentPage,
+          size: pageSize,
+        });
+        setProperties(res.data?.content || []);
+        setTotalPages(res.data?.totalPages || 0);
+      }
     } catch (err) {
       console.error(err);
       setProperties([]);
@@ -75,6 +82,7 @@ const Dashboard: React.FC = () => {
     setBedrooms(undefined);
     setSortBy('newest');
     setCurrentPage(0);
+    if (showMyListings) setShowMyListings(false);
     loadProperties();
   };
 
@@ -88,66 +96,80 @@ const Dashboard: React.FC = () => {
     navigate(`/property/${property.id}`, { state: { property } });
   };
 
+  const toggleMyListings = () => {
+    setShowMyListings(!showMyListings);
+    setCurrentPage(0);
+  };
+
   if (loading) return <div className={styles.loading}>Loading properties...</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Available Rentals</h2>
-        {owner && (
-          <button className={styles.addButton} onClick={() => navigate('/add')}>
-            + Add Property
-          </button>
-        )}
+        <div className={styles.headerActions}>
+          {owner && (
+            <button className={styles.toggleBtn} onClick={toggleMyListings}>
+              {showMyListings ? 'Show All Properties' : 'Show My Listings'}
+            </button>
+          )}
+          {owner && (
+            <button className={styles.addButton} onClick={() => navigate('/add')}>
+              + Add Property
+            </button>
+          )}
+        </div>
       </div>
 
-      <form className={styles.searchForm} onSubmit={handleSearch}>
-        <input
-          type="text"
-          placeholder="Search by location..."
-          value={searchLocation}
-          onChange={(e) => setSearchLocation(e.target.value)}
-          className={styles.searchInput}
-        />
-        <input
-          type="number"
-          placeholder="Min Price"
-          value={minPrice ?? ''}
-          onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
-          className={styles.filterInput}
-        />
-        <input
-          type="number"
-          placeholder="Max Price"
-          value={maxPrice ?? ''}
-          onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
-          className={styles.filterInput}
-        />
-        <select
-          value={bedrooms ?? ''}
-          onChange={(e) => setBedrooms(e.target.value ? Number(e.target.value) : undefined)}
-          className={styles.filterSelect}
-        >
-          <option value="">All Bedrooms</option>
-          <option value="1">1 BHK</option>
-          <option value="2">2 BHK</option>
-          <option value="3">3 BHK</option>
-          <option value="4">4+ BHK</option>
-        </select>
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className={styles.filterSelect}
-        >
-          <option value="newest">Newest First</option>
-          <option value="price_asc">Price: Low to High</option>
-          <option value="price_desc">Price: High to Low</option>
-        </select>
-        <button type="submit" className={styles.searchBtn}>Search</button>
-        <button type="button" className={styles.resetBtn} onClick={handleReset}>
-          Reset
-        </button>
-      </form>
+      {!showMyListings && (
+        <form className={styles.searchForm} onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Search by location..."
+            value={searchLocation}
+            onChange={(e) => setSearchLocation(e.target.value)}
+            className={styles.searchInput}
+          />
+          <input
+            type="number"
+            placeholder="Min Price"
+            value={minPrice ?? ''}
+            onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : undefined)}
+            className={styles.filterInput}
+          />
+          <input
+            type="number"
+            placeholder="Max Price"
+            value={maxPrice ?? ''}
+            onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : undefined)}
+            className={styles.filterInput}
+          />
+          <select
+            value={bedrooms ?? ''}
+            onChange={(e) => setBedrooms(e.target.value ? Number(e.target.value) : undefined)}
+            className={styles.filterSelect}
+          >
+            <option value="">All Bedrooms</option>
+            <option value="1">1 BHK</option>
+            <option value="2">2 BHK</option>
+            <option value="3">3 BHK</option>
+            <option value="4">4+ BHK</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="newest">Newest First</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+          </select>
+          <button type="submit" className={styles.searchBtn}>Search</button>
+          <button type="button" className={styles.resetBtn} onClick={handleReset}>
+            Reset
+          </button>
+        </form>
+      )}
 
       <div className={styles.mapContainer}>
         <MapContainer
@@ -189,7 +211,7 @@ const Dashboard: React.FC = () => {
             ))}
           </div>
 
-          {totalPages > 1 && (
+          {!showMyListings && totalPages > 1 && (
             <div className={styles.pagination}>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
