@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getProperties, getMyProperties } from '../api/propertyApi';
@@ -28,7 +28,6 @@ const Dashboard: React.FC = () => {
   const [pageSize] = useState(10);
   const [showMyListings, setShowMyListings] = useState(false);
 
-  // Filter states
   const [searchLocation, setSearchLocation] = useState('');
   const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
   const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
@@ -38,7 +37,7 @@ const Dashboard: React.FC = () => {
   const [activeQuickLocation, setActiveQuickLocation] = useState<string>('');
 
   // ---- Fetch logic ----
-  const loadProperties = async () => {
+  const loadProperties = useCallback(async () => {
     try {
       setLoading(true);
       let res;
@@ -66,32 +65,44 @@ const Dashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [owner, showMyListings, searchLocation, minPrice, maxPrice, bedrooms, sortBy, currentPage, pageSize]);
 
-  // ---- useEffect: only on page, sort, or listing mode change ----
+  // ---- Only update when page, sort, or listing mode changes ----
   useEffect(() => {
     loadProperties();
-  }, [currentPage, sortBy, showMyListings]);
+  }, [currentPage, sortBy, showMyListings]); // deliberately not including filters
+
+  // ---- Trigger a new search with current filters ----
+  const performSearch = () => {
+    setCurrentPage(0);
+    loadProperties(); // will use the current filter state
+  };
 
   // ---- Event handlers ----
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();         // ✅ Prevents full page reload
-    setCurrentPage(0);          // Reset to first page
+  const handleSearchClick = () => {
     setActiveQuickLocation('');
-    loadProperties();           // Fetch with current filters
+    performSearch();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();          // prevent any form submission
+      setActiveQuickLocation('');
+      performSearch();
+    }
   };
 
   const handleQuickLocation = (location: string) => {
     setSearchLocation(location);
     setActiveQuickLocation(location);
     setCurrentPage(0);
-    loadProperties();           // Immediate fetch
+    loadProperties();              // immediate fetch
   };
 
   const handleClearLocation = () => {
     setSearchLocation('');
     setActiveQuickLocation('');
-    loadProperties();           // Fetch with empty location
+    performSearch();
   };
 
   const handleReset = () => {
@@ -137,7 +148,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {!showMyListings && (
-        <form className={styles.searchForm} onSubmit={handleSearch}>
+        <div className={styles.searchForm}>  {/* ✅ No <form> – just a div */}
           {/* Location Group */}
           <div className={styles.locationGroup}>
             <label htmlFor="location">📍 Location</label>
@@ -156,8 +167,8 @@ const Dashboard: React.FC = () => {
                 onChange={(e) => {
                   setSearchLocation(e.target.value);
                   setActiveQuickLocation('');
-                  // ❌ No fetch here – wait for submit
                 }}
+                onKeyDown={handleKeyDown}   // ✅ Enter triggers search
                 className={styles.locationInput}
               />
               {searchLocation && (
@@ -254,7 +265,8 @@ const Dashboard: React.FC = () => {
             </select>
           </div>
 
-          <button type="submit" className={styles.searchBtn}>
+          {/* ✅ Search button – type="button" – no form submission */}
+          <button type="button" className={styles.searchBtn} onClick={handleSearchClick}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -264,7 +276,7 @@ const Dashboard: React.FC = () => {
           <button type="button" className={styles.resetBtn} onClick={handleReset}>
             Reset
           </button>
-        </form>
+        </div>
       )}
 
       <div className={styles.mapContainer}>
