@@ -10,7 +10,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -29,6 +28,7 @@ const Dashboard: React.FC = () => {
   const [pageSize] = useState(10);
   const [showMyListings, setShowMyListings] = useState(false);
 
+  // Filter states
   const [searchLocation, setSearchLocation] = useState('');
   const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
   const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
@@ -37,10 +37,7 @@ const Dashboard: React.FC = () => {
 
   const [activeQuickLocation, setActiveQuickLocation] = useState<string>('');
 
-  useEffect(() => {
-    loadProperties();
-  }, [currentPage, sortBy, showMyListings, searchLocation, minPrice, maxPrice, bedrooms]);
-
+  // ---- Fetch logic ----
   const loadProperties = async () => {
     try {
       setLoading(true);
@@ -71,17 +68,30 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(0);
-    setActiveQuickLocation('');
+  // ---- useEffect: only on page, sort, or listing mode change ----
+  useEffect(() => {
     loadProperties();
+  }, [currentPage, sortBy, showMyListings]);
+
+  // ---- Event handlers ----
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();         // ✅ Prevents full page reload
+    setCurrentPage(0);          // Reset to first page
+    setActiveQuickLocation('');
+    loadProperties();           // Fetch with current filters
   };
 
   const handleQuickLocation = (location: string) => {
     setSearchLocation(location);
     setActiveQuickLocation(location);
     setCurrentPage(0);
+    loadProperties();           // Immediate fetch
+  };
+
+  const handleClearLocation = () => {
+    setSearchLocation('');
+    setActiveQuickLocation('');
+    loadProperties();           // Fetch with empty location
   };
 
   const handleReset = () => {
@@ -128,12 +138,12 @@ const Dashboard: React.FC = () => {
 
       {!showMyListings && (
         <form className={styles.searchForm} onSubmit={handleSearch}>
-          {/* Enhanced Location Group */}
+          {/* Location Group */}
           <div className={styles.locationGroup}>
             <label htmlFor="location">📍 Location</label>
             <div className={styles.locationInputWrapper}>
               <span className={styles.searchIcon}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
@@ -146,6 +156,7 @@ const Dashboard: React.FC = () => {
                 onChange={(e) => {
                   setSearchLocation(e.target.value);
                   setActiveQuickLocation('');
+                  // ❌ No fetch here – wait for submit
                 }}
                 className={styles.locationInput}
               />
@@ -153,14 +164,10 @@ const Dashboard: React.FC = () => {
                 <button
                   type="button"
                   className={styles.clearBtn}
-                  onClick={() => {
-                    setSearchLocation('');
-                    setActiveQuickLocation('');
-                    loadProperties();
-                  }}
+                  onClick={handleClearLocation}
                   aria-label="Clear location"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
@@ -193,7 +200,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Price Range */}
+          {/* Price and other filters */}
           <div className={styles.filterGroup}>
             <label htmlFor="minPrice">Min Price</label>
             <input
@@ -217,7 +224,6 @@ const Dashboard: React.FC = () => {
             />
           </div>
 
-          {/* Bedrooms Dropdown */}
           <div className={styles.filterGroup}>
             <label htmlFor="bedrooms">Bedrooms</label>
             <select
@@ -234,7 +240,6 @@ const Dashboard: React.FC = () => {
             </select>
           </div>
 
-          {/* Sort Dropdown */}
           <div className={styles.filterGroup}>
             <label htmlFor="sortBy">Sort By</label>
             <select
@@ -249,9 +254,8 @@ const Dashboard: React.FC = () => {
             </select>
           </div>
 
-          {/* Action Buttons */}
           <button type="submit" className={styles.searchBtn}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
