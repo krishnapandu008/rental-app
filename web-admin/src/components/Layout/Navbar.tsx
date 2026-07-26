@@ -15,7 +15,6 @@ const Navbar: React.FC = () => {
 
   const isAdmin = owner?.role === 'ADMIN' || owner?.role === 'SUPER_ADMIN';
 
-  // Get user initials (fallback)
   const getInitials = () => {
     if (!owner?.name) return 'U';
     const parts = owner.name.trim().split(' ');
@@ -36,14 +35,20 @@ const Navbar: React.FC = () => {
             <Link to="/">Dashboard</Link>
             <Link to="/add">Add Property</Link>
 
-            {/* Avatar with dropdown */}
             <div className={styles.avatarWrapper}>
               <div
                 className={styles.avatar}
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" />
+                  <img
+                    src={avatarUrl}
+                    alt="Avatar"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      // Fallback to initials is handled by the parent span logic
+                    }}
+                  />
                 ) : (
                   <span>{getInitials()}</span>
                 )}

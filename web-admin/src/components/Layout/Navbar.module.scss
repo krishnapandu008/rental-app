@@ -35,7 +35,6 @@
       opacity: 0.8;
     }
 
-    // Keep the admin link for direct access (optional) – but we also have it in dropdown
     .adminLink {
       background: rgba(255, 255, 255, 0.15);
       padding: 0.3rem 1rem;
@@ -57,7 +56,7 @@
   }
 }
 
-// Avatar & Dropdown
+/* ===== AVATAR & DROPDOWN ===== */
 .avatarWrapper {
   position: relative;
   display: inline-block;
@@ -98,13 +97,14 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: white;
+  background: #ffffff;
   color: #1f2937;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 160px;
   padding: 0.5rem 0;
   z-index: 1000;
+  display: block;
 
   a,
   button {
