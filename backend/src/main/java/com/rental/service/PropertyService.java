@@ -33,18 +33,16 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final LocalStorageService storageService;
     private final PropertyAccessService accessService;
-    private final FavoriteService favoriteService;   // ✅ injected
+    private final FavoriteService favoriteService;   // ✅ Injected
 
     // ---------- Public / Visible Listings with filters and pagination ----------
-    public Page<PropertyResponseDto> getVisibleProperties(Long ownerId, String role, String location,
-                                                          Double minPrice, Double maxPrice, Integer bedrooms,
-                                                          Pageable pageable) {
+    public Page<PropertyResponseDto> getVisibleProperties(Long ownerId, String role, String location, Double minPrice,
+            Double maxPrice, Integer bedrooms, Pageable pageable) {
         try {
-            Page<Property> page = propertyRepository.findVisibleWithFilters(ownerId, role, location,
-                    minPrice, maxPrice, bedrooms, pageable);
+            Page<Property> page = propertyRepository.findVisibleWithFilters(ownerId, role, location, minPrice, maxPrice,
+                    bedrooms, pageable);
             return page.map(property -> {
                 PropertyResponseDto dto = toDto(property);
-                // ✅ Set isFavorited if user is logged in
                 if (ownerId != null) {
                     dto.setFavorited(favoriteService.isFavorited(ownerId, property.getId()));
                 } else {
@@ -76,9 +74,7 @@ public class PropertyService {
 
     // ---------- Owner-specific (for their own management) ----------
     public List<PropertyResponseDto> getByOwner(Long ownerId) {
-        return propertyRepository.findByOwnerId(ownerId)
-                .stream().map(this::toDto)
-                .collect(Collectors.toList());
+        return propertyRepository.findByOwnerId(ownerId).stream().map(this::toDto).collect(Collectors.toList());
     }
 
     // ---------- Create (with or without images) ----------
@@ -164,11 +160,10 @@ public class PropertyService {
     @Transactional
     public void deleteImage(String imageUrl, Long ownerId, String role) {
         log.info("Attempting to delete image: {}", imageUrl);
-        Property property = propertyRepository.findByImageUrl(imageUrl)
-                .orElseThrow(() -> {
-                    log.warn("No property found with image URL: {}", imageUrl);
-                    return new ResourceNotFoundException("Image not found");
-                });
+        Property property = propertyRepository.findByImageUrl(imageUrl).orElseThrow(() -> {
+            log.warn("No property found with image URL: {}", imageUrl);
+            return new ResourceNotFoundException("Image not found");
+        });
         if (!accessService.canManage(ownerId, role, property)) {
             throw new ForbiddenException("You are not allowed to delete this image");
         }
