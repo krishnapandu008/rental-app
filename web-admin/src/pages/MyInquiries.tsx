@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api/client';
 import styles from './MyInquiries.module.scss';
 
@@ -17,7 +17,7 @@ interface Inquiry {
 }
 
 const MyInquiries: React.FC = () => {
-  const { owner } = useAuth();
+  // const { owner } = useAuth();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
