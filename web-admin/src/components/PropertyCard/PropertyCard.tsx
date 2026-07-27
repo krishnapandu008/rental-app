@@ -8,9 +8,10 @@ import styles from './PropertyCard.module.scss';
 interface Props {
   property: Property;
   onOpen: (property: Property) => void;
+  onFavoriteToggle?: (propertyId: number) => void;
 }
 
-const PropertyCard: React.FC<Props> = ({ property, onOpen }) => {
+const PropertyCard: React.FC<Props> = ({ property, onOpen, onFavoriteToggle }) => {
   const { owner } = useAuth();
   const [favorited, setFavorited] = useState(property.isFavorited || false);
   const [loading, setLoading] = useState(false);
@@ -21,18 +22,30 @@ const PropertyCard: React.FC<Props> = ({ property, onOpen }) => {
 
   const handleFavoriteToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
+    
     if (!owner) {
       alert('Please login to save favorites');
       return;
     }
+    
     if (loading) return;
     setLoading(true);
+    
+    const previousState = favorited;
+    
     try {
       const response = await toggleFavorite(property.id);
-      setFavorited(response.data);
+      const newState = response.data;
+      setFavorited(newState);
+      
+      if (onFavoriteToggle && !newState) {
+        onFavoriteToggle(property.id);
+      }
     } catch (err) {
-      console.error(err);
-      alert('Failed to update favorite');
+      console.error('Failed to toggle favorite:', err);
+      setFavorited(previousState);
+      alert('Failed to update favorite. Please try again.');
     } finally {
       setLoading(false);
     }

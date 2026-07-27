@@ -5,11 +5,28 @@
   @include container-wide;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-2xl;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .title {
   font-size: $font-2xl;
   font-weight: 700;
   color: $text-dark;
-  margin-bottom: $spacing-2xl;
+  margin: 0;
+}
+
+.count {
+  font-size: $font-base;
+  color: $text-muted;
+  background: $bg-hover;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
 }
 
 .loading {
@@ -19,6 +36,13 @@
   font-size: $font-lg;
 }
 
+.error {
+  color: #dc3545;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
 .emptyState {
   text-align: center;
   padding: 4rem 2rem;
@@ -26,19 +50,37 @@
   border-radius: $radius-lg;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
+  .emptyIcon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-size: $font-xl;
+    font-weight: 600;
+    color: $text-dark;
+    margin-bottom: $spacing-sm;
+  }
+
   p {
     font-size: $font-lg;
-    margin-bottom: $spacing-sm;
+    margin-bottom: $spacing-xl;
     color: $text-muted;
   }
 
-  a {
-    color: $primary;
-    font-weight: 500;
+  .browseBtn {
+    display: inline-block;
+    padding: 0.6rem 2rem;
+    background: $primary;
+    color: white;
+    border-radius: $radius-md;
     text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
 
     &:hover {
-      text-decoration: underline;
+      background: $primary-dark;
+      text-decoration: none;
     }
   }
 }

@@ -21,7 +21,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     @Query("SELECT p FROM Property p WHERE p.isActive = true AND " +
            "((p.visibility = 'PUBLIC') OR (:ownerId IS NOT NULL AND p.ownerId = :ownerId) OR (:role IS NOT NULL AND :role = 'ADMIN')) AND " +
-           "(:location IS NULL OR p.location ILIKE CONCAT('%', :location, '%')) AND " +
+           "(:location IS NULL OR p.location ILIKE CONCAT('%', CAST(:location AS text), '%')) AND " +
            "(:minPrice IS NULL OR p.rent >= :minPrice) AND " +
            "(:maxPrice IS NULL OR p.rent <= :maxPrice) AND " +
            "(:bedrooms IS NULL OR p.bedrooms = :bedrooms)")

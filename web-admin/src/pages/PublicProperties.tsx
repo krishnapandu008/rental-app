@@ -15,16 +15,16 @@ const PublicProperties: React.FC = () => {
   }, []);
 
   const loadProperties = async () => {
-  try {
-    const res = await getProperties({ size: 1000 }); // fetch first 1000 for public view (or implement pagination later)
-    setProperties(res.data?.content || []);
-  } catch (err) {
-    console.error('Error loading public properties:', err);
-    setProperties([]);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const res = await getProperties({ size: 1000 });
+      setProperties(res.data?.content || []);
+    } catch (err) {
+      console.error('Error loading public properties:', err);
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpen = (property: Property) => {
     navigate(`/property/${property.id}`, { state: { property } });

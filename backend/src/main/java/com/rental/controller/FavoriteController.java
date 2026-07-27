@@ -1,13 +1,19 @@
 package com.rental.controller;
 
-import com.rental.security.OwnerPrincipal;
-import com.rental.service.FavoriteService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.rental.security.OwnerPrincipal;
+import com.rental.service.FavoriteService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/favorites")

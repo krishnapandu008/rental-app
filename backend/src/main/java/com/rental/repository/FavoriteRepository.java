@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     List<Favorite> findByOwnerId(Long ownerId);
 
-    @Modifying
-    @Query("DELETE FROM Favorite f WHERE f.ownerId = :ownerId AND f.propertyId = :propertyId")
-    void deleteByOwnerIdAndPropertyId(@Param("ownerId") Long ownerId, @Param("propertyId") Long propertyId);
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "DELETE FROM favorites WHERE owner_id = :ownerId AND property_id = :propertyId", nativeQuery = true)
+    int deleteByOwnerIdAndPropertyIdNative(@Param("ownerId") Long ownerId, @Param("propertyId") Long propertyId);
 }

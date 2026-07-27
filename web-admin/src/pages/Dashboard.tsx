@@ -36,7 +36,6 @@ const Dashboard: React.FC = () => {
 
   const [activeQuickLocation, setActiveQuickLocation] = useState<string>('');
 
-  // ---- Fetch logic ----
   const loadProperties = useCallback(async () => {
     try {
       setLoading(true);
@@ -67,18 +66,15 @@ const Dashboard: React.FC = () => {
     }
   }, [owner, showMyListings, searchLocation, minPrice, maxPrice, bedrooms, sortBy, currentPage, pageSize]);
 
-  // ---- Only update when page, sort, or listing mode changes ----
   useEffect(() => {
     loadProperties();
-  }, [currentPage, sortBy, showMyListings]); // deliberately not including filters
+  }, [currentPage, sortBy, showMyListings]);
 
-  // ---- Trigger a new search with current filters ----
   const performSearch = () => {
     setCurrentPage(0);
-    loadProperties(); // will use the current filter state
+    loadProperties();
   };
 
-  // ---- Event handlers ----
   const handleSearchClick = () => {
     setActiveQuickLocation('');
     performSearch();
@@ -86,7 +82,7 @@ const Dashboard: React.FC = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault();          // prevent any form submission
+      e.preventDefault();
       setActiveQuickLocation('');
       performSearch();
     }
@@ -96,7 +92,7 @@ const Dashboard: React.FC = () => {
     setSearchLocation(location);
     setActiveQuickLocation(location);
     setCurrentPage(0);
-    loadProperties();              // immediate fetch
+    loadProperties();
   };
 
   const handleClearLocation = () => {
@@ -148,8 +144,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {!showMyListings && (
-        <div className={styles.searchForm}>  {/* ✅ No <form> – just a div */}
-          {/* Location Group */}
+        <div className={styles.searchForm}>
           <div className={styles.locationGroup}>
             <label htmlFor="location">📍 Location</label>
             <div className={styles.locationInputWrapper}>
@@ -168,7 +163,7 @@ const Dashboard: React.FC = () => {
                   setSearchLocation(e.target.value);
                   setActiveQuickLocation('');
                 }}
-                onKeyDown={handleKeyDown}   // ✅ Enter triggers search
+                onKeyDown={handleKeyDown}
                 className={styles.locationInput}
               />
               {searchLocation && (
@@ -211,7 +206,6 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Price and other filters */}
           <div className={styles.filterGroup}>
             <label htmlFor="minPrice">Min Price</label>
             <input
@@ -265,7 +259,6 @@ const Dashboard: React.FC = () => {
             </select>
           </div>
 
-          {/* ✅ Search button – type="button" – no form submission */}
           <button type="button" className={styles.searchBtn} onClick={handleSearchClick}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="8" />
