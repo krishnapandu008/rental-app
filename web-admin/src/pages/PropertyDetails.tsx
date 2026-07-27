@@ -106,7 +106,6 @@ const ImageLightbox: React.FC<LightboxProps> = ({ images, initialIndex, onClose 
     }
   };
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -117,7 +116,6 @@ const ImageLightbox: React.FC<LightboxProps> = ({ images, initialIndex, onClose 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, handlePrev, handleNext]);
 
-  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = 'unset'; };
@@ -125,7 +123,6 @@ const ImageLightbox: React.FC<LightboxProps> = ({ images, initialIndex, onClose 
 
   return (
     <div className={styles.lightboxOverlay} onClick={onClose}>
-      {/* Toolbar */}
       <div className={styles.lightboxToolbar}>
         <span className={styles.lightboxCounter}>
           {currentIndex + 1} / {images.length}
@@ -134,8 +131,6 @@ const ImageLightbox: React.FC<LightboxProps> = ({ images, initialIndex, onClose 
           <CloseIcon />
         </button>
       </div>
-
-      {/* Image Container */}
       <div
         className={styles.lightboxImageContainer}
         onClick={(e) => e.stopPropagation()}
@@ -162,8 +157,6 @@ const ImageLightbox: React.FC<LightboxProps> = ({ images, initialIndex, onClose 
           draggable={false}
         />
       </div>
-
-      {/* Navigation Arrows */}
       {images.length > 1 && (
         <>
           <button
@@ -205,9 +198,14 @@ const PropertyDetails: React.FC = () => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [togglingActive, setTogglingActive] = useState(false);
 
+  // Inquiry state
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [inquirySuccess, setInquirySuccess] = useState(false);
+  const [inquiryError, setInquiryError] = useState('');
+
   const isAdmin = owner?.role === 'ADMIN';
 
-  // Fetch property if not passed via state
   useEffect(() => {
     if (property) {
       setMainImage(property.imageUrls?.[0] || '');
@@ -302,7 +300,6 @@ const PropertyDetails: React.FC = () => {
     setLightboxOpen(true);
   };
 
-  // Admin-only: toggle active status
   const handleToggleActive = async () => {
     if (!property || !isAdmin) return;
     try {
@@ -314,6 +311,35 @@ const PropertyDetails: React.FC = () => {
       alert('Failed to change active status.');
     } finally {
       setTogglingActive(false);
+    }
+  };
+
+  // ===== INQUIRY HANDLER =====
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!owner) {
+      alert('Please login to send a message');
+      return;
+    }
+    if (!property) return;
+    if (!message.trim()) {
+      setInquiryError('Please enter a message');
+      return;
+    }
+
+    setSending(true);
+    setInquiryError('');
+    setInquirySuccess(false);
+
+    try {
+      await api.post(`/inquiries/${property.id}`, { message });
+      setInquirySuccess(true);
+      setMessage('');
+      setTimeout(() => setInquirySuccess(false), 5000);
+    } catch (err: any) {
+      setInquiryError(err.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -332,18 +358,14 @@ const PropertyDetails: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* ===== BACK BUTTON ===== */}
       <button className={styles.backButton} onClick={() => navigate('/')}>
         <BackIcon /> Back
       </button>
 
       <div className={styles.card}>
-        {/* ===== HEADER ===== */}
         <div className={styles.header}>
           <h1 className={styles.title}>{property.title}</h1>
-
           <div className={styles.actionButtons}>
-            {/* Edit Button */}
             <button
               className={styles.actionBtn}
               onClick={() => navigate(`/edit/${property.id}`, { state: { property } })}
@@ -354,8 +376,6 @@ const PropertyDetails: React.FC = () => {
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
-
-            {/* Delete Property Button */}
             <button
               className={`${styles.actionBtn} ${styles.deleteActionBtn}`}
               onClick={handleDelete}
@@ -371,11 +391,9 @@ const PropertyDetails: React.FC = () => {
           </div>
         </div>
 
-        {/* ===== IMAGE GALLERY ===== */}
         <div className={styles.imageGallery}>
           {property.imageUrls && property.imageUrls.length > 0 ? (
             <>
-              {/* Main Image */}
               <img
                 src={mainImage}
                 alt={property.title}
@@ -383,8 +401,6 @@ const PropertyDetails: React.FC = () => {
                 onClick={() => openLightbox(0)}
                 style={{ cursor: 'zoom-in' }}
               />
-
-              {/* Thumbnails */}
               {property.imageUrls.length > 1 && (
                 <div className={styles.thumbnailGrid}>
                   {property.imageUrls.map((url, idx) => {
@@ -405,8 +421,6 @@ const PropertyDetails: React.FC = () => {
                           title={isMain ? 'Current main image' : 'Click to make main'}
                           style={{ cursor: 'pointer' }}
                         />
-
-                        {/* Image Controls */}
                         <div className={styles.imageControls}>
                           <button
                             className={`${styles.controlBtn} ${styles.replaceBtn}`}
@@ -442,16 +456,13 @@ const PropertyDetails: React.FC = () => {
           )}
         </div>
 
-        {/* ===== PROPERTY DETAILS ===== */}
         <div className={styles.detailsGrid}>
           <p><strong>📍 Location:</strong> {property.location}</p>
           <p><strong>💰 Rent:</strong> {formatCurrency(property.rent)} / month</p>
           <p><strong>🛏️ Bedrooms:</strong> {property.bedrooms} BHK</p>
-          <p><strong>📞 Contact:</strong> {property.contactNumber}</p>
           {property.description && (
             <p><strong>📝 Description:</strong> {property.description}</p>
           )}
-          {/* NEW FIELDS */}
           <p><strong>👁️ Visibility:</strong> {property.visibility}</p>
           <p>
             <strong>📌 Status:</strong> 
@@ -461,7 +472,6 @@ const PropertyDetails: React.FC = () => {
           </p>
         </div>
 
-        {/* Admin-only toggle for active status */}
         {isAdmin && (
           <div className={styles.adminActions}>
             <button
@@ -474,9 +484,35 @@ const PropertyDetails: React.FC = () => {
             <span className={styles.adminHint}>Admin: toggle visibility for all users</span>
           </div>
         )}
+
+        {/* ===== CONTACT OWNER / INQUIRY FORM ===== */}
+        <div className={styles.contactSection}>
+          <h3 className={styles.contactTitle}>📩 Contact Owner</h3>
+          
+          {owner ? (
+            <form onSubmit={handleSendMessage} className={styles.contactForm}>
+              <textarea
+                placeholder="Write your message here..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                className={styles.messageInput}
+                rows={4}
+              />
+              {inquiryError && <div className={styles.inquiryError}>{inquiryError}</div>}
+              {inquirySuccess && <div className={styles.inquirySuccess}>✅ Message sent successfully!</div>}
+              <button type="submit" disabled={sending} className={styles.sendBtn}>
+                {sending ? 'Sending...' : 'Send Message'}
+              </button>
+            </form>
+          ) : (
+            <div className={styles.loginPrompt}>
+              <p>Please <a href="/login" className={styles.loginLink}>login</a> to contact the owner.</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ===== LIGHTBOX ===== */}
       {lightboxOpen && (
         <ImageLightbox
           images={property.imageUrls}

@@ -10,6 +10,7 @@ import PropertyDetails from './pages/PropertyDetails';
 import AdminPanel from './pages/AdminPanel';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';   // ✅ NEW
+import MyInquiries from './pages/MyInquiries';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { owner, loading } = useAuth();
@@ -67,6 +68,7 @@ function App() {
           <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />   {/* ✅ NEW */}
+          <Route path="/inquiries" element={<ProtectedRoute><MyInquiries /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

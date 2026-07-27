@@ -69,6 +69,7 @@ const Navbar: React.FC = () => {
             <Link to="/">Dashboard</Link>
             <Link to="/add">Add Property</Link>
             <Link to="/favorites">Favorites</Link>
+            <Link to="/inquiries">Inquiries</Link>  {/* ✅ NEW */}
 
             <div
               className={styles.avatarWrapper}

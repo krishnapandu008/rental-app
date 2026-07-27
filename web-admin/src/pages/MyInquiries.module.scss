@@ -1,0 +1,248 @@
+@use '../styles/variables' as *;
+@use '../styles/mixins' as *;
+
+.container {
+  @include container-wide;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-2xl;
+}
+
+.title {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: $text-dark;
+  margin: 0;
+}
+
+.count {
+  padding: 0.3rem 1rem;
+  background: $primary;
+  color: white;
+  border-radius: 20px;
+  font-size: $font-sm;
+  font-weight: 600;
+}
+
+.loading {
+  padding: $spacing-2xl;
+  text-align: center;
+  color: $text-muted;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: $text-muted;
+}
+
+.inquiryList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.inquiryCard {
+  background: $bg-white;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  border-left: 4px solid $border-color;
+
+  &.unread {
+    border-left-color: $primary;
+    background: #fef9f7;
+  }
+}
+
+.inquiryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.propertyInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+
+  h3 {
+    margin: 0;
+    font-size: $font-lg;
+    color: $text-dark;
+  }
+}
+
+.badge {
+  padding: 0.15rem 0.6rem;
+  border-radius: 12px;
+  font-size: $font-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: $bg-hover;
+  color: $text-muted;
+
+  &.new {
+    background: #f4511e;
+    color: white;
+  }
+}
+
+.senderInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.senderName {
+  font-weight: 600;
+  color: $text-dark;
+}
+
+.senderEmail {
+  color: $text-light;
+}
+
+.date {
+  color: $text-light;
+  font-size: $font-xs;
+}
+
+.messageContent {
+  padding: $spacing-md;
+  background: $bg-hover;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-sm;
+
+  p {
+    margin: 0;
+    font-size: $font-base;
+    color: $text-dark;
+  }
+}
+
+.replyContent {
+  padding: $spacing-md;
+  background: #e8f5e9;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-sm;
+
+  p {
+    margin: 0;
+    font-size: $font-base;
+    color: $text-dark;
+  }
+
+  .replyDate {
+    font-size: $font-xs;
+    color: $text-muted;
+    margin-top: $spacing-xs;
+    display: block;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.readBtn {
+  padding: 0.3rem 1rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: $font-sm;
+  &:hover {
+    background: #5a6268;
+  }
+}
+
+.replyBtn {
+  padding: 0.3rem 1rem;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: $font-sm;
+  &:hover {
+    background: $primary-dark;
+  }
+}
+
+.repliedBadge {
+  color: $green;
+  font-weight: 600;
+  font-size: $font-sm;
+}
+
+.replyForm {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid $border-color;
+}
+
+.replyInput {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  font-family: inherit;
+  font-size: $font-base;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+  }
+}
+
+.replyActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+}
+
+.sendReplyBtn {
+  padding: 0.4rem 1.2rem;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.cancelReplyBtn {
+  padding: 0.4rem 1.2rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background: #5a6268;
+  }
+}

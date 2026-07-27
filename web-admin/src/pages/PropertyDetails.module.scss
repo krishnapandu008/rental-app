@@ -227,6 +227,113 @@
 }
 
 // ============================================
+// CONTACT OWNER / INQUIRY SECTION
+// ============================================
+.contactSection {
+  margin-top: $spacing-xl;
+  padding-top: $spacing-xl;
+  border-top: 1px solid $border-color;
+}
+
+.contactTitle {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $text-dark;
+  margin-bottom: $spacing-md;
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.messageInput {
+  width: 100%;
+  min-height: 100px;
+  padding: $spacing-md $spacing-lg;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  resize: vertical;
+  font-family: inherit;
+  font-size: $font-base;
+  transition: border-color $transition-base;
+  background: $bg-input;
+
+  &:focus {
+    outline: none;
+    border-color: $blue;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.sendBtn {
+  padding: $spacing-md $spacing-xl;
+  background: $gradient-primary;
+  color: $bg-white;
+  border: none;
+  border-radius: $radius-md;
+  font-weight: 600;
+  font-size: $font-base;
+  cursor: pointer;
+  transition: all $transition-base;
+  align-self: flex-start;
+  box-shadow: $shadow-primary;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-primary-hover;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.inquiryError {
+  color: $red;
+  font-size: $font-sm;
+  padding: $spacing-sm $spacing-md;
+  background: #fff5f5;
+  border-radius: $radius-sm;
+  border: 1px solid #fcc;
+}
+
+.inquirySuccess {
+  color: $green;
+  font-size: $font-sm;
+  padding: $spacing-sm $spacing-md;
+  background: #f0fff4;
+  border-radius: $radius-sm;
+  border: 1px solid #c6f6d5;
+}
+
+.loginPrompt {
+  padding: $spacing-lg;
+  background: $bg-hover;
+  border-radius: $radius-md;
+  text-align: center;
+  color: $text-muted;
+
+  p {
+    margin: 0;
+    font-size: $font-base;
+  }
+}
+
+.loginLink {
+  color: $blue;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ============================================
 // CUSTOM LIGHTBOX STYLES (unchanged)
 // ============================================
 
