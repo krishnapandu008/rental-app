@@ -43,7 +43,8 @@ const Favorites: React.FC = () => {
     loadFavorites();
   }, [loadFavorites]);
 
-  const handleRemoveFavorite = useCallback(async (propertyId: number) => {
+  // ✅ Re-fetch the list when a property is unfavorited
+  const handleRemoveFavorite = useCallback(async () => {
     await loadFavorites();
   }, [loadFavorites]);
 
