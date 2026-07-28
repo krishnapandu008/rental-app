@@ -20,7 +20,7 @@ import java.util.List;
 public class InquiryController {
 
     private final InquiryService inquiryService;
-
+    
     @PostMapping("/{propertyId}")
     public ResponseEntity<Inquiry> createInquiry(
             @PathVariable Long propertyId,

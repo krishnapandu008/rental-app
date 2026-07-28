@@ -25,11 +25,16 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final PropertyRepository propertyRepository;
     private final OwnerService ownerService;
+    private final NotificationService notificationService;
 
     @Transactional
     public Inquiry createInquiry(Long propertyId, Long senderId, String message) {
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+
+        // Get sender and property owner details
+        Owner sender = ownerService.findById(senderId);
+        Owner propertyOwner = ownerService.findById(property.getOwnerId());
 
         Inquiry inquiry = Inquiry.builder()
                 .propertyId(propertyId)
@@ -38,7 +43,25 @@ public class InquiryService {
                 .status("NEW")
                 .build();
 
-        return inquiryRepository.save(inquiry);
+        Inquiry saved = inquiryRepository.save(inquiry);
+        log.info("📩 Inquiry created for property: {}", property.getTitle());
+
+        // ✅ Create notification for property owner
+        String title = "New Inquiry";
+        String notificationMessage = sender.getName() + " sent a message about \"" + property.getTitle() + "\"";
+        String link = "/inquiries";
+        notificationService.createNotification(
+                propertyOwner.getId(),
+                "INQUIRY",
+                title,
+                notificationMessage,
+                link,
+                saved.getId()
+        );
+
+        log.info("📨 Notification created for owner: {}", propertyOwner.getEmail());
+
+        return saved;
     }
 
     public List<Inquiry> getInquiriesForProperty(Long propertyId) {
@@ -71,11 +94,33 @@ public class InquiryService {
             throw new SecurityException("You are not authorized to reply to this inquiry");
         }
 
+        // Get sender and property owner details for notifications
+        Owner propertyOwner = ownerService.findById(ownerId);
+        Owner sender = ownerService.findById(inquiry.getSenderId());
+
         inquiry.setReply(dto.getReply());
         inquiry.setStatus("REPLIED");
         inquiry.setRepliedAt(LocalDateTime.now());
 
-        return inquiryRepository.save(inquiry);
+        Inquiry saved = inquiryRepository.save(inquiry);
+        log.info("📩 Reply sent to inquiry: {}", inquiryId);
+
+        // ✅ Create notification for the sender (the original inquirer)
+        String title = "Reply to Your Inquiry";
+        String notificationMessage = propertyOwner.getName() + " replied to your inquiry about \"" + property.getTitle() + "\"";
+        String link = "/property/" + property.getId();
+        notificationService.createNotification(
+                sender.getId(),
+                "REPLY",
+                title,
+                notificationMessage,
+                link,
+                saved.getId()
+        );
+
+        log.info("📨 Reply notification created for sender: {}", sender.getEmail());
+
+        return saved;
     }
 
     // Convert to DTO with property details
