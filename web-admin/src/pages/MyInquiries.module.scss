@@ -246,3 +246,84 @@
     background: #5a6268;
   }
 }
+
+// Add these styles to MyInquiries.module.scss
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.filterTabs {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+  border-bottom: 1px solid $border-color;
+  padding-bottom: $spacing-sm;
+}
+
+.filterTab {
+  padding: 0.4rem 1.2rem;
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  font-size: $font-sm;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: $radius-sm;
+  transition: all $transition-base;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-dark;
+  }
+
+  &.active {
+    background: $primary;
+    color: white;
+  }
+}
+
+.typeBadge {
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  font-size: $font-xs;
+  font-weight: 500;
+  background: #e3f2fd;
+  color: #0d47a1;
+
+  &.sentBadge {
+    background: #f3e5f5;
+    color: #6a1b9a;
+  }
+}
+
+.propertyLink {
+  text-decoration: none;
+  color: $text-dark;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+.viewBtn {
+  padding: 0.3rem 1rem;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: $font-sm;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    background: #138496;
+    color: white;
+  }
+}

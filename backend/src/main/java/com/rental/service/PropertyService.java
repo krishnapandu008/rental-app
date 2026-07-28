@@ -227,4 +227,14 @@ public class PropertyService {
         dto.setLongitude(property.getLongitude());
         return dto;
     }
+ // Add this method to PropertyService.java
+
+    /**
+     * Get the Property entity by ID (for internal use)
+     * This bypasses the access control checks used by getPropertyById()
+     */
+    public Property getPropertyEntityById(Long id) {
+        return propertyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+    }
 }

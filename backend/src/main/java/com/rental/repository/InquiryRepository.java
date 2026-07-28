@@ -30,4 +30,8 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     @Transactional
     @Query("UPDATE Inquiry i SET i.status = 'READ' WHERE i.id = :inquiryId")
     void markAsRead(@Param("inquiryId") Long inquiryId);
+    
+ // Add this method to InquiryRepository.java
+    @Query("SELECT i FROM Inquiry i WHERE i.senderId = :userId OR i.propertyId IN (SELECT p.id FROM Property p WHERE p.ownerId = :userId)")
+    List<Inquiry> findBySenderIdOrPropertyOwnerId(@Param("userId") Long userId);
 }

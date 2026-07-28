@@ -18,4 +18,6 @@ public class InquiryResponseDto {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime repliedAt;
+    private Boolean isReceived;  // ✅ NEW: true if user is the property owner
+    private Boolean isSent;      // ✅ NEW: true if user is the sender
 }

@@ -11,6 +11,7 @@ import AdminPanel from './pages/AdminPanel';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';   // ✅ NEW
 import MyInquiries from './pages/MyInquiries';
+import InquiryDetail from './pages/InquiryDetail';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { owner, loading } = useAuth();
@@ -69,6 +70,7 @@ function App() {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />   {/* ✅ NEW */}
           <Route path="/inquiries" element={<ProtectedRoute><MyInquiries /></ProtectedRoute>} />
+          <Route path="/inquiry/:id" element={<ProtectedRoute><InquiryDetail /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

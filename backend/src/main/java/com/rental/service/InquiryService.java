@@ -49,7 +49,7 @@ public class InquiryService {
         // ✅ Create notification for property owner
         String title = "New Inquiry";
         String notificationMessage = sender.getName() + " sent a message about \"" + property.getTitle() + "\"";
-        String link = "/inquiries";
+        String link = "/inquiry/" + saved.getId();
         notificationService.createNotification(
                 propertyOwner.getId(),
                 "INQUIRY",
@@ -108,7 +108,7 @@ public class InquiryService {
         // ✅ Create notification for the sender (the original inquirer)
         String title = "Reply to Your Inquiry";
         String notificationMessage = propertyOwner.getName() + " replied to your inquiry about \"" + property.getTitle() + "\"";
-        String link = "/property/" + property.getId();
+        String link = "/inquiry/" + saved.getId();
         notificationService.createNotification(
                 sender.getId(),
                 "REPLY",
@@ -145,4 +145,88 @@ public class InquiryService {
                 })
                 .collect(Collectors.toList());
     }
-}
+    public Inquiry getInquiryById(Long inquiryId) {
+        return inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Inquiry not found"));
+    }
+
+    public InquiryResponseDto getInquiryResponseDto(Inquiry inquiry) {
+        Property property = propertyRepository.findById(inquiry.getPropertyId()).orElse(null);
+        Owner sender = ownerService.findById(inquiry.getSenderId());
+        return InquiryResponseDto.builder()
+                .id(inquiry.getId())
+                .propertyId(inquiry.getPropertyId())
+                .propertyTitle(property != null ? property.getTitle() : "Unknown")
+                .senderName(sender != null ? sender.getName() : "Unknown")
+                .senderEmail(sender != null ? sender.getEmail() : "Unknown")
+                .message(inquiry.getMessage())
+                .reply(inquiry.getReply())
+                .status(inquiry.getStatus())
+                .createdAt(inquiry.getCreatedAt())
+                .repliedAt(inquiry.getRepliedAt())
+                .build();
+    }
+ // Add these methods to InquiryService.java
+
+    /**
+     * Get inquiries sent by a specific user (the sender)
+     */
+    public List<InquiryResponseDto> getSentInquiries(Long senderId) {
+        List<Inquiry> inquiries = inquiryRepository.findBySenderId(senderId);
+        return inquiries.stream()
+                .map(i -> {
+                    Property property = propertyRepository.findById(i.getPropertyId()).orElse(null);
+                    Owner sender = ownerService.findById(i.getSenderId());
+                    return InquiryResponseDto.builder()
+                            .id(i.getId())
+                            .propertyId(i.getPropertyId())
+                            .propertyTitle(property != null ? property.getTitle() : "Unknown")
+                            .senderName("You") // Since this is the sender's own view
+                            .senderEmail(sender != null ? sender.getEmail() : "Unknown")
+                            .message(i.getMessage())
+                            .reply(i.getReply())
+                            .status(i.getStatus())
+                            .createdAt(i.getCreatedAt())
+                            .repliedAt(i.getRepliedAt())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all inquiries where the user is either the sender OR the property owner
+     */
+    public List<InquiryResponseDto> getAllMyInquiries(Long userId) {
+        List<Inquiry> inquiries = inquiryRepository.findBySenderIdOrPropertyOwnerId(userId);
+        return inquiries.stream()
+                .map(i -> {
+                    Property property = propertyRepository.findById(i.getPropertyId()).orElse(null);
+                    Owner sender = ownerService.findById(i.getSenderId());
+                    Owner propertyOwner = ownerService.findById(property != null ? property.getOwnerId() : null);
+                    
+                    // Determine if this is a received or sent inquiry
+                    boolean isReceived = property != null && property.getOwnerId().equals(userId);
+                    boolean isSent = i.getSenderId().equals(userId);
+                    
+                    String displaySenderName = isReceived 
+                        ? (sender != null ? sender.getName() : "Unknown")
+                        : "You";
+                    
+                    return InquiryResponseDto.builder()
+                            .id(i.getId())
+                            .propertyId(i.getPropertyId())
+                            .propertyTitle(property != null ? property.getTitle() : "Unknown")
+                            .senderName(displaySenderName)
+                            .senderEmail(isReceived && sender != null ? sender.getEmail() : "")
+                            .message(i.getMessage())
+                            .reply(i.getReply())
+                            .status(i.getStatus())
+                            .createdAt(i.getCreatedAt())
+                            .repliedAt(i.getRepliedAt())
+                            .isReceived(isReceived)
+                            .isSent(isSent)
+                            .build();
+                })
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .collect(Collectors.toList());
+    }}

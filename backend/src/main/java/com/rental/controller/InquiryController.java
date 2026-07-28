@@ -1,18 +1,29 @@
 package com.rental.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.rental.dto.InquiryReplyDto;
 import com.rental.dto.InquiryRequestDto;
 import com.rental.dto.InquiryResponseDto;
 import com.rental.entity.Inquiry;
+import com.rental.entity.Property;
+import com.rental.exception.ForbiddenException;
 import com.rental.security.OwnerPrincipal;
 import com.rental.service.InquiryService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import com.rental.service.PropertyService;
 
 import jakarta.validation.Valid;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/inquiries")
@@ -20,6 +31,7 @@ import java.util.List;
 public class InquiryController {
 
     private final InquiryService inquiryService;
+    private final PropertyService propertyService;
     
     @PostMapping("/{propertyId}")
     public ResponseEntity<Inquiry> createInquiry(
@@ -63,5 +75,37 @@ public class InquiryController {
             @AuthenticationPrincipal OwnerPrincipal principal) {
         Inquiry inquiry = inquiryService.replyToInquiry(inquiryId, dto, principal.getId());
         return ResponseEntity.ok(inquiry);
+    }
+
+    // ✅ FIXED: Get a single inquiry by ID
+    @GetMapping("/{inquiryId}")
+    public ResponseEntity<InquiryResponseDto> getInquiryById(
+            @PathVariable Long inquiryId,
+            @AuthenticationPrincipal OwnerPrincipal principal) {
+        
+        // Fetch the inquiry
+        Inquiry inquiry = inquiryService.getInquiryById(inquiryId);
+        
+        // ✅ FIXED: Use the repository directly to get the Property entity
+        // This avoids the 3-parameter method signature issue
+        Property property = propertyService.getPropertyEntityById(inquiry.getPropertyId());
+        
+        // Verify the user is either the sender or the property owner
+        if (!principal.getId().equals(inquiry.getSenderId()) && 
+            !principal.getId().equals(property.getOwnerId())) {
+            throw new ForbiddenException("You are not authorised to view this inquiry");
+        }
+        
+        // Convert to DTO with details
+        InquiryResponseDto response = inquiryService.getInquiryResponseDto(inquiry);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/sent")
+    public List<InquiryResponseDto> getSentInquiries(@AuthenticationPrincipal OwnerPrincipal principal) {
+        return inquiryService.getSentInquiries(principal.getId());
+    }
+    @GetMapping("/my-all")
+    public List<InquiryResponseDto> getAllMyInquiries(@AuthenticationPrincipal OwnerPrincipal principal) {
+        return inquiryService.getAllMyInquiries(principal.getId());
     }
 }

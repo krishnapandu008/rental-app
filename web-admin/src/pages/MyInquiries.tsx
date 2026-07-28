@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-// import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import styles from './MyInquiries.module.scss';
 
@@ -14,15 +14,17 @@ interface Inquiry {
   status: string;
   createdAt: string;
   repliedAt: string;
+  isReceived?: boolean;
+  isSent?: boolean;
 }
 
 const MyInquiries: React.FC = () => {
-  // const { owner } = useAuth();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
   const [sending, setSending] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'received' | 'sent'>('all');
 
   useEffect(() => {
     loadInquiries();
@@ -30,7 +32,8 @@ const MyInquiries: React.FC = () => {
 
   const loadInquiries = async () => {
     try {
-      const res = await api.get('/inquiries/my-inquiries');
+      // Use the new endpoint that returns ALL inquiries
+      const res = await api.get('/inquiries/my-all');
       setInquiries(res.data);
     } catch (err) {
       console.error('Failed to load inquiries:', err);
@@ -72,33 +75,83 @@ const MyInquiries: React.FC = () => {
     }
   };
 
+  const getFilteredInquiries = () => {
+    if (filter === 'all') return inquiries;
+    if (filter === 'received') return inquiries.filter(i => i.isReceived);
+    if (filter === 'sent') return inquiries.filter(i => i.isSent);
+    return inquiries;
+  };
+
+  const filteredInquiries = getFilteredInquiries();
+
   if (loading) return <div className={styles.loading}>Loading inquiries...</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>📩 My Inquiries</h2>
-        <span className={styles.count}>
-          {inquiries.filter(i => i.status === 'NEW').length} new
-        </span>
+        <div className={styles.headerRight}>
+          <span className={styles.count}>
+            {inquiries.filter(i => i.status === 'NEW').length} new
+          </span>
+        </div>
       </div>
 
-      {inquiries.length === 0 ? (
+      {/* Filter Tabs */}
+      <div className={styles.filterTabs}>
+        <button
+          className={`${styles.filterTab} ${filter === 'all' ? styles.active : ''}`}
+          onClick={() => setFilter('all')}
+        >
+          All ({inquiries.length})
+        </button>
+        <button
+          className={`${styles.filterTab} ${filter === 'received' ? styles.active : ''}`}
+          onClick={() => setFilter('received')}
+        >
+          Received ({inquiries.filter(i => i.isReceived).length})
+        </button>
+        <button
+          className={`${styles.filterTab} ${filter === 'sent' ? styles.active : ''}`}
+          onClick={() => setFilter('sent')}
+        >
+          Sent ({inquiries.filter(i => i.isSent).length})
+        </button>
+      </div>
+
+      {filteredInquiries.length === 0 ? (
         <div className={styles.emptyState}>
-          <p>No inquiries yet.</p>
+          <p>No inquiries {filter !== 'all' ? filter : ''}.</p>
         </div>
       ) : (
         <div className={styles.inquiryList}>
-          {inquiries.map((inquiry) => (
-            <div key={inquiry.id} className={`${styles.inquiryCard} ${inquiry.status === 'NEW' ? styles.unread : ''}`}>
+          {filteredInquiries.map((inquiry) => (
+            <div
+              key={inquiry.id}
+              className={`${styles.inquiryCard} ${inquiry.status === 'NEW' ? styles.unread : ''}`}
+            >
               <div className={styles.inquiryHeader}>
                 <div className={styles.propertyInfo}>
-                  <h3>{inquiry.propertyTitle}</h3>
+                  <Link to={`/inquiry/${inquiry.id}`} className={styles.propertyLink}>
+                    <h3>{inquiry.propertyTitle}</h3>
+                  </Link>
                   <span className={styles.badge}>{inquiry.status}</span>
+                  {inquiry.isReceived && (
+                    <span className={styles.typeBadge} title="Received inquiry">
+                      📩 Received
+                    </span>
+                  )}
+                  {inquiry.isSent && (
+                    <span className={`${styles.typeBadge} ${styles.sentBadge}`} title="Sent inquiry">
+                      ✉️ Sent
+                    </span>
+                  )}
                 </div>
                 <div className={styles.senderInfo}>
                   <span className={styles.senderName}>{inquiry.senderName}</span>
-                  <span className={styles.senderEmail}>{inquiry.senderEmail}</span>
+                  {inquiry.senderEmail && (
+                    <span className={styles.senderEmail}>{inquiry.senderEmail}</span>
+                  )}
                   <span className={styles.date}>
                     {new Date(inquiry.createdAt).toLocaleDateString()}
                   </span>
@@ -111,7 +164,7 @@ const MyInquiries: React.FC = () => {
 
               {inquiry.reply && (
                 <div className={styles.replyContent}>
-                  <p><strong>Your Reply:</strong> {inquiry.reply}</p>
+                  <p><strong>Reply:</strong> {inquiry.reply}</p>
                   <span className={styles.replyDate}>
                     Replied: {new Date(inquiry.repliedAt).toLocaleDateString()}
                   </span>
@@ -119,7 +172,7 @@ const MyInquiries: React.FC = () => {
               )}
 
               <div className={styles.actions}>
-                {inquiry.status === 'NEW' && (
+                {inquiry.status === 'NEW' && inquiry.isReceived && (
                   <button
                     className={styles.readBtn}
                     onClick={() => handleMarkAsRead(inquiry.id)}
@@ -128,16 +181,20 @@ const MyInquiries: React.FC = () => {
                   </button>
                 )}
 
-                {!inquiry.reply ? (
+                {!inquiry.reply && inquiry.isReceived ? (
                   <button
                     className={styles.replyBtn}
                     onClick={() => setReplyingTo(inquiry.id)}
                   >
                     Reply
                   </button>
-                ) : (
+                ) : inquiry.reply ? (
                   <span className={styles.repliedBadge}>✅ Replied</span>
-                )}
+                ) : null}
+
+                <Link to={`/inquiry/${inquiry.id}`} className={styles.viewBtn}>
+                  👁️ View Conversation
+                </Link>
               </div>
 
               {replyingTo === inquiry.id && (

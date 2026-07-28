@@ -1,0 +1,157 @@
+@use '../styles/variables' as *;
+@use '../styles/mixins' as *;
+
+.container {
+  @include container-center(700px);
+  padding: 2rem 1rem;
+}
+
+.backButton {
+  @include back-button;
+  margin-bottom: $spacing-xl;
+}
+
+.card {
+  @include card-base;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: $font-sm;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  margin-top: 4px;
+
+  &.new {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  &.replied {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  &.read {
+    background: #cce5ff;
+    color: #004085;
+  }
+}
+
+.section {
+  margin-bottom: $spacing-xl;
+}
+
+.sectionLabel {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: $spacing-sm;
+}
+
+.messageCard {
+  background: #f8f9fa;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  border-left: 4px solid $blue;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &.replyMessage {
+    border-left-color: $primary;
+    background: #fef9f7;
+  }
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.senderName {
+  font-weight: 600;
+  color: $text-dark;
+}
+
+.messageTime {
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.messageText {
+  font-size: $font-base;
+  color: $text-dark;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.replySection {
+  margin-top: $spacing-xl;
+  padding-top: $spacing-xl;
+  border-top: 1px solid $border-color;
+}
+
+.replyLabel {
+  font-weight: 600;
+  color: $text-dark;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.replyText {
+  font-size: $font-base;
+  color: $text-dark;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: $text-muted;
+
+  .emptyIcon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: $spacing-lg;
+  }
+
+  p {
+    font-size: $font-lg;
+    margin: 0;
+  }
+}
