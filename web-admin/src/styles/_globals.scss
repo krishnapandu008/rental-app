@@ -6,14 +6,20 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   background: #f8fafc;
   color: $text-dark;
+  line-height: 1.6;
 }
 
-// ===== UTILITY CLASSES =====
+// ===== UTILITY CLASSES (Existing) =====
 .text-center {
   text-align: center;
 }
@@ -26,3 +32,543 @@ body {
 .mt-2 { margin-top: $spacing-xl; }
 .mb-1 { margin-bottom: $spacing-lg; }
 .mb-2 { margin-bottom: $spacing-xl; }
+
+// ================================================================
+// 📱 RESPONSIVE UTILITY CLASSES
+// ================================================================
+
+// Breakpoints
+$breakpoint-sm: 480px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+
+// ===== HIDE/SHOW CLASSES =====
+.hide-mobile {
+  @media (max-width: $breakpoint-md) {
+    display: none !important;
+  }
+}
+
+.hide-tablet {
+  @media (min-width: #{$breakpoint-md + 1px}) and (max-width: $breakpoint-lg) {
+    display: none !important;
+  }
+}
+
+.hide-desktop {
+  @media (min-width: #{$breakpoint-lg + 1px}) {
+    display: none !important;
+  }
+}
+
+.show-mobile {
+  display: none !important;
+  @media (max-width: $breakpoint-md) {
+    display: block !important;
+  }
+}
+
+.show-mobile-flex {
+  display: none !important;
+  @media (max-width: $breakpoint-md) {
+    display: flex !important;
+  }
+}
+
+.show-mobile-inline {
+  display: none !important;
+  @media (max-width: $breakpoint-md) {
+    display: inline !important;
+  }
+}
+
+.show-tablet {
+  display: none !important;
+  @media (min-width: #{$breakpoint-md + 1px}) and (max-width: $breakpoint-lg) {
+    display: block !important;
+  }
+}
+
+.show-desktop {
+  display: none !important;
+  @media (min-width: #{$breakpoint-lg + 1px}) {
+    display: block !important;
+  }
+}
+
+// ===== RESPONSIVE CONTAINERS =====
+.container-fluid {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 1rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.75rem;
+  }
+}
+
+.container-center {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    margin: 1rem auto;
+    padding: 0.75rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    margin: 0.5rem auto;
+    padding: 0.5rem;
+  }
+}
+
+.container-wide {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 1rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.5rem;
+  }
+}
+
+// ===== RESPONSIVE GRID =====
+.grid-2 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.grid-3 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.grid-4 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+// ===== RESPONSIVE FLEX =====
+.flex-row {
+  display: flex;
+  gap: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.flex-row-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    gap: 0.75rem;
+  }
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+}
+
+// ===== RESPONSIVE TEXT =====
+.text-responsive {
+  font-size: 1.75rem;
+
+  @media (max-width: $breakpoint-lg) {
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 1rem;
+  }
+}
+
+.text-responsive-sm {
+  font-size: 1.25rem;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 0.95rem;
+  }
+}
+
+.text-center-responsive {
+  @media (max-width: $breakpoint-md) {
+    text-align: center;
+  }
+}
+
+.text-left-responsive {
+  @media (max-width: $breakpoint-md) {
+    text-align: left;
+  }
+}
+
+.text-right-responsive {
+  @media (max-width: $breakpoint-md) {
+    text-align: right;
+  }
+}
+
+// ===== RESPONSIVE BUTTONS =====
+.btn-responsive {
+  padding: 0.6rem 1.5rem;
+  font-size: 0.95rem;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    height: 36px;
+    width: 100%;
+    text-align: center;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    height: 34px;
+  }
+}
+
+.btn-responsive-inline {
+  padding: 0.6rem 1.5rem;
+  font-size: 0.95rem;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    height: 36px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    height: 34px;
+  }
+}
+
+// ===== RESPONSIVE MAP =====
+.map-responsive {
+  height: 500px;
+
+  @media (max-width: $breakpoint-lg) {
+    height: 400px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    height: 350px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    height: 280px;
+  }
+}
+
+// ===== RESPONSIVE IMAGES =====
+.img-responsive {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+
+  @media (max-width: $breakpoint-lg) {
+    height: 300px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    height: 250px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    height: 200px;
+  }
+}
+
+.img-responsive-sm {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+
+  @media (max-width: $breakpoint-md) {
+    height: 200px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    height: 150px;
+  }
+}
+
+// ===== RESPONSIVE THUMBNAILS =====
+.thumb-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+
+    @media (max-width: $breakpoint-md) {
+      width: 60px;
+      height: 60px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      width: 50px;
+      height: 50px;
+    }
+  }
+}
+
+.thumb-grid-sm {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+
+    @media (max-width: $breakpoint-sm) {
+      width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+// ===== RESPONSIVE PADDING =====
+.p-responsive {
+  padding: 2rem;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 1rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.5rem;
+  }
+}
+
+.p-responsive-lg {
+  padding: 3rem;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 1.5rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.75rem;
+  }
+}
+
+.p-responsive-sm {
+  padding: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0.75rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.5rem;
+  }
+}
+
+// ===== RESPONSIVE MARGIN =====
+.m-responsive {
+  margin: 2rem auto;
+
+  @media (max-width: $breakpoint-md) {
+    margin: 1rem auto;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    margin: 0.5rem auto;
+  }
+}
+
+.m-responsive-top {
+  margin-top: 2rem;
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 0.5rem;
+  }
+}
+
+// ===== RESPONSIVE CARD =====
+.card-responsive {
+  padding: 2rem;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: $breakpoint-md) {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+}
+
+// ===== RESPONSIVE GAP =====
+.gap-responsive {
+  gap: 1.5rem;
+
+  @media (max-width: $breakpoint-md) {
+    gap: 1rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    gap: 0.5rem;
+  }
+}
+
+// ===== RESPONSIVE WIDTH =====
+.w-full-mobile {
+  @media (max-width: $breakpoint-md) {
+    width: 100% !important;
+  }
+}
+
+.w-50-mobile {
+  @media (max-width: $breakpoint-md) {
+    width: 50% !important;
+  }
+}
+
+// ================================================================
+// GLOBAL MOBILE FIXES
+// ================================================================
+
+// Prevent zoom on inputs for mobile
+@media (max-width: $breakpoint-md) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  // Fix for modal/dropdown positioning
+  .leaflet-popup-content-wrapper {
+    max-width: 280px !important;
+  }
+
+  .leaflet-popup-content {
+    max-width: 260px !important;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .leaflet-popup-content-wrapper {
+    max-width: 200px !important;
+  }
+
+  .leaflet-popup-content {
+    max-width: 180px !important;
+  }
+}
+
+// ================================================================
+// SCROLLBAR STYLING (Optional)
+// ================================================================
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c7cd;
+  border-radius: 4px;
+
+  &:hover {
+    background: #a0a7ae;
+  }
+}
