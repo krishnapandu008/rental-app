@@ -154,10 +154,7 @@ const Dashboard: React.FC = () => {
     setCurrentPage(0);
   };
 
-  // ✅ Helper function to get properties with coordinates
-  const getPropertiesWithCoords = () => {
-    return properties.filter(p => p.latitude && p.longitude);
-  };
+  // ❌ REMOVED: getPropertiesWithCoords - not needed
 
   if (loading) return <div className={styles.loading}>Loading properties...</div>;
 
