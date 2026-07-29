@@ -154,6 +154,7 @@ const Dashboard: React.FC = () => {
     setCurrentPage(0);
   };
 
+  // ✅ Helper function to get properties with coordinates
   const getPropertiesWithCoords = () => {
     return properties.filter(p => p.latitude && p.longitude);
   };
@@ -172,8 +173,6 @@ const Dashboard: React.FC = () => {
       </div>
     );
   }
-
-  const propsWithCoords = getPropertiesWithCoords();
 
   return (
     <div className={styles.container}>

@@ -6,8 +6,8 @@ interface Property {
   location: string;
   rent: number;
   bedrooms: number;
-  latitude: number;
-  longitude: number;
+  latitude?: number;  // ✅ Make it optional
+  longitude?: number; // ✅ Make it optional
   imageUrls: string[];
 }
 
@@ -29,10 +29,13 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
 
-  const propsWithCoords = properties.filter(p => p.latitude && p.longitude);
+  // ✅ Filter properties that have both latitude and longitude
+  const propsWithCoords = properties.filter(
+    (p): p is Property & { latitude: number; longitude: number } =>
+      p.latitude !== undefined && p.longitude !== undefined && p.latitude !== null && p.longitude !== null
+  );
 
   useEffect(() => {
-    // Prevent multiple initializations
     if (mapInitialized.current) {
       console.log('⏭️ Map already initialized, skipping...');
       return;
@@ -44,13 +47,11 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       try {
         console.log('📦 Loading Leaflet dynamically...');
         
-        // Dynamic import of Leaflet
         const L = (await import('leaflet')).default;
         await import('leaflet/dist/leaflet.css');
 
         console.log('✅ Leaflet loaded successfully');
 
-        // Fix Leaflet icon issue
         delete (L.Icon.Default.prototype as any)._getIconUrl;
         L.Icon.Default.mergeOptions({
           iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -60,14 +61,12 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 
         if (!isMounted) return;
 
-        // Create map container
         const container = document.getElementById('map-container');
         if (!container) {
           console.error('❌ Map container not found');
           return;
         }
 
-        // Initialize map
         const map = L.map(container, {
           center: center,
           zoom: zoom,
@@ -75,12 +74,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
           fadeAnimation: true,
         });
 
-        // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
 
-        // Create marker icon using canvas
         const createPriceMarker = (rent: number) => {
           const canvas = document.createElement('canvas');
           canvas.width = 41;
@@ -116,7 +113,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
           });
         };
 
-        // Add markers
         const markers: any[] = [];
         propsWithCoords.forEach((p) => {
           const marker = L.marker([p.latitude, p.longitude], {
@@ -150,7 +146,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
           markers.push(marker);
         });
 
-        // Expose click handler to window
         (window as any).__mapPropertyClick = (id: number) => {
           onPropertyClick(id);
         };
@@ -160,7 +155,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         setMapReady(true);
         mapInitialized.current = true;
 
-        // Fit bounds to show all markers
         if (propsWithCoords.length > 1) {
           const group = L.featureGroup(markers);
           map.fitBounds(group.getBounds(), { padding: [50, 50] });
@@ -168,7 +162,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 
         console.log('✅ Map initialized with', propsWithCoords.length, 'markers');
 
-        // Handle resize
         const handleResize = () => {
           setTimeout(() => {
             if (mapRef.current) {
@@ -190,7 +183,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 
     return () => {
       isMounted = false;
-      // Cleanup
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -202,16 +194,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       delete (window as any).__mapPropertyClick;
       mapInitialized.current = false;
     };
-  }, [center, zoom, propsWithCoords, onPropertyClick]); // ✅ Keep dependencies
-
-  // ✅ If properties change, update markers without re-initializing the map
-  useEffect(() => {
-    if (!mapRef.current || mapInitialized.current === false) return;
-
-    // Update markers when properties change
-    // This is a simplified version - you can implement marker updates here
-    console.log('🔄 Properties changed, but map already initialized');
-  }, [propsWithCoords]);
+  }, [center, zoom, propsWithCoords, onPropertyClick]);
 
   if (propsWithCoords.length === 0) {
     return (
