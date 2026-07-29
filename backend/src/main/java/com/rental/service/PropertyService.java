@@ -237,4 +237,37 @@ public class PropertyService {
         return propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
     }
+
+    public List<PropertyResponseDto> findNearbyProperties(
+            Double lat, Double lng, Double radiusKm,
+            Double minRent, Double maxRent, Integer bedrooms) {
+        
+        Double radiusInMeters = radiusKm * 1000;
+        
+        List<Object[]> results;
+        
+        if (minRent != null || maxRent != null || bedrooms != null) {
+            results = propertyRepository.findNearbyPropertiesWithFilters(
+                lat, lng, radiusInMeters, minRent, maxRent, bedrooms
+            );
+        } else {
+            results = propertyRepository.findNearbyProperties(lat, lng, radiusInMeters);
+        }
+        
+        return results.stream()
+            .map(row -> {
+                Property property = (Property) row[0];
+                Double distance = (Double) row[1];
+                PropertyResponseDto dto = toDto(property);
+                dto.setDistance(distance);
+                return dto;
+            })
+            .collect(Collectors.toList());
+    }
+
+    public List<PropertyResponseDto> getAllPropertiesWithCoordinates() {
+        return propertyRepository.findAllWithCoordinates().stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+    }
 }

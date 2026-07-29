@@ -6,7 +6,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern', // Use modern Sass API to remove deprecation warnings
+        api: 'modern',
       },
     },
   },
@@ -21,5 +21,9 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+  },
+  // ✅ Add this to properly handle Leaflet assets
+  optimizeDeps: {
+    include: ['leaflet'],
   },
 });

@@ -25,4 +25,5 @@ public class PropertyResponseDto {
     private Double latitude;
     private Double longitude;
     private boolean isFavorited;   // ✅ NEW
+    private Double distance; // in meters
 }

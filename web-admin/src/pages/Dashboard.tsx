@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getProperties, getMyProperties } from '../api/propertyApi';
@@ -6,16 +6,8 @@ import { Property } from '../types';
 import PropertyCard from '../components/PropertyCard/PropertyCard';
 import styles from './Dashboard.module.scss';
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+// ✅ Lazy load the map component
+const PropertyMap = lazy(() => import('../components/PropertyMap'));
 
 const Dashboard: React.FC = () => {
   const { owner } = useAuth();
@@ -23,10 +15,12 @@ const Dashboard: React.FC = () => {
 
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
   const [showMyListings, setShowMyListings] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   const [searchLocation, setSearchLocation] = useState('');
   const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
@@ -35,15 +29,29 @@ const Dashboard: React.FC = () => {
   const [sortBy, setSortBy] = useState('newest');
 
   const [activeQuickLocation, setActiveQuickLocation] = useState<string>('');
+  
+  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]);
+  const [mapZoom, setMapZoom] = useState(5);
 
   const loadProperties = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       let res;
       if (showMyListings && owner) {
         res = await getMyProperties(owner.id);
-        setProperties(res.data || []);
+        const data = res.data || [];
+        setProperties(data);
         setTotalPages(1);
+        
+        const propsWithCoords = data.filter((p: Property) => p.latitude && p.longitude);
+        if (propsWithCoords.length > 0) {
+          const avgLat = propsWithCoords.reduce((sum: number, p: Property) => sum + p.latitude!, 0) / propsWithCoords.length;
+          const avgLng = propsWithCoords.reduce((sum: number, p: Property) => sum + p.longitude!, 0) / propsWithCoords.length;
+          setMapCenter([avgLat, avgLng]);
+          setMapZoom(propsWithCoords.length === 1 ? 14 : 12);
+        }
       } else {
         res = await getProperties({
           location: searchLocation || undefined,
@@ -54,11 +62,22 @@ const Dashboard: React.FC = () => {
           page: currentPage,
           size: pageSize,
         });
-        setProperties(res.data?.content || []);
+        
+        const data = res.data?.content || [];
+        setProperties(data);
         setTotalPages(res.data?.totalPages || 0);
+        
+        const propsWithCoords = data.filter((p: Property) => p.latitude && p.longitude);
+        if (propsWithCoords.length > 0) {
+          const avgLat = propsWithCoords.reduce((sum: number, p: Property) => sum + p.latitude!, 0) / propsWithCoords.length;
+          const avgLng = propsWithCoords.reduce((sum: number, p: Property) => sum + p.longitude!, 0) / propsWithCoords.length;
+          setMapCenter([avgLat, avgLng]);
+          setMapZoom(propsWithCoords.length === 1 ? 14 : 12);
+        }
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('❌ API Error:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to load properties');
       setProperties([]);
       setTotalPages(0);
     } finally {
@@ -123,24 +142,64 @@ const Dashboard: React.FC = () => {
     navigate(`/property/${property.id}`, { state: { property } });
   };
 
+  const handleMapPropertyClick = (id: number) => {
+    const property = properties.find(p => p.id === id);
+    if (property) {
+      navigate(`/property/${property.id}`, { state: { property } });
+    }
+  };
+
   const toggleMyListings = () => {
     setShowMyListings(!showMyListings);
     setCurrentPage(0);
   };
 
+  const getPropertiesWithCoords = () => {
+    return properties.filter(p => p.latitude && p.longitude);
+  };
+
   if (loading) return <div className={styles.loading}>Loading properties...</div>;
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.errorState}>
+          <p>❌ {error}</p>
+          <button onClick={loadProperties} className={styles.retryBtn}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const propsWithCoords = getPropertiesWithCoords();
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Available Rentals</h2>
-        {owner && (
-          <div className={styles.headerActions}>
+        <div className={styles.headerActions}>
+          <div className={styles.viewToggle}>
+            <button
+              className={`${styles.toggleViewBtn} ${viewMode === 'list' ? styles.activeView : ''}`}
+              onClick={() => setViewMode('list')}
+            >
+              📋 List
+            </button>
+            <button
+              className={`${styles.toggleViewBtn} ${viewMode === 'map' ? styles.activeView : ''}`}
+              onClick={() => setViewMode('map')}
+            >
+              🗺️ Map
+            </button>
+          </div>
+          {owner && (
             <button className={styles.toggleBtn} onClick={toggleMyListings}>
               {showMyListings ? 'Show All Properties' : 'Show My Listings'}
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {!showMyListings && (
@@ -272,66 +331,62 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      <div className={styles.mapContainer}>
-        <MapContainer
-          center={[20.5937, 78.9629]}
-          zoom={5}
-          style={{ height: '400px', width: '100%' }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      {/* ===== MAP VIEW ===== */}
+      {viewMode === 'map' && (
+        <Suspense fallback={
+          <div className={styles.loading}>Loading map...</div>
+        }>
+          <PropertyMap
+            properties={properties}
+            center={mapCenter}
+            zoom={mapZoom}
+            onPropertyClick={handleMapPropertyClick}
           />
-          {properties.filter(p => p.latitude && p.longitude).map((p) => (
-            <Marker key={p.id} position={[p.latitude!, p.longitude!]}>
-              <Popup>
-                <strong>{p.title}</strong><br />
-                {p.location}<br />
-                ₹{p.rent}/month<br />
-                <a href={`/property/${p.id}`}>View Details</a>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </div>
+        </Suspense>
+      )}
 
-      {properties.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p>No properties found matching your criteria.</p>
-          {owner && <a href="/add">Add your first property →</a>}
-        </div>
-      ) : (
+      {/* ===== LIST VIEW ===== */}
+      {viewMode === 'list' && (
         <>
-          <div className={styles.propertyGrid}>
-            {properties.map((prop) => (
-              <PropertyCard
-                key={prop.id}
-                property={prop}
-                onOpen={handleOpen}
-              />
-            ))}
-          </div>
-
-          {!showMyListings && totalPages > 1 && (
-            <div className={styles.pagination}>
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 0}
-                className={styles.pageBtn}
-              >
-                Previous
-              </button>
-              <span className={styles.pageInfo}>
-                Page {currentPage + 1} of {totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages - 1}
-                className={styles.pageBtn}
-              >
-                Next
-              </button>
+          {properties.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>No properties found matching your criteria.</p>
+              {owner && <a href="/add">Add your first property →</a>}
             </div>
+          ) : (
+            <>
+              <div className={styles.propertyGrid}>
+                {properties.map((prop) => (
+                  <PropertyCard
+                    key={prop.id}
+                    property={prop}
+                    onOpen={handleOpen}
+                  />
+                ))}
+              </div>
+
+              {!showMyListings && totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 0}
+                    className={styles.pageBtn}
+                  >
+                    Previous
+                  </button>
+                  <span className={styles.pageInfo}>
+                    Page {currentPage + 1} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages - 1}
+                    className={styles.pageBtn}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

@@ -34,11 +34,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        logger.info("Filter invoked for path: {}", path);
+        logger.debug("Filter invoked for path: {}", path);
 
         // 1. Skip OPTIONS preflight
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            logger.info("Skipping OPTIONS preflight");
+            logger.debug("Skipping OPTIONS preflight");
             chain.doFilter(request, response);
             return;
         }
@@ -46,20 +46,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 2. Skip public endpoints (no token required)
         if (path.startsWith("/api/owners/register") ||
             path.startsWith("/api/owners/login") ||
-            (path.equals("/api/properties") && "GET".equalsIgnoreCase(request.getMethod()))) {
-            logger.info("Skipping token check for public path: {}", path);
+            (path.equals("/api/properties") && "GET".equalsIgnoreCase(request.getMethod())) ||
+            path.startsWith("/api/auth/refresh")) {
+            logger.debug("Skipping token check for public path: {}", path);
             chain.doFilter(request, response);
             return;
         }
 
         // 3. Extract Authorization header
         String authHeader = request.getHeader("Authorization");
-        logger.info("Authorization header: {}", authHeader);
+        logger.debug("Authorization header: {}", authHeader);
 
         String token = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            logger.info("Extracted token: {}", token);
+            logger.debug("Extracted token: {}", token);
         } else {
             logger.warn("No Bearer token found in Authorization header");
         }
@@ -70,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long ownerId = jwtUtil.getOwnerIdFromToken(token);
                 String email = jwtUtil.getEmailFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
-                logger.info("Extracted role from token: {}", role);
+                logger.debug("Extracted role from token: {}", role);
 
                 // Normalize role (default to "OWNER" if missing)
                 if (role == null || role.isBlank()) {
@@ -79,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // ✅ Create authorities ONLY ONCE after normalization
                 List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-                logger.info("Authorities: {}", authorities);
+                logger.debug("Authorities: {}", authorities);
 
                 // Create principal object
                 OwnerPrincipal principal = new OwnerPrincipal(ownerId, email, role);

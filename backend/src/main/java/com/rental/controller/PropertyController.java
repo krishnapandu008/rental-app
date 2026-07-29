@@ -152,4 +152,23 @@ public class PropertyController {
         propertyService.toggleActive(id, active);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/nearby")
+    public ResponseEntity<List<PropertyResponseDto>> getNearbyProperties(
+            @RequestParam Double lat,
+            @RequestParam Double lng,
+            @RequestParam(defaultValue = "10") Double radiusKm,
+            @RequestParam(required = false) Double minRent,
+            @RequestParam(required = false) Double maxRent,
+            @RequestParam(required = false) Integer bedrooms) {
+        
+        List<PropertyResponseDto> properties = 
+            propertyService.findNearbyProperties(lat, lng, radiusKm, minRent, maxRent, bedrooms);
+        return ResponseEntity.ok(properties);
+    }
+
+    @GetMapping("/map")
+    public ResponseEntity<List<PropertyResponseDto>> getPropertiesForMap() {
+        return ResponseEntity.ok(propertyService.getAllPropertiesWithCoordinates());
+    }
 }
