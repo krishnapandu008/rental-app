@@ -12,6 +12,22 @@ const BellIcon = () => (
   </svg>
 );
 
+// ✅ Hamburger & Close Icons
+const HamburgerIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
 const Navbar: React.FC = () => {
   const { owner, logout } = useAuth();
   const navigate = useNavigate();
@@ -20,14 +36,17 @@ const Navbar: React.FC = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+    setMobileMenuOpen(false);
   };
 
   const isAdmin = owner?.role === 'ADMIN' || owner?.role === 'SUPER_ADMIN';
@@ -41,7 +60,7 @@ const Navbar: React.FC = () => {
 
   const avatarUrl = owner?.avatarUrl;
 
-  // Load notifications and unread count
+  // Load notifications
   const loadNotifications = async () => {
     if (!owner) return;
     try {
@@ -62,13 +81,12 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (owner) {
       loadNotifications();
-      // Refresh notifications every 30 seconds
       const interval = setInterval(loadNotifications, 30000);
       return () => clearInterval(interval);
     }
   }, [owner]);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close avatar dropdown
@@ -88,6 +106,14 @@ const Navbar: React.FC = () => {
       ) {
         setNotificationDropdownOpen(false);
       }
+      // Close mobile menu
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        !(event.target as Element).closest(`.${styles.hamburgerBtn}`)
+      ) {
+        setMobileMenuOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -96,12 +122,13 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
-  // Close notification dropdown when Escape key is pressed
+  // Close on Escape key
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setDropdownOpen(false);
         setNotificationDropdownOpen(false);
+        setMobileMenuOpen(false);
       }
     };
     document.addEventListener('keydown', handleEsc);
@@ -121,7 +148,6 @@ const Navbar: React.FC = () => {
   };
 
   const handleNotificationClick = async (notification: any) => {
-    // Mark as read
     if (!notification.isRead) {
       try {
         await api.patch(`/notifications/${notification.id}/read`);
@@ -133,11 +159,11 @@ const Navbar: React.FC = () => {
         console.error('Failed to mark notification as read:', err);
       }
     }
-    // Navigate to the link
     if (notification.link) {
       navigate(notification.link);
     }
     setNotificationDropdownOpen(false);
+    setMobileMenuOpen(false);
   };
 
   const formatTime = (dateString: string) => {
@@ -155,146 +181,199 @@ const Navbar: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  // ✅ Mobile nav items with short labels
+  const navItems = owner ? [
+    { path: '/', label: 'Dashboard', icon: '📊' },
+    { path: '/add', label: 'Add', icon: '➕' },
+    { path: '/favorites', label: 'Favs', icon: '❤️' },
+    { path: '/inquiries', label: 'Inbox', icon: '📩' },
+  ] : [];
+
   return (
     <nav className={styles.navbar}>
-      <div className={styles.logo}>
-        <Link to="/">Rental Admin</Link>
-      </div>
-      <div className={styles.links}>
-        {owner ? (
-          <>
-            <Link to="/">Dashboard</Link>
-            <Link to="/add">Add Property</Link>
-            <Link to="/favorites">Favorites</Link>
-            <Link to="/inquiries">Inquiries</Link>
+      <div className={styles.navbarInner}>
+        <div className={styles.logo}>
+          <Link to="/" onClick={closeMobileMenu}>
+            Rental Admin
+          </Link>
+        </div>
 
-            {/* Notification Bell */}
-            <div className={styles.notificationWrapper} ref={notificationRef}>
-              <button
-                className={`${styles.notificationBtn} ${unreadCount > 0 ? styles.hasUnread : ''}`}
-                onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
-                aria-label="Notifications"
-              >
-                <BellIcon />
-                {unreadCount > 0 && (
-                  <span className={styles.notificationBadge}>
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-              </button>
+        {/* ✅ Desktop Links */}
+        <div className={styles.desktopLinks}>
+          {owner ? (
+            <>
+              <Link to="/">Dashboard</Link>
+              <Link to="/add">Add Property</Link>
+              <Link to="/favorites">Favorites</Link>
+              <Link to="/inquiries">Inquiries</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
+            </>
+          )}
+        </div>
 
-              {notificationDropdownOpen && (
-                <div className={styles.notificationDropdown}>
-                  <div className={styles.notificationHeader}>
-                    <span className={styles.notificationTitle}>🔔 Notifications</span>
-                    {unreadCount > 0 && (
-                      <button
-                        className={styles.markAllReadBtn}
-                        onClick={handleMarkAllAsRead}
-                      >
-                        Mark all as read
-                      </button>
-                    )}
-                  </div>
+        <div className={styles.navRight}>
+          {owner ? (
+            <>
+              {/* Notification Bell */}
+              <div className={styles.notificationWrapper} ref={notificationRef}>
+                <button
+                  className={`${styles.notificationBtn} ${unreadCount > 0 ? styles.hasUnread : ''}`}
+                  onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                  aria-label="Notifications"
+                >
+                  <BellIcon />
+                  {unreadCount > 0 && (
+                    <span className={styles.notificationBadge}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
 
-                  <div className={styles.notificationList}>
-                    {loading ? (
-                      <div className={styles.notificationEmpty}>Loading...</div>
-                    ) : notifications.length === 0 ? (
-                      <div className={styles.notificationEmpty}>
-                        <span>🎉</span>
-                        <p>No notifications yet</p>
-                      </div>
-                    ) : (
-                      notifications.slice(0, 10).map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`${styles.notificationItem} ${!notification.isRead ? styles.unread : ''}`}
-                          onClick={() => handleNotificationClick(notification)}
-                        >
-                          <div className={styles.notificationContent}>
-                            <span className={styles.notificationType}>
-                              {notification.type === 'INQUIRY' && '📩'}
-                              {notification.type === 'REPLY' && '💬'}
-                              {notification.type === 'SYSTEM' && '⚙️'}
-                              {notification.type === 'VIEW' && '👁️'}
-                            </span>
-                            <div className={styles.notificationText}>
-                              <div className={styles.notificationTitleText}>
-                                {notification.title}
-                              </div>
-                              <div className={styles.notificationMessage}>
-                                {notification.message}
-                              </div>
-                              <span className={styles.notificationTime}>
-                                {formatTime(notification.createdAt)}
-                              </span>
-                            </div>
-                            {!notification.isRead && (
-                              <span className={styles.unreadDot} />
-                            )}
-                          </div>
+                {notificationDropdownOpen && (
+                  <div className={styles.notificationDropdown}>
+                    <div className={styles.notificationHeader}>
+                      <span className={styles.notificationTitle}>🔔 Notifications</span>
+                      {unreadCount > 0 && (
+                        <button className={styles.markAllReadBtn} onClick={handleMarkAllAsRead}>
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+                    <div className={styles.notificationList}>
+                      {loading ? (
+                        <div className={styles.notificationEmpty}>Loading...</div>
+                      ) : notifications.length === 0 ? (
+                        <div className={styles.notificationEmpty}>
+                          <span>🎉</span>
+                          <p>No notifications yet</p>
                         </div>
-                      ))
-                    )}
+                      ) : (
+                        notifications.slice(0, 10).map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`${styles.notificationItem} ${!notification.isRead ? styles.unread : ''}`}
+                            onClick={() => handleNotificationClick(notification)}
+                          >
+                            <div className={styles.notificationContent}>
+                              <span className={styles.notificationType}>
+                                {notification.type === 'INQUIRY' && '📩'}
+                                {notification.type === 'REPLY' && '💬'}
+                                {notification.type === 'SYSTEM' && '⚙️'}
+                                {notification.type === 'VIEW' && '👁️'}
+                              </span>
+                              <div className={styles.notificationText}>
+                                <div className={styles.notificationTitleText}>
+                                  {notification.title}
+                                </div>
+                                <div className={styles.notificationMessage}>
+                                  {notification.message}
+                                </div>
+                                <span className={styles.notificationTime}>
+                                  {formatTime(notification.createdAt)}
+                                </span>
+                              </div>
+                              {!notification.isRead && <span className={styles.unreadDot} />}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className={styles.notificationFooter}>
+                      <Link to="/inquiries" onClick={() => setNotificationDropdownOpen(false)}>
+                        View all notifications →
+                      </Link>
+                    </div>
                   </div>
-
-                  <div className={styles.notificationFooter}>
-                    <Link
-                      to="/inquiries"
-                      onClick={() => setNotificationDropdownOpen(false)}
-                      className={styles.viewAllLink}
-                    >
-                      View all notifications →
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Avatar Dropdown */}
-            <div
-              className={styles.avatarWrapper}
-              ref={avatarRef}
-            >
-              <div
-                className={styles.avatar}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Avatar"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <span>{getInitials()}</span>
                 )}
               </div>
-              {dropdownOpen && (
-                <div className={styles.dropdown} ref={dropdownRef}>
-                  <Link to="/profile" onClick={() => setDropdownOpen(false)}>
-                    Profile
-                  </Link>
-                  {isAdmin && (
-                    <Link to="/admin" onClick={() => setDropdownOpen(false)}>
-                      Admin Panel
-                    </Link>
+
+              {/* Avatar */}
+              <div className={styles.avatarWrapper} ref={avatarRef}>
+                <div
+                  className={styles.avatar}
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }} />
+                  ) : (
+                    <span>{getInitials()}</span>
                   )}
-                  <button onClick={handleLogout}>Logout</button>
                 </div>
-              )}
+                {dropdownOpen && (
+                  <div className={styles.dropdown} ref={dropdownRef}>
+                    <Link to="/profile" onClick={() => setDropdownOpen(false)}>
+                      Profile
+                    </Link>
+                    {isAdmin && (
+                      <Link to="/admin" onClick={() => setDropdownOpen(false)}>
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button onClick={handleLogout}>Logout</button>
+                  </div>
+                )}
+              </div>
+
+              {/* ✅ Hamburger Menu Button (Mobile) */}
+              <button
+                className={styles.hamburgerBtn}
+                onClick={toggleMobileMenu}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
+              </button>
+            </>
+          ) : (
+            <div className={styles.desktopLinks}>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
             </div>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-          </>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* ✅ Mobile Menu */}
+      {mobileMenuOpen && owner && (
+        <div className={styles.mobileMenu} ref={mobileMenuRef}>
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={styles.mobileLink}
+              onClick={closeMobileMenu}
+            >
+              <span className={styles.mobileLinkIcon}>{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
+          <div className={styles.mobileDivider} />
+          <Link to="/profile" className={styles.mobileLink} onClick={closeMobileMenu}>
+            <span className={styles.mobileLinkIcon}>👤</span> Profile
+          </Link>
+          {isAdmin && (
+            <Link to="/admin" className={styles.mobileLink} onClick={closeMobileMenu}>
+              <span className={styles.mobileLinkIcon}>⚙️</span> Admin
+            </Link>
+          )}
+          <button className={styles.mobileLogoutBtn} onClick={handleLogout}>
+            <span className={styles.mobileLinkIcon}>🚪</span> Logout
+          </button>
+        </div>
+      )}
     </nav>
   );
 };
