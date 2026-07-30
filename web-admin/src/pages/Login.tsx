@@ -22,7 +22,8 @@ const Login: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Owner Login</h2>
+      <h2 className={styles.title}>Welcome to </h2>
+      <p className={styles.subtitle}>Smart Rental Platform</p>
       {error && <div className={styles.error}>{error}</div>}
 
       <form className={styles.form} onSubmit={handleSubmit}>

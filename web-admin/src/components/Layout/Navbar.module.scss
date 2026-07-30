@@ -26,18 +26,37 @@
   }
 }
 
-.logo a {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
+// ================================================================
+// LOGO - Increased Size
+// ================================================================
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
+  a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
   }
 
-  @media (max-width: 480px) {
-    font-size: 1rem;
+  svg {
+    display: block;
+    height: 50px;
+    width: auto;
+
+    @media (max-width: 1024px) {
+      height: 44px;
+    }
+
+    @media (max-width: 768px) {
+      height: 38px;
+    }
+
+    @media (max-width: 480px) {
+      height: 32px;
+    }
   }
 }
 
@@ -388,7 +407,6 @@
     font-weight: 500;
   }
 
-  // ✅ Icon style for dropdown items
   .dropdownIcon {
     margin-right: 8px;
     font-size: 1rem;
@@ -411,7 +429,7 @@
 }
 
 // ================================================================
-// HAMBURGER BUTTON (Extreme Right)
+// HAMBURGER BUTTON
 // ================================================================
 .hamburgerBtn {
   background: none;
@@ -442,7 +460,7 @@
 }
 
 // ================================================================
-// HAMBURGER MENU DROPDOWN (Right-aligned, compact width, no divider)
+// HAMBURGER MENU DROPDOWN
 // ================================================================
 .mobileMenu {
   display: flex;
@@ -453,11 +471,9 @@
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 
-  // Compact width - aligns with the hamburger button
   min-width: 180px;
   max-width: 200px;
 
-  // Position: Right-aligned with the header edge
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
@@ -508,8 +524,6 @@
   }
 }
 
-// ✅ Divider removed - no horizontal line
-
 .mobileLogoutBtn {
   display: flex;
   align-items: center;
@@ -537,7 +551,7 @@
 }
 
 // ================================================================
-// RESPONSIVE: Ensure navbar has position relative for dropdown
+// RESPONSIVE
 // ================================================================
 .navbar {
   position: sticky;

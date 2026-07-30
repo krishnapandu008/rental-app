@@ -9,7 +9,19 @@
   font-size: $font-2xl;
   font-weight: 700;
   color: $text-dark;
-  margin-bottom: $spacing-xl;
+  margin-bottom: 0.25rem;
+  text-align: center;
+
+  span {
+    color: #f4511e;
+  }
+}
+
+.subtitle {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .error {
