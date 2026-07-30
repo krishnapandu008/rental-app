@@ -10,16 +10,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  min-height: 64px;
 
   @media (max-width: 768px) {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
+    min-height: 56px;
   }
 
   @media (max-width: 480px) {
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.75rem;
+    min-height: 48px;
   }
 }
 
@@ -38,6 +41,9 @@
   }
 }
 
+// ================================================================
+// RIGHT SIDE
+// ================================================================
 .navRight {
   display: flex;
   align-items: center;
@@ -48,141 +54,26 @@
   }
 }
 
-// ===== DESKTOP LINKS =====
-.desktopLinks {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-
-  a {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
-    transition: opacity 0.2s;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
-  @media (max-width: 768px) {
-    display: none !important;
-  }
-}
-
-// ===== HAMBURGER MENU BUTTON =====
-.hamburgerBtn {
-  display: none;
-  background: none;
-  border: none;
+// ================================================================
+// LOGIN/REGISTER LINKS
+// ================================================================
+.loginLink,
+.registerLink {
   color: white;
-  cursor: pointer;
-  padding: 4px;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 4px;
   transition: background 0.2s;
 
   &:hover {
     background: rgba(255, 255, 255, 0.15);
   }
-
-  @media (max-width: 768px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  @media (max-width: 480px) {
-    padding: 2px;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
 }
 
-// ===== MOBILE MENU =====
-.mobileMenu {
-  display: none;
-
-  @media (max-width: 768px) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.5rem 1rem 1rem;
-    background: #f4511e;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  }
-
-  @media (max-width: 480px) {
-    padding: 0.4rem 0.75rem 0.75rem;
-  }
-}
-
-.mobileLink {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  transition: background 0.15s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  @media (max-width: 480px) {
-    padding: 0.5rem 0.6rem;
-    font-size: 0.85rem;
-    gap: 0.5rem;
-  }
-}
-
-.mobileLinkIcon {
-  font-size: 1.1rem;
-
-  @media (max-width: 480px) {
-    font-size: 0.95rem;
-  }
-}
-
-.mobileDivider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.15);
-  margin: 0.25rem 0;
-}
-
-.mobileLogoutBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 0.95rem;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.15s;
-  width: 100%;
-  text-align: left;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  @media (max-width: 480px) {
-    padding: 0.5rem 0.6rem;
-    font-size: 0.85rem;
-    gap: 0.5rem;
-  }
-}
-
-/* ===== NOTIFICATION BELL ===== */
+// ================================================================
+// NOTIFICATION BELL
+// ================================================================
 .notificationWrapper {
   position: relative;
   display: inline-block;
@@ -194,15 +85,15 @@
   border: none;
   color: white;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  border-radius: 4px;
+  transition: background 0.2s;
 
   &:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
   }
 
   &.hasUnread {
@@ -210,14 +101,14 @@
   }
 
   @media (max-width: 480px) {
-    padding: 2px;
+    padding: 4px;
   }
 }
 
 .notificationBadge {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: -4px;
+  right: -4px;
   background: #dc3545;
   color: white;
   font-size: 0.6rem;
@@ -235,12 +126,14 @@
     min-width: 14px;
     height: 14px;
     font-size: 0.5rem;
-    top: -4px;
-    right: -4px;
+    top: -2px;
+    right: -2px;
   }
 }
 
-/* ===== NOTIFICATION DROPDOWN ===== */
+// ================================================================
+// NOTIFICATION DROPDOWN
+// ================================================================
 .notificationDropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -416,7 +309,9 @@
   }
 }
 
-/* ===== AVATAR & DROPDOWN ===== */
+// ================================================================
+// AVATAR
+// ================================================================
 .avatarWrapper {
   position: relative;
   display: inline-block;
@@ -426,30 +321,26 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #fff;
-  color: #f4511e;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   border: 2px solid transparent;
   transition: border-color 0.2s;
   overflow: hidden;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.6);
   }
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  span {
-    text-transform: uppercase;
   }
 
   @media (max-width: 480px) {
@@ -466,11 +357,10 @@
   background: #ffffff !important;
   color: #1f2937 !important;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   min-width: 160px;
   padding: 0.5rem 0;
   z-index: 1000;
-  display: block;
 
   a,
   button {
@@ -481,7 +371,7 @@
     background: none !important;
     border: none;
     color: #1f2937 !important;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: background 0.15s;
     text-decoration: none;
@@ -498,6 +388,12 @@
     font-weight: 500;
   }
 
+  // ✅ Icon style for dropdown items
+  .dropdownIcon {
+    margin-right: 8px;
+    font-size: 1rem;
+  }
+
   @media (max-width: 480px) {
     min-width: 140px;
 
@@ -506,5 +402,149 @@
       padding: 0.4rem 1rem;
       font-size: 0.85rem;
     }
+
+    .dropdownIcon {
+      font-size: 0.9rem;
+      margin-right: 6px;
+    }
+  }
+}
+
+// ================================================================
+// HAMBURGER BUTTON (Extreme Right)
+// ================================================================
+.hamburgerBtn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  margin-left: 4px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  @media (max-width: 480px) {
+    padding: 4px;
+    margin-left: 2px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// ================================================================
+// HAMBURGER MENU DROPDOWN (Right-aligned, compact width, no divider)
+// ================================================================
+.mobileMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  // Compact width - aligns with the hamburger button
+  min-width: 180px;
+  max-width: 200px;
+
+  // Position: Right-aligned with the header edge
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 1001;
+
+  @media (max-width: 768px) {
+    min-width: 160px;
+    max-width: 180px;
+    right: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    min-width: 140px;
+    max-width: 160px;
+    right: 0.25rem;
+  }
+}
+
+.mobileLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  color: #1f2937;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+}
+
+.mobileLinkIcon {
+  font-size: 0.95rem;
+  width: 18px;
+  text-align: center;
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    width: 16px;
+  }
+}
+
+// ✅ Divider removed - no horizontal line
+
+.mobileLogoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+  width: 100%;
+  text-align: left;
+
+  &:hover {
+    background: #fef2f2;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+}
+
+// ================================================================
+// RESPONSIVE: Ensure navbar has position relative for dropdown
+// ================================================================
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  @media (max-width: 768px) {
+    position: relative;
   }
 }

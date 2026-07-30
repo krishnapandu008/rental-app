@@ -12,7 +12,7 @@ const BellIcon = () => (
   </svg>
 );
 
-// ✅ Hamburger & Close Icons
+// Hamburger & Close Icons
 const HamburgerIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="3" y1="6" x2="21" y2="6" />
@@ -54,8 +54,10 @@ const Navbar: React.FC = () => {
   const getInitials = () => {
     if (!owner?.name) return 'U';
     const parts = owner.name.trim().split(' ');
-    if (parts.length >= 2) return parts[0][0] + parts[1][0];
-    return parts[0][0];
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
   };
 
   const avatarUrl = owner?.avatarUrl;
@@ -89,7 +91,6 @@ const Navbar: React.FC = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Close avatar dropdown
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node) &&
@@ -98,7 +99,6 @@ const Navbar: React.FC = () => {
       ) {
         setDropdownOpen(false);
       }
-      // Close notification dropdown
       if (
         notificationRef.current &&
         !notificationRef.current.contains(event.target as Node) &&
@@ -106,7 +106,6 @@ const Navbar: React.FC = () => {
       ) {
         setNotificationDropdownOpen(false);
       }
-      // Close mobile menu
       if (
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target as Node) &&
@@ -189,40 +188,25 @@ const Navbar: React.FC = () => {
     setMobileMenuOpen(false);
   };
 
-  // ✅ Mobile nav items with short labels
+  // Navigation items
   const navItems = owner ? [
     { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/add', label: 'Add', icon: '➕' },
-    { path: '/favorites', label: 'Favs', icon: '❤️' },
-    { path: '/inquiries', label: 'Inbox', icon: '📩' },
+    { path: '/add', label: 'Add Property', icon: '➕' },
+    { path: '/favorites', label: 'Favorites', icon: '❤️' },
+    { path: '/inquiries', label: 'Inquiries', icon: '📩' },
   ] : [];
 
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbarInner}>
+        {/* Logo */}
         <div className={styles.logo}>
           <Link to="/" onClick={closeMobileMenu}>
             Rental Admin
           </Link>
         </div>
 
-        {/* ✅ Desktop Links */}
-        <div className={styles.desktopLinks}>
-          {owner ? (
-            <>
-              <Link to="/">Dashboard</Link>
-              <Link to="/add">Add Property</Link>
-              <Link to="/favorites">Favorites</Link>
-              <Link to="/inquiries">Inquiries</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </>
-          )}
-        </div>
-
+        {/* Right side: Bell → Avatar → Hamburger */}
         <div className={styles.navRight}>
           {owner ? (
             <>
@@ -299,7 +283,7 @@ const Navbar: React.FC = () => {
                 )}
               </div>
 
-              {/* Avatar */}
+              {/* Avatar - Dropdown with Profile icon */}
               <div className={styles.avatarWrapper} ref={avatarRef}>
                 <div
                   className={styles.avatar}
@@ -316,19 +300,13 @@ const Navbar: React.FC = () => {
                 {dropdownOpen && (
                   <div className={styles.dropdown} ref={dropdownRef}>
                     <Link to="/profile" onClick={() => setDropdownOpen(false)}>
-                      Profile
+                      <span className={styles.dropdownIcon}>👤</span> Profile
                     </Link>
-                    {isAdmin && (
-                      <Link to="/admin" onClick={() => setDropdownOpen(false)}>
-                        Admin Panel
-                      </Link>
-                    )}
-                    <button onClick={handleLogout}>Logout</button>
                   </div>
                 )}
               </div>
 
-              {/* ✅ Hamburger Menu Button (Mobile) */}
+              {/* Hamburger Menu Button */}
               <button
                 className={styles.hamburgerBtn}
                 onClick={toggleMobileMenu}
@@ -338,15 +316,15 @@ const Navbar: React.FC = () => {
               </button>
             </>
           ) : (
-            <div className={styles.desktopLinks}>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </div>
+            <>
+              <Link to="/login" className={styles.loginLink}>Login</Link>
+              <Link to="/register" className={styles.registerLink}>Register</Link>
+            </>
           )}
         </div>
       </div>
 
-      {/* ✅ Mobile Menu */}
+      {/* Hamburger Menu Dropdown */}
       {mobileMenuOpen && owner && (
         <div className={styles.mobileMenu} ref={mobileMenuRef}>
           {navItems.map((item) => (
@@ -360,13 +338,9 @@ const Navbar: React.FC = () => {
               {item.label}
             </Link>
           ))}
-          <div className={styles.mobileDivider} />
-          <Link to="/profile" className={styles.mobileLink} onClick={closeMobileMenu}>
-            <span className={styles.mobileLinkIcon}>👤</span> Profile
-          </Link>
           {isAdmin && (
             <Link to="/admin" className={styles.mobileLink} onClick={closeMobileMenu}>
-              <span className={styles.mobileLinkIcon}>⚙️</span> Admin
+              <span className={styles.mobileLinkIcon}>⚙️</span> Admin Panel
             </Link>
           )}
           <button className={styles.mobileLogoutBtn} onClick={handleLogout}>
