@@ -6,6 +6,7 @@ import { deleteProperty, togglePropertyActive } from '../api/propertyApi';
 import { api } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './PropertyDetails.module.scss';
+import AmenityBadges from '../components/AmenityBadges/AmenityBadges';
 
 // ===== ICON COMPONENTS =====
 const BackIcon = () => (
@@ -464,6 +465,12 @@ const PropertyDetails: React.FC = () => {
             <p><strong>📝 Description:</strong> {property.description}</p>
           )}
           <p><strong>👁️ Visibility:</strong> {property.visibility}</p>
+          <div>
+            <strong>🏷️ Amenities:</strong>
+            <span style={{ marginLeft: 8 }}>
+              <AmenityBadges amenities={property.amenities} />
+            </span>
+          </div>
           <p>
             <strong>📌 Status:</strong> 
             <span className={property.isActive ? styles.activeBadge : styles.inactiveBadge}>

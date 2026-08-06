@@ -1,16 +1,25 @@
 import { api } from './client';
-import { Property, PageResponse } from '../types';
+import { Property, PageResponse, VoiceSearchResponse } from '../types';
+import { SEND_AMENITIES_AS_CSV } from '../utils/constants';
 
 export const getProperties = (params?: {
   location?: string;
   minPrice?: number;
   maxPrice?: number;
   bedrooms?: number;
+  propertyType?: string;
+  amenities?: string[];
   sortBy?: string;
   page?: number;
   size?: number;
-}) =>
-  api.get<PageResponse<Property>>('/properties', { params });
+}) => {
+  const safeParams = { ...(params || {}) } as any;
+  if (Array.isArray(safeParams.amenities)) {
+    if (SEND_AMENITIES_AS_CSV) safeParams.amenities = safeParams.amenities.join(',');
+    // If not CSV, leave as array and let axios serialize (or backend handle repeated params)
+  }
+  return api.get<PageResponse<Property>>('/properties', { params: safeParams });
+};
 
 export const getMyProperties = (ownerId: number) =>
   api.get<Property[]>(`/properties/owner/${ownerId}`);
@@ -31,6 +40,7 @@ export const addProperty = (
     visibility: data.visibility || 'PUBLIC',
     latitude: data.latitude,
     longitude: data.longitude,
+    amenities: data.amenities,
   };
   formData.append('dto', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
 
@@ -48,7 +58,7 @@ export const addProperty = (
 export const updateProperty = (
   id: number,
   data: Partial<
-    Pick<Property, 'title' | 'description' | 'location' | 'rent' | 'bedrooms' | 'contactNumber' | 'available' | 'visibility' | 'latitude' | 'longitude'>
+    Pick<Property, 'title' | 'description' | 'location' | 'rent' | 'bedrooms' | 'contactNumber' | 'available' | 'visibility' | 'latitude' | 'longitude' | 'amenities'>
   >
 ) => api.put<Property>(`/properties/${id}`, data);
 
@@ -78,3 +88,20 @@ export const getFavoriteIds = () =>
 
 export const isFavorited = (propertyId: number) =>
   api.get<boolean>(`/favorites/${propertyId}/status`);
+
+// ✅ NEW: AI Voice Search API
+export const voiceSearch = (query: string) =>
+  api.post<VoiceSearchResponse>('/ai/voice-search', { query });
+
+export interface AIHealthResponse {
+  aiAvailable: boolean;
+  status: string;
+  message: string;
+}
+
+export const checkAIHealth = () =>
+  api.get<AIHealthResponse>('/ai/health');
+
+// ✅ NEW: Get location suggestions (autocomplete)
+export const getLocationSuggestions = (query: string) =>
+  api.get<string[]>(`/properties/locations/suggest?q=${query}`);

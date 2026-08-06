@@ -4,6 +4,7 @@ import { formatCurrency } from '../../utils/helpers';
 import { toggleFavorite } from '../../api/propertyApi';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './PropertyCard.module.scss';
+import AmenityBadges from '../AmenityBadges/AmenityBadges';
 
 interface Props {
   property: Property;
@@ -153,7 +154,8 @@ const PropertyCard: React.FC<Props> = ({ property, onOpen, onFavoriteToggle }) =
           </svg>
           {property.contactNumber}
         </div>
-      </div>
+              <AmenityBadges amenities={property.amenities} />
+            </div>
     </div>
   );
 };

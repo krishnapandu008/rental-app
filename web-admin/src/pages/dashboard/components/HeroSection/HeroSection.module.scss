@@ -1,0 +1,122 @@
+// ✅ Use centralized styles
+@use '../../../../styles' as *;
+
+.heroSection {
+  @include hero-section;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: $spacing-2xl;
+  align-items: center;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heroContent {
+  @include hero-text;
+  max-width: 640px;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: $font-sm;
+  font-weight: 600;
+  margin-bottom: $spacing-md;
+}
+
+.heroActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+  flex-wrap: wrap;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform $transition-base, box-shadow $transition-base;
+}
+
+.primaryBtn {
+  background: $gradient-search-btn;
+  color: $white;
+  box-shadow: $shadow-search-btn;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-search-btn-hover;
+  }
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.12);
+  color: $white;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.heroBadges {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  margin-top: $spacing-lg;
+
+  span {
+    padding: 0.45rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.11);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    font-size: $font-sm;
+    color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.heroPanel {
+  display: grid;
+  gap: $spacing-lg;
+}
+
+.heroPanelCard {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  backdrop-filter: blur(10px);
+
+  strong {
+    display: block;
+    font-size: $font-3xl;
+    color: $white;
+    margin: $spacing-sm 0;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: $font-sm;
+    line-height: 1.5;
+  }
+}
+
+.heroPanelLabel {
+  font-size: $font-sm;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.75);
+}

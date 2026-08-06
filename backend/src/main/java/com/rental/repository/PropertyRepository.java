@@ -21,16 +21,18 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     @Query("SELECT p FROM Property p WHERE p.isActive = true AND " +
            "((p.visibility = 'PUBLIC') OR (:ownerId IS NOT NULL AND p.ownerId = :ownerId) OR (:role IS NOT NULL AND :role = 'ADMIN')) AND " +
-           "(:location IS NULL OR p.location ILIKE CONCAT('%', CAST(:location AS text), '%')) AND " +
+           "(:location IS NULL OR LOWER(CAST(p.location AS text)) LIKE LOWER(CONCAT('%', CAST(:location AS text), '%'))) AND " +
            "(:minPrice IS NULL OR p.rent >= :minPrice) AND " +
            "(:maxPrice IS NULL OR p.rent <= :maxPrice) AND " +
-           "(:bedrooms IS NULL OR p.bedrooms = :bedrooms)")
+           "(:bedrooms IS NULL OR p.bedrooms = :bedrooms) AND " +
+           "(:amenities IS NULL OR EXISTS (SELECT a FROM p.amenities a WHERE a IN :amenities))")
     Page<Property> findVisibleWithFilters(@Param("ownerId") Long ownerId,
                                          @Param("role") String role,
                                          @Param("location") String location,
                                          @Param("minPrice") Double minPrice,
                                          @Param("maxPrice") Double maxPrice,
                                          @Param("bedrooms") Integer bedrooms,
+                                         @Param("amenities") List<String> amenities,
                                          Pageable pageable);
 
     @Query("SELECT p FROM Property p JOIN p.imageUrls url WHERE url = :imageUrl")
@@ -38,7 +40,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     
     /**
      * Find properties within a radius (in meters) of a given location
-     * ✅ Uses single-line string concatenation (no text blocks)
      */
     @Query(value = "SELECT p.*, " +
            "ST_Distance(" +
@@ -64,7 +65,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     /**
      * Find properties within a radius with additional filters
-     * ✅ Uses single-line string concatenation (no text blocks)
      */
     @Query(value = "SELECT p.*, " +
            "ST_Distance(" +
@@ -99,4 +99,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
      */
     @Query("SELECT p FROM Property p WHERE p.latitude IS NOT NULL AND p.longitude IS NOT NULL AND p.available = true AND p.isActive = true")
     List<Property> findAllWithCoordinates();
+
+    // ✅ NEW: Get distinct locations for autocomplete
+    @Query("SELECT DISTINCT p.location FROM Property p WHERE LOWER(CAST(p.location AS text)) LIKE LOWER(CONCAT(CAST(:query AS text), '%')) ORDER BY p.location")
+    List<String> findDistinctLocationsStartingWith(@Param("query") String query);
 }

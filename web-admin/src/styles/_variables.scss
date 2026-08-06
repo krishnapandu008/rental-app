@@ -1,35 +1,87 @@
-// (Colors, shadows, gradients, spacing)
-// ===== COLORS =====
-// Primary
+// ================================================================
+// 🎨 BASE COLORS
+// ================================================================
+
+$white: #ffffff;
+$black: #000000;
+// ================================================================
+// 🎨 COLOR PALETTE
+// ================================================================
+
+// ----- Primary Colors -----
 $primary: #f4511e;
 $primary-dark: #d84315;
 $primary-light: #ff6b35;
 
-// Grays
+// ----- Accent Colors -----
+$accent1: #f97316;      // Orange/Coral
+$accent2: #f59e0b;      // Amber/Gold
+$accent3: #06b6d4;      // Cyan/Teal
+
+// ----- Grays -----
 $text-dark: #1f2937;
 $text-muted: #6b7280;
 $text-label: #374151;
 $text-light: #94a3b8;
 
-// Borders & Backgrounds
+// ----- Borders & Backgrounds -----
 $border-color: #e5e7eb;
 $bg-input: #fafafa;
 $bg-hover: #f3f4f6;
 $bg-white: #ffffff;
+$gray: #f8fafc;
 
-// Status Colors
+// ----- Status Colors -----
 $blue: #3b82f6;
 $red: #dc3545;
 $green: #28a745;
 $orange: #f4511e;
-$yellow: #ffc107;   // or use $orange
-// Gradients
+$yellow: #ffc107;
+
+// ----- Hero Section Colors -----
+$hero-bg-start: #0f172a;
+$hero-bg-mid: #1a365d;
+$hero-bg-end: #1e293b;
+$hero-text-light: rgba(255, 255, 255, 0.7);
+
+// ----- Glass Effect Colors -----
+$glass-bg: rgba(255, 255, 255, 0.08);
+$glass-border: rgba(255, 255, 255, 0.12);
+$glass-focus-bg: rgba(255, 255, 255, 0.15);
+$glass-focus-border: rgba(249, 115, 22, 0.4);
+$glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+
+// ----- Filter Badge Colors -----
+$badge-bg: linear-gradient(135deg, #f97316, #f59e0b);
+$badge-shadow: 0 2px 10px rgba(249, 115, 22, 0.4);
+
+// ================================================================
+// 🎨 GRADIENTS
+// ================================================================
+
+// ----- Existing Gradients -----
 $gradient-primary: linear-gradient(135deg, #f4511e 0%, #d84315 100%);
 $gradient-edit: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 $gradient-delete: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 $gradient-view: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
 
-// Shadows
+// ----- Dashboard Gradients -----
+$gradient-hero: linear-gradient(135deg, #0f172a 0%, #1a365d 30%, #1e293b 60%, #0f172a 100%);
+$gradient-hero-text: linear-gradient(135deg, #ffffff 0%, #f97316 50%, #f59e0b 100%);
+$gradient-search-btn: linear-gradient(135deg, #f97316, #f59e0b);
+$gradient-filter-active: rgba(249, 115, 22, 0.2);
+$gradient-ai-tag: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(6, 182, 212, 0.1));
+$gradient-progress: linear-gradient(90deg, #f97316, #f59e0b, #06b6d4);
+$gradient-view-toggle-active: linear-gradient(135deg, #f97316, #f59e0b);
+$gradient-my-listings: linear-gradient(135deg, #06b6d4, #0ea5e9);
+$gradient-error: linear-gradient(135deg, #fef2f2, #fee2e2);
+$gradient-chip-active: linear-gradient(135deg, #f97316, #f59e0b);
+
+// ================================================================
+// 💫 SHADOWS
+// ================================================================
+
+// ----- Existing Shadows -----
 $shadow-card: 0 10px 40px rgba(0, 0, 0, 0.08);
 $shadow-card-hover: 0 6px 16px rgba(0, 0, 0, 0.15);
 $shadow-primary: 0 4px 12px rgba(244, 81, 30, 0.3);
@@ -37,30 +89,194 @@ $shadow-primary-hover: 0 6px 20px rgba(244, 81, 30, 0.4);
 $shadow-edit: 0 4px 15px rgba(102, 126, 234, 0.4);
 $shadow-delete: 0 4px 15px rgba(245, 87, 108, 0.4);
 
-// Spacing
-$spacing-xs: 0.25rem;
-$spacing-sm: 0.5rem;
-$spacing-md: 0.75rem;
-$spacing-lg: 1rem;
-$spacing-xl: 1.5rem;
-$spacing-2xl: 2rem;
+// ----- Dashboard Shadows -----
+$shadow-hero: 0 20px 60px rgba(15, 23, 42, 0.3);
+$shadow-glass: 0 4px 30px rgba(0, 0, 0, 0.15);
+$shadow-glass-focus: 0 4px 40px rgba(249, 115, 22, 0.15);
+$shadow-filter-panel: 0 8px 40px rgba(15, 23, 42, 0.06);
+$shadow-search-btn: 0 4px 20px rgba(249, 115, 22, 0.3);
+$shadow-search-btn-hover: 0 8px 35px rgba(249, 115, 22, 0.4);
+$shadow-filter-btn: 0 0 30px rgba(249, 115, 22, 0.1);
+$shadow-apply-btn: 0 4px 15px rgba(249, 115, 22, 0.25);
+$shadow-apply-btn-hover: 0 6px 25px rgba(249, 115, 22, 0.35);
+$shadow-my-listings: 0 4px 20px rgba(6, 182, 212, 0.3);
+$shadow-retry-btn: 0 6px 25px rgba(220, 38, 38, 0.3);
+$shadow-clear-btn: 0 4px 20px rgba(249, 115, 22, 0.3);
+$shadow-suggestions: 0 20px 60px rgba(0, 0, 0, 0.15);
 
-// Border Radius
+// ================================================================
+// 🎯 BORDERS
+// ================================================================
+
+$border-hero: rgba(6, 182, 212, 0.15);
+$border-glass: rgba(255, 255, 255, 0.12);
+$border-view-toggle: #e2e8f0;
+$border-ai-tag: rgba(249, 115, 22, 0.15);
+$border-error: #fca5a5;
+$border-chip: rgba(255, 255, 255, 0.08);
+$border-chip-hover: rgba(249, 115, 22, 0.2);
+
+// ================================================================
+// 📏 SPACING
+// ================================================================
+
+$spacing-xs: 0.25rem;   // 4px
+$spacing-sm: 0.5rem;    // 8px
+$spacing-md: 0.75rem;   // 12px
+$spacing-lg: 1rem;      // 16px
+$spacing-xl: 1.5rem;    // 24px
+$spacing-2xl: 2rem;     // 32px
+$spacing-3xl: 3rem;     // 48px
+$spacing-4xl: 4rem;     // 64px
+
+// ================================================================
+// 🔲 BORDER RADIUS
+// ================================================================
+
 $radius-sm: 4px;
 $radius-md: 8px;
 $radius-lg: 12px;
 $radius-xl: 16px;
+$radius-2xl: 20px;
+$radius-3xl: 24px;
+$radius-full: 50%;
 
-// Font Sizes
-$font-xs: 0.75rem;
-$font-sm: 0.85rem;
-$font-base: 0.95rem;
-$font-lg: 1.1rem;
-$font-xl: 1.5rem;
-$font-2xl: 1.75rem;
+// ================================================================
+// 📝 FONT SIZES
+// ================================================================
 
-// Transitions
+$font-xs: 0.75rem;      // 12px
+$font-sm: 0.85rem;      // 13.6px
+$font-base: 0.95rem;    // 15.2px
+$font-lg: 1.1rem;       // 17.6px
+$font-xl: 1.5rem;       // 24px
+$font-2xl: 1.75rem;     // 28px
+$font-3xl: 2rem;        // 32px
+$font-4xl: 2.5rem;      // 40px
+
+// ================================================================
+// ⚡ TRANSITIONS
+// ================================================================
+
 $transition-fast: 0.15s ease;
 $transition-base: 0.2s ease;
 $transition-slow: 0.3s ease;
+$transition-slower: 0.4s ease;
 $transition-bounce: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+// ================================================================
+// 📱 BREAKPOINTS
+// ================================================================
+
+$breakpoint-sm: 480px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// ================================================================
+// 📦 Z-INDEX LAYERS
+// ================================================================
+
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+$z-toast: 1080;
+$z-suggestions: 999999;
+
+// ================================================================
+// ⏱️ ANIMATION DURATIONS
+// ================================================================
+
+$duration-fast: 150ms;
+$duration-base: 250ms;
+$duration-slow: 400ms;
+$duration-slower: 600ms;
+
+// ================================================================
+// 🔍 OPACITY LEVELS
+// ================================================================
+
+$opacity-disabled: 0.4;
+$opacity-dim: 0.6;
+$opacity-visible: 0.85;
+$opacity-full: 1;
+
+// ================================================================
+// 📐 COMPONENT SIZES
+// ================================================================
+
+// Avatar Sizes
+$avatar-size-sm: 28px;
+$avatar-size: 36px;
+$avatar-size-lg: 48px;
+
+// Icon Sizes
+$icon-size-sm: 16px;
+$icon-size-md: 20px;
+$icon-size-lg: 24px;
+
+// Input Sizes
+$input-height: 36px;
+$input-height-lg: 48px;
+
+// Button Sizes
+$btn-height: 36px;
+$btn-height-lg: 48px;
+
+// Voice Button Sizes
+$voice-btn-sm: 34px;
+$voice-btn-md: 40px;
+$voice-btn-lg: 48px;
+
+// ================================================================
+// 🏗️ LAYOUT
+// ================================================================
+
+$max-width: 1280px;
+$container-padding: 20px 24px 40px;
+$container-padding-mobile: 12px 16px 30px;
+
+// ================================================================
+// 🎨 LOADER COLORS
+// ================================================================
+
+$loader-border: #e2e8f0;
+$loader-accent1: #f97316;
+$loader-accent2: #f59e0b;
+
+// ================================================================
+// 🏷️ BADGE COLORS
+// ================================================================
+
+$badge-public-bg: $green;
+$badge-private-bg: #fd7e14;
+$badge-unlisted-bg: $red;
+
+// ================================================================
+// 🔘 FILTER BADGE
+// ================================================================
+
+$filter-badge-bg: linear-gradient(135deg, #f97316, #f59e0b);
+$filter-badge-shadow: 0 2px 10px rgba(249, 115, 22, 0.4);
+
+// ================================================================
+// 🗺️ MAP
+// ================================================================
+
+$map-height: 500px;
+$map-height-tablet: 350px;
+$map-height-mobile: 280px;
+
+// ================================================================
+// 📋 PROPERTY CARD
+// ================================================================
+
+$card-min-width: 300px;
+$card-min-width-tablet: 260px;
+$card-image-ratio: 66.67%;  // 2:3 ratio
+$card-image-ratio-mobile: 75%;

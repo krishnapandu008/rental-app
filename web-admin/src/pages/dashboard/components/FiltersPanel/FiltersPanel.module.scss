@@ -1,0 +1,63 @@
+// ✅ Use centralized styles
+@use '../../../../styles' as *;
+
+.filtersPanel {
+  @include filter-panel;
+}
+
+.filtersGrid {
+  @include filter-grid;
+}
+
+.filterGroup {
+  @include form-group;
+  margin-bottom: 0;
+
+  label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  input,
+  select {
+    @include input-base;
+    padding: 12px 14px;
+    border-radius: $radius-lg;
+    font-size: $font-sm;
+    background: #f8fafc;
+
+    &:focus {
+      border-color: $accent1;
+      box-shadow: 0 0 0 4px rgba($accent1, 0.1);
+    }
+  }
+}
+
+.filtersActions {
+  @include filter-actions;
+}
+
+.applyFiltersBtn {
+  @include apply-filter-btn;
+}
+
+.resetFiltersBtn {
+  @include reset-filter-btn;
+}
+
+.amenitiesRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-sm;
+  color: $text-dark;
+}

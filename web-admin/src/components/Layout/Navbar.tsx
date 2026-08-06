@@ -28,19 +28,15 @@ const CloseIcon = () => (
   </svg>
 );
 
-// ✅ Logo SVG Component - Increased size with house icon + "Smart Rental Platform"
+// ✅ Clean Logo - No Text
 const LogoIcon = () => (
-  <svg width="280" height="56" viewBox="0 0 280 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* House Icon */}
-    <rect x="2" y="18" width="28" height="28" rx="4" fill="white" opacity="0.95"/>
-    <path d="M16 6L2 18H30L16 6Z" fill="white" opacity="0.95"/>
-    <rect x="8" y="24" width="6" height="11" rx="1.5" fill="#f4511e"/>
-    <rect x="18" y="24" width="6" height="11" rx="1.5" fill="#f4511e"/>
-    {/* "Smart Rental" Text - Larger */}
-    <text x="40" y="26" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="white">Smart Rental</text>
-    {/* "Platform" Text - Larger */}
-    <text x="40" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="400" fill="white" opacity="0.85">Platform</text>
-  </svg>
+  <img 
+    src="/rental-logo.svg" 
+    alt="Rental Platform" 
+    width="42" 
+    height="42"
+    style={{ display: 'block' }}
+  />
 );
 
 const Navbar: React.FC = () => {

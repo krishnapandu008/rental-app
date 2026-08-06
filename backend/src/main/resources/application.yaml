@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev # 👈 This is where you call/toggle the active profile!
+    active: dev
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
@@ -10,5 +10,16 @@ server:
 
 jwt:
   secret: mySecretKeyThatShouldBeAtLeast256BitsLongForHSWithSHA256Algorithm
-  expiration: 86400000            # access token lifetime: 24h (ms)
-  refresh-expiration: 2592000000  # refresh token lifetime: 30 days (ms)
+  expiration: 86400000
+  refresh-expiration: 2592000000
+
+ollama:
+  url: http://localhost:11434
+  model: phi3:mini
+  timeout: 3000          # ✅ Connection timeout (3 seconds)
+  enabled: true
+
+app:
+  voice-search:
+    fallback-enabled: true
+    ai-timeout-ms: 800   # ✅ AI extraction timeout (800ms)

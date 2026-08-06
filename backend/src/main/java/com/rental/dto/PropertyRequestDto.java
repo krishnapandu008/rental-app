@@ -1,5 +1,7 @@
 package com.rental.dto;
 
+import java.util.List;
+
 import com.rental.enums.Visibility;
 
 import jakarta.validation.constraints.Min;
@@ -18,6 +20,7 @@ public class PropertyRequestDto {
     @NotBlank private String contactNumber;
     private Boolean available;
     private Visibility visibility;
+    private List<String> amenities;
     private Double latitude;   // ✅ NEW
     private Double longitude;  // ✅ NEW
 }

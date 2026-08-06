@@ -1,0 +1,19 @@
+// ================================================================
+// 📦 STYLES ENTRY POINT
+// ================================================================
+// This file exports all styles for reuse across the application.
+// Import this file in components using: @use '../../styles' as *;
+// ================================================================
+
+// 1. Variables (must be first - used by all other files)
+@forward './variables';
+
+// 2. Mixins (used by components)
+@forward './mixins';
+
+// 3. Global styles (applied to the entire application)
+@use './globals' as *;
+
+// 4. Any additional style imports can go here
+// @forward './utilities';
+// @forward './animations';

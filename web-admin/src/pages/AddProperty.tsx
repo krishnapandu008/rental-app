@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { addProperty } from '../api/propertyApi';
 import styles from './AddProperty.module.scss';
+import AmenitiesCheckboxes from '../components/AmenitiesCheckboxes/AmenitiesCheckboxes';
 
 const AddProperty: React.FC = () => {
   const { owner } = useAuth();
@@ -17,6 +18,7 @@ const AddProperty: React.FC = () => {
     visibility: 'PUBLIC' as 'PUBLIC' | 'PRIVATE' | 'UNLISTED',
     latitude: 0,   // ✅ NEW
     longitude: 0,  // ✅ NEW
+    amenities: [] as string[],
   });
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -116,6 +118,11 @@ const AddProperty: React.FC = () => {
             onChange={handleChange}
             placeholder="e.g., 77.5946"
           />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Amenities</label>
+          <AmenitiesCheckboxes value={form.amenities} onChange={(next) => setForm(prev => ({ ...prev, amenities: next }))} />
         </div>
 
         <div className={styles.formGroup}>

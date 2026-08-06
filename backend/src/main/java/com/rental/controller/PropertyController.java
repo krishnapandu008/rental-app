@@ -47,6 +47,7 @@ public class PropertyController {
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) Integer bedrooms,
+            @RequestParam(required = false) List<String> amenities,
             @RequestParam(required = false) String sortBy,   // "price_asc", "price_desc", "newest"
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -73,7 +74,7 @@ public class PropertyController {
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        return propertyService.getVisibleProperties(ownerId, role, location, minPrice, maxPrice, bedrooms, pageable);
+        return propertyService.getVisibleProperties(ownerId, role, location, minPrice, maxPrice, bedrooms, amenities, pageable);
     }
 
     // ---------- Single Property ----------
@@ -170,5 +171,11 @@ public class PropertyController {
     @GetMapping("/map")
     public ResponseEntity<List<PropertyResponseDto>> getPropertiesForMap() {
         return ResponseEntity.ok(propertyService.getAllPropertiesWithCoordinates());
+    }
+    // ✅ NEW: Get location suggestions for autocomplete
+    @GetMapping("/locations/suggest")
+    public ResponseEntity<List<String>> getLocationSuggestions(@RequestParam String q) {
+        List<String> suggestions = propertyService.getLocationSuggestions(q);
+        return ResponseEntity.ok(suggestions);
     }
 }

@@ -43,6 +43,12 @@ public class Property {
     @CollectionTable(name = "property_image_urls", joinColumns = @JoinColumn(name = "property_id"))
     @Column(name = "image_url")
     private List<String> imageUrls = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "property_amenities", joinColumns = @JoinColumn(name = "property_id"))
+    @Column(name = "amenity")
+    private List<String> amenities = new ArrayList<>();
+
     private Long ownerId;
     private LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)

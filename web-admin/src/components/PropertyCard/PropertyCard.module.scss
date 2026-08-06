@@ -2,22 +2,20 @@
 @use '../../styles/mixins' as *;
 
 .card {
-  background: $bg-white;
-  border-radius: $radius-md;
+  @include card-base;
+  padding: 0;
+  border-radius: $radius-lg;
   overflow: hidden;
   box-shadow: $shadow-card;
-  transition: $transition-slow;
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  border: 1px solid #f1f3f5;
 
   &:hover {
-    box-shadow: $shadow-card-hover;
+    @include card-hover;
+    border-color: #e5e7eb;
     transform: translateY(-4px);
-
-    .image {
-      transform: scale(1.05);
-    }
   }
 }
 
@@ -25,7 +23,7 @@
   position: relative;
   width: 100%;
   padding-top: 66.67%;
-  background: $bg-hover;
+  background: #f8f9fa;
   overflow: hidden;
 }
 
@@ -36,7 +34,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: $transition-slow;
+  transition: transform 0.4s ease;
+
+  .card:hover & { transform: scale(1.05); }
 }
 
 .imagePlaceholder {
@@ -45,18 +45,18 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: $bg-hover;
+  background: #f8f9fa;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $text-muted;
+  color: #9ca3af;
   font-size: $font-sm;
   flex-direction: column;
 
   &::before {
     content: '🏠';
     font-size: 3rem;
-    margin-bottom: $spacing-sm;
+    margin-bottom: 8px;
   }
 }
 
@@ -65,10 +65,10 @@
   bottom: 8px;
   right: 8px;
   background: rgba(0, 0, 0, 0.7);
-  color: $bg-white;
+  color: #ffffff;
   padding: 2px 10px;
   border-radius: 12px;
-  font-size: $font-xs;
+  font-size: 0.7rem;
   font-weight: 500;
   backdrop-filter: blur(4px);
 }
@@ -79,47 +79,34 @@
   top: 8px;
   left: 8px;
   background: $green;
-  color: $bg-white;
+  color: #ffffff;
   padding: 2px 12px;
   border-radius: 12px;
-  font-size: $font-xs;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   z-index: 2;
 }
 
-// Visibility badge (top-right)
 .visibilityBadge {
   position: absolute;
   top: 8px;
   right: 48px;
   padding: 2px 10px;
   border-radius: 12px;
-  font-size: $font-xs;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   z-index: 2;
   backdrop-filter: blur(4px);
 
-  &.public {
-    background: $green;
-    color: #fff;
-  }
-
-  &.private {
-    background: $orange;
-    color: #333;
-  }
-
-  &.unlisted {
-    background: $red;
-    color: #fff;
-  }
+  &.public { background: $green; color: #ffffff; }
+  &.private { background: #fd7e14; color: #333; }
+  &.unlisted { background: $red; color: #ffffff; }
 }
 
-// Inactive overlay
 .inactiveOverlay {
   position: absolute;
   inset: 0;
@@ -128,11 +115,10 @@
   align-items: center;
   justify-content: center;
   z-index: 3;
-  border-radius: 8px 8px 0 0;
   backdrop-filter: blur(2px);
 
   span {
-    color: #fff;
+    color: #ffffff;
     font-weight: 700;
     font-size: 1.1rem;
     text-transform: uppercase;
@@ -144,18 +130,39 @@
 }
 
 .content {
-  padding: $spacing-md $spacing-lg $spacing-lg;
+  padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 2px;
+  gap: 4px;
 }
+
+.amenities {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.amenityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.parking { background: #2563eb; }
+.furnished { background: #10b981; }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: $spacing-sm;
+  gap: 8px;
 
   h3 {
     margin: 0;
@@ -186,15 +193,8 @@
   gap: 4px;
   margin-top: 2px;
 
-  svg {
-    flex-shrink: 0;
-  }
-
-  span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  svg { flex-shrink: 0; }
+  span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 
 .details {
@@ -210,10 +210,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-
-  svg {
-    flex-shrink: 0;
-  }
+  svg { flex-shrink: 0; }
 }
 
 .contact {
@@ -226,9 +223,7 @@
   padding-top: 8px;
   border-top: 1px solid $border-color;
 
-  svg {
-    flex-shrink: 0;
-  }
+  svg { flex-shrink: 0; }
 }
 
 // ===== FAVORITE BUTTON =====
@@ -255,36 +250,26 @@
   &:hover {
     transform: scale(1.1);
     background: rgba(255, 255, 255, 0.95);
-    color: #dc3545;
+    color: $red;
   }
 
   &.favorited {
-    color: #dc3545;
+    color: $red;
     background: rgba(255, 255, 255, 0.95);
   }
 
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+  svg { width: 20px; height: 20px; }
 }
 
 // ===== RESPONSIVE =====
 @media (max-width: 768px) {
-  .content {
-    padding: $spacing-sm $spacing-md $spacing-md;
-  }
+  .content { padding: 12px 16px 16px; }
+  .header h3 { font-size: $font-sm; }
+  .header .rent { font-size: $font-base; }
+  .details { gap: $spacing-md; font-size: $font-xs; }
+}
 
-  .header h3 {
-    font-size: $font-sm;
-  }
-
-  .header .rent {
-    font-size: $font-base;
-  }
-
-  .details {
-    gap: $spacing-md;
-    font-size: $font-xs;
-  }
+@media (max-width: 480px) {
+  .card { border-radius: 10px; }
+  .imageWrapper { padding-top: 75%; }
 }

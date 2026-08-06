@@ -13,6 +13,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    // ✅ Make sure these are at class level with @Value
     @Value("${jwt.secret}")
     private String jwtSecret;
 

@@ -33,14 +33,33 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final LocalStorageService storageService;
     private final PropertyAccessService accessService;
-    private final FavoriteService favoriteService;   // ✅ Injected
+    private final FavoriteService favoriteService;
 
     // ---------- Public / Visible Listings with filters and pagination ----------
     public Page<PropertyResponseDto> getVisibleProperties(Long ownerId, String role, String location, Double minPrice,
-            Double maxPrice, Integer bedrooms, Pageable pageable) {
+            Double maxPrice, Integer bedrooms, List<String> amenities, Pageable pageable) {
         try {
+            // ✅ ADD DEBUG LOGGING
+            log.info("🔍 Normal Search - Filters: ownerId={}, role={}, location={}, minPrice={}, maxPrice={}, bedrooms={}, amenities={}, pageable={}",
+                ownerId, role, location, minPrice, maxPrice, bedrooms, amenities, pageable);
+            
+            List<String> amenityFilter = null;
+            if (amenities != null && !amenities.isEmpty()) {
+                amenityFilter = amenities.stream()
+                    .flatMap(value -> java.util.Arrays.stream(value.split(",")))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .distinct()
+                    .toList();
+                if (amenityFilter.isEmpty()) {
+                    amenityFilter = null;
+                }
+            }
             Page<Property> page = propertyRepository.findVisibleWithFilters(ownerId, role, location, minPrice, maxPrice,
-                    bedrooms, pageable);
+                    bedrooms, amenityFilter, pageable);
+            
+            log.info("✅ Normal Search - Found {} properties", page.getTotalElements());
+            
             return page.map(property -> {
                 PropertyResponseDto dto = toDto(property);
                 if (ownerId != null) {
@@ -93,6 +112,7 @@ public class PropertyService {
                 .ownerId(authenticatedOwnerId)
                 .available(dto.getAvailable() != null ? dto.getAvailable() : true)
                 .visibility(dto.getVisibility() != null ? dto.getVisibility() : Visibility.PUBLIC)
+                .amenities(dto.getAmenities())
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .latitude(dto.getLatitude())
@@ -138,6 +158,9 @@ public class PropertyService {
         }
         property.setLatitude(dto.getLatitude());
         property.setLongitude(dto.getLongitude());
+        if (dto.getAmenities() != null) {
+            property.setAmenities(dto.getAmenities());
+        }
 
         propertyRepository.save(property);
         return toDto(property);
@@ -208,30 +231,8 @@ public class PropertyService {
         return imageUrls;
     }
 
-    // ---------- DTO conversion ----------
-    private PropertyResponseDto toDto(Property property) {
-        PropertyResponseDto dto = new PropertyResponseDto();
-        dto.setId(property.getId());
-        dto.setTitle(property.getTitle());
-        dto.setDescription(property.getDescription());
-        dto.setLocation(property.getLocation());
-        dto.setRent(property.getRent());
-        dto.setBedrooms(property.getBedrooms());
-        dto.setContactNumber(property.getContactNumber());
-        dto.setAvailable(property.getAvailable());
-        dto.setImageUrls(property.getImageUrls());
-        dto.setOwnerId(property.getOwnerId());
-        dto.setVisibility(property.getVisibility());
-        dto.setActive(property.isActive());
-        dto.setLatitude(property.getLatitude());
-        dto.setLongitude(property.getLongitude());
-        return dto;
-    }
- // Add this method to PropertyService.java
-
     /**
      * Get the Property entity by ID (for internal use)
-     * This bypasses the access control checks used by getPropertyById()
      */
     public Property getPropertyEntityById(Long id) {
         return propertyRepository.findById(id)
@@ -270,4 +271,38 @@ public class PropertyService {
             .map(this::toDto)
             .collect(Collectors.toList());
     }
+    
+    public PropertyResponseDto toDto(Property property) {
+        if (property == null) return null;
+        
+        PropertyResponseDto dto = new PropertyResponseDto();
+        dto.setId(property.getId());
+        dto.setTitle(property.getTitle());
+        dto.setDescription(property.getDescription());
+        dto.setLocation(property.getLocation());
+        dto.setRent(property.getRent());
+        dto.setBedrooms(property.getBedrooms());
+        dto.setContactNumber(property.getContactNumber());
+        dto.setAvailable(property.getAvailable());
+        dto.setImageUrls(property.getImageUrls());
+        dto.setOwnerId(property.getOwnerId());
+        dto.setVisibility(property.getVisibility());
+        dto.setActive(property.isActive());
+        dto.setAmenities(property.getAmenities());
+        dto.setLatitude(property.getLatitude());
+        dto.setLongitude(property.getLongitude());
+        return dto;
+    }
+    
+    // ✅ NEW: Get location suggestions for autocomplete
+    public List<String> getLocationSuggestions(String query) {
+        if (query == null || query.length() < 2) {
+            return List.of();
+        }
+        return propertyRepository.findDistinctLocationsStartingWith(query)
+            .stream()
+            .limit(10)
+            .collect(Collectors.toList());
+    }
+    
 }

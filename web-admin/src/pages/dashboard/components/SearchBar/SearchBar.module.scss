@@ -1,0 +1,133 @@
+// ✅ Use centralized styles
+@use '../../../../styles' as *;
+
+.searchBar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+  }
+}
+
+.searchInputWrapper {
+  flex: 1;
+  position: relative !important;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  min-height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 58, 138, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+  }
+
+  // ✅ Remove all outlines from wrapper
+  &:focus,
+  &:focus-within,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+.searchIcon {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-right: 10px;
+  transition: color 0.3s;
+
+  .searchInputWrapper:focus-within & {
+    color: #fbbf24;
+  }
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 16px 8px;
+  font-size: 15px;
+  background: transparent;
+  color: #ffffff;
+  min-width: 0;
+  font-weight: 500;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  &:focus::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  // ✅ Remove all outlines from input
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    padding: 14px 4px;
+  }
+}
+
+.clearSearchBtn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  transition: all 0.3s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+  }
+}
+
+.searchBtn {
+  @include search-button;
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: 0 4px 20px rgba($accent1, 0.3) !important;
+  }
+}
+
+.filterToggleBtn {
+  @include filter-toggle-btn;
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 30px rgba($accent1, 0.1) !important;
+  }
+}
+
+.filterBadge {
+  @include filter-badge;
+}
+
+// ✅ IMPORTANT: Override the global :focus-visible for this component
+.searchInputWrapper *:focus-visible {
+  outline: none !important;
+}

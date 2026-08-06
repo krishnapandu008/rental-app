@@ -1,0 +1,20 @@
+// ✅ Use centralized styles
+@use '../../../../styles' as *;
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-xl;
+  margin-top: 36px;
+}
+
+.pageBtn {
+  @include pagination-btn;
+}
+
+.pageInfo {
+  font-size: $font-base;
+  color: #475569;
+  font-weight: 600;
+}

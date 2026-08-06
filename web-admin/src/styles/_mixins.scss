@@ -1,8 +1,13 @@
-// (Reusable component mixins)
+// ================================================================
+// ✅ @use AT THE TOP (CORRECT POSITION)
+// ================================================================
 @use 'sass:color';
 @use './variables' as *;
 
-// ===== CONTAINERS =====
+// ================================================================
+// CONTAINERS
+// ================================================================
+
 @mixin container-center($max-width: 600px) {
   max-width: $max-width;
   margin: 2rem auto;
@@ -15,7 +20,10 @@
   margin: 0 auto;
 }
 
-// ===== CARDS =====
+// ================================================================
+// CARDS
+// ================================================================
+
 @mixin card-base {
   background: $bg-white;
   border-radius: $radius-xl;
@@ -31,7 +39,10 @@
   }
 }
 
-// ===== INPUTS & FORMS =====
+// ================================================================
+// INPUTS & FORMS
+// ================================================================
+
 @mixin input-base {
   width: 100%;
   padding: 0.6rem 0.75rem;
@@ -71,7 +82,10 @@
   }
 }
 
-// ===== BUTTONS =====
+// ================================================================
+// BUTTONS
+// ================================================================
+
 @mixin primary-button {
   padding: 0.6rem 1.5rem;
   background: $gradient-primary;
@@ -134,7 +148,10 @@
   }
 }
 
-// ===== IMAGE THUMBNAILS =====
+// ================================================================
+// IMAGE THUMBNAILS
+// ================================================================
+
 @mixin thumbnail-wrapper {
   position: relative;
   border-radius: $radius-md;
@@ -184,7 +201,10 @@
   }
 }
 
-// ===== FILE INPUT =====
+// ================================================================
+// FILE INPUT
+// ================================================================
+
 @mixin file-input {
   display: block;
   padding: 0.5rem 0;
@@ -207,14 +227,20 @@
   }
 }
 
-// ===== GRID LAYOUTS =====
+// ================================================================
+// GRID LAYOUTS
+// ================================================================
+
 @mixin property-grid {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
-// ===== BACK BUTTON =====
+// ================================================================
+// BACK BUTTON
+// ================================================================
+
 @mixin back-button {
   display: inline-flex;
   align-items: center;
@@ -231,5 +257,753 @@
   &:hover {
     background: $bg-hover;
     color: $blue;
+  }
+}
+
+// ================================================================
+// ✅ FLEX & LAYOUT MIXINS
+// ================================================================
+
+// Flex with space between (horizontal layout)
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+}
+
+// Flex center (horizontal & vertical)
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+// Flex row
+@mixin flex-row {
+  display: flex;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+// Flex wrap
+@mixin flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    gap: 0.75rem;
+  }
+}
+
+// Flex column
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    gap: 0.75rem;
+  }
+}
+
+// Grid with 2 columns (responsive)
+@mixin grid-2 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+// Grid with 3 columns (responsive)
+@mixin grid-3 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+// ================================================================
+// ✅ NEW: DASHBOARD SPECIFIC MIXINS
+// ================================================================
+
+// Hero section styling
+@mixin hero-section {
+  background: $gradient-hero;
+  border-radius: $radius-3xl;
+  padding: 56px 64px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: visible !important;
+  border: 1px solid $border-hero;
+  box-shadow: $shadow-hero;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 32px 24px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 24px 16px;
+  }
+}
+
+// Hero content text
+@mixin hero-text {
+  position: relative;
+  z-index: 1;
+
+  h1 {
+    font-size: $font-4xl;
+    font-weight: 800;
+    background: $gradient-hero-text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.5px;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-2xl;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-xl;
+    }
+  }
+
+  p {
+    font-size: $font-lg;
+    color: $hero-text-light;
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-sm;
+    }
+  }
+}
+
+// Glass morphism effect for search bar
+@mixin glass-effect {
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid $glass-border;
+  border-radius: $radius-lg;
+  padding: 0 16px;
+  transition: all $transition-slow;
+  box-shadow: $glass-shadow;
+
+  &:focus-within {
+    background: $glass-focus-bg;
+    border-color: $glass-focus-border;
+    box-shadow: $shadow-glass-focus;
+    transform: translateY(-1px);
+  }
+}
+
+// Search button styling
+@mixin search-button {
+  padding: 16px 36px;
+  background: $gradient-search-btn;
+  color: white;
+  border: none;
+  border-radius: $radius-lg;
+  font-size: $font-base;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-slow;
+  white-space: nowrap;
+  box-shadow: $shadow-search-btn;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-search-btn-hover;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+// Filter toggle button
+@mixin filter-toggle-btn {
+  padding: 16px 20px;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid $glass-border;
+  border-radius: $radius-lg;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all $transition-slow;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba($accent1, 0.3);
+  }
+
+  &.active {
+    background: $gradient-filter-active;
+    border-color: $accent1;
+    box-shadow: $shadow-filter-btn;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+// Filter badge
+@mixin filter-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: $filter-badge-bg;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $filter-badge-shadow;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+// Quick chip styling
+@mixin quick-chip {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid $border-chip;
+  border-radius: 24px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-slow;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: $border-chip-hover;
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    background: $gradient-chip-active;
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 20px rgba($accent1, 0.3);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+}
+
+// Filter panel
+@mixin filter-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: $radius-xl;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: $shadow-filter-panel;
+}
+
+// Filter grid
+@mixin filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Filter actions
+@mixin filter-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  border-top: 2px solid #f1f5f9;
+  padding-top: $spacing-xl;
+
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+  }
+}
+
+// Apply filter button
+@mixin apply-filter-btn {
+  padding: 12px 28px;
+  background: $gradient-search-btn;
+  color: white;
+  border: none;
+  border-radius: $radius-lg;
+  font-weight: 600;
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-slow;
+  box-shadow: $shadow-apply-btn;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-apply-btn-hover;
+  }
+}
+
+// Reset filter button
+@mixin reset-filter-btn {
+  padding: 12px 28px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+  border-radius: $radius-lg;
+  font-weight: 600;
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-slow;
+
+  &:hover {
+    background: #e2e8f0;
+    color: #334155;
+  }
+}
+
+// AI tag styling
+@mixin ai-tag {
+  background: $gradient-ai-tag;
+  color: $accent1;
+  padding: 6px 16px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid $border-ai-tag;
+
+  &::before {
+    content: '✨';
+  }
+}
+
+// View toggle button
+@mixin view-toggle-btn {
+  padding: 8px 18px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all $transition-slow;
+
+  &:hover {
+    color: #475569;
+  }
+
+  &.active {
+    background: $gradient-view-toggle-active;
+    color: white;
+  }
+}
+
+// My listings button
+@mixin my-listings-btn {
+  padding: 8px 20px;
+  background: $gradient-my-listings;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all $transition-slow;
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-my-listings;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex: 1;
+  }
+}
+
+// Loading spinner
+@mixin loading-spinner($size: 56px) {
+  width: $size;
+  height: $size;
+  border: 4px solid $loader-border;
+  border-top: 4px solid $loader-accent1;
+  border-right: 4px solid $loader-accent2;
+  border-radius: $radius-full;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Progress bar
+@mixin progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+@mixin progress-fill {
+  height: 100%;
+  background: $gradient-progress;
+  background-size: 200% 100%;
+  animation: progressAnimation 2s ease-in-out infinite;
+  width: 60%;
+  border-radius: 2px;
+}
+
+@keyframes progressAnimation {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Pagination button
+@mixin pagination-btn {
+  padding: 10px 24px;
+  background: $gradient-search-btn;
+  color: white;
+  border: none;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: $font-sm;
+  transition: all $transition-slow;
+  box-shadow: $shadow-apply-btn;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-apply-btn-hover;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+// Voice button styling
+@mixin voice-button {
+  position: relative;
+  border: none;
+  border-radius: $radius-full;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-slow;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 6px;
+  width: $voice-btn-md;
+  height: $voice-btn-md;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  &:hover:not(.listening) {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    transform: scale(1.05);
+    border-color: rgba($accent1, 0.2);
+  }
+
+  &.listening {
+    background: $gradient-chip-active;
+    color: white;
+    border-color: transparent;
+    animation: voicePulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 40px rgba($accent1, 0.3);
+  }
+
+  svg {
+    width: $icon-size-md;
+    height: $icon-size-md;
+  }
+
+  // Size variants
+  &.sm {
+    width: $voice-btn-sm;
+    height: $voice-btn-sm;
+    svg {
+      width: $icon-size-sm;
+      height: $icon-size-sm;
+    }
+  }
+
+  &.md {
+    width: $voice-btn-md;
+    height: $voice-btn-md;
+    svg {
+      width: $icon-size-md;
+      height: $icon-size-md;
+    }
+  }
+
+  &.lg {
+    width: $voice-btn-lg;
+    height: $voice-btn-lg;
+    svg {
+      width: $icon-size-lg;
+      height: $icon-size-lg;
+    }
+  }
+}
+
+// Voice pulse animation
+@keyframes voicePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba($accent1, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 16px rgba($accent1, 0);
+  }
+}
+
+// Wave dot animation
+@mixin wave-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: $radius-full;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  animation: waveDot 1s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+@keyframes waveDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 0.5;
+  }
+}
+
+// Voice error tooltip
+@mixin voice-error {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #ef4444;
+  color: white;
+  font-size: $font-xs;
+  padding: 4px 14px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: $z-tooltip;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 14px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid #ef4444;
+  }
+}
+
+// Suggestions dropdown
+@mixin suggestions-dropdown {
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #ffffff !important;
+  border: 2px solid #d1d5db !important;
+  border-radius: $radius-lg !important;
+  box-shadow: $shadow-suggestions !important;
+  z-index: $z-suggestions !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  padding: 6px 0 !important;
+  display: block !important;
+  margin-top: 4px !important;
+  min-width: 100% !important;
+  color: $text-dark !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+
+  &:empty {
+    display: none !important;
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+}
+
+// Suggestion item
+@mixin suggestion-item {
+  padding: 12px 18px !important;
+  cursor: pointer !important;
+  font-size: $font-sm !important;
+  color: $text-dark !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  transition: all $transition-fast !important;
+  border: none !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  &:last-child {
+    border-bottom: none !important;
+  }
+
+  &:hover {
+    background: #f3f4f6 !important;
+    color: $accent1 !important;
+  }
+
+  &:active {
+    background: #e5e7eb !important;
+  }
+}
+
+// Empty state
+@mixin empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: $bg-white;
+  border-radius: $radius-xl;
+  border: 2px dashed #e2e8f0;
+
+  .emptyIcon {
+    font-size: 72px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: $font-xl;
+    color: $text-dark;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: $text-muted;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+// Error state
+@mixin error-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: $gradient-error;
+  border-radius: $radius-xl;
+  border: 2px solid $border-error;
+  margin: 40px 0;
+
+  .errorIcon {
+    font-size: 52px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: $font-xl;
+    color: $red;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: $text-muted;
+    margin-bottom: $spacing-xl;
   }
 }

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" width="220" height="60">
+  <defs>
+    <linearGradient id="clean" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- House Icon -->
+  <g transform="translate(26, 30) scale(0.85)">
+    <polygon points="-20,0 0,-16 20,0" fill="url(#clean)"/>
+    <rect x="-16" y="0" width="32" height="26" fill="white" rx="2"/>
+    <rect x="-4" y="12" width="8" height="14" fill="#0f172a" rx="1"/>
+    <circle cx="0" cy="20" r="1.2" fill="#f97316"/>
+    <rect x="-11" y="5" width="5" height="5" fill="#0f172a" rx="1"/>
+    <rect x="6" y="5" width="5" height="5" fill="#0f172a" rx="1"/>
+  </g>
+  
+  <!-- "RentalHub" Text -->
+  <text x="58" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#ffffff" letter-spacing="1">
+    Rental
+  </text>
+  <text x="58" y="47" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="url(#clean)" letter-spacing="2">
+    HUB
+  </text>
+</svg>

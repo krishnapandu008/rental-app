@@ -1,0 +1,59 @@
+// ✅ Use centralized styles
+@use '../../../../styles' as *;
+
+.resultsHeader {
+  @include flex-between;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.resultsLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+
+  h2 {
+    font-size: $font-xl;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0;
+  }
+}
+
+.aiTag {
+  @include ai-tag;
+}
+
+.resultsRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    justify-content: stretch;
+  }
+}
+
+.viewToggle {
+  display: flex;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 2px solid $border-view-toggle;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.viewBtn {
+  @include view-toggle-btn;
+}
+
+.myListingsBtn {
+  @include my-listings-btn;
+}

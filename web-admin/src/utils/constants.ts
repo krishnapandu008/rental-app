@@ -4,3 +4,6 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // For debugging
 console.log('🌐 API_BASE_URL:', API_BASE_URL);
+// When true, send amenities as comma-separated string in query params.
+// Set to false if backend expects repeated params or JSON arrays.
+export const SEND_AMENITIES_AS_CSV = true;

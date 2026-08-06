@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
-// @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -35,7 +34,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Global CorsFilter bean – handles preflight (OPTIONS) before Spring Security
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -49,7 +47,6 @@ public class SecurityConfig {
         return new CorsFilter(source);
     }
 
-    // Keep the existing CorsConfigurationSource (used by http.cors() as a fallback)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -66,28 +63,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // ✅ Add CorsFilter at the very beginning of the filter chain
             .addFilterBefore(corsFilter(), CorsFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                 .requestMatchers("/api/owners/register", "/api/owners/login").permitAll()
                 .requestMatchers("/api/auth/refresh", "/api/auth/logout").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/properties").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/properties/{id}").permitAll()
-
+                .requestMatchers("/api/ai/**").permitAll()
+                .requestMatchers("/api/notifications/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/properties/admin/all").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/owners").hasRole("ADMIN")
-
                 .requestMatchers(HttpMethod.GET, "/api/properties/owner/{ownerId}").authenticated()
-
                 .requestMatchers(HttpMethod.POST, "/api/properties", "/api/properties/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/properties/{id}").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/properties/{id}").authenticated()
-
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,0 +1,13 @@
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #111827;
+}

@@ -1,0 +1,46 @@
+// ✅ Use centralized styles
+@use '../../../../styles' as *;
+
+.quickChipsContainer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: $spacing-xl;
+  padding: 8px 0;
+
+  @media (max-width: $breakpoint-sm) {
+    gap: 8px;
+  }
+}
+
+.quickChip {
+  @include quick-chip;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+
+  &:hover {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    color: #111827;
+    border-color: rgba(249, 115, 22, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(249, 115, 22, 0.14);
+  }
+
+  &.activeChip {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 12px 28px rgba(249, 115, 22, 0.28);
+  }
+}

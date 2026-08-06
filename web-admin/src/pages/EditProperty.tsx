@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api/client';
 import styles from './EditProperty.module.scss';
+import AmenitiesCheckboxes from '../components/AmenitiesCheckboxes/AmenitiesCheckboxes';
 
 // ===== ICON COMPONENTS =====
 const BackIcon = () => (
@@ -47,6 +48,7 @@ const EditProperty: React.FC = () => {
     visibility: 'PUBLIC' as 'PUBLIC' | 'PRIVATE' | 'UNLISTED',
     latitude: 0,   // ✅ NEW
     longitude: 0,  // ✅ NEW
+    amenities: [] as string[],
   });
 
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -71,6 +73,7 @@ const EditProperty: React.FC = () => {
           visibility: data.visibility || 'PUBLIC',
           latitude: data.latitude || 0,   // ✅ NEW
           longitude: data.longitude || 0, // ✅ NEW
+          amenities: data.amenities || [],
         });
         setExistingImages(data.imageUrls || []);
         setLoading(false);
@@ -290,6 +293,11 @@ const EditProperty: React.FC = () => {
             <option value="PRIVATE">Private (only you and admins)</option>
             <option value="UNLISTED">Unlisted (only admins)</option>
           </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Amenities</label>
+          <AmenitiesCheckboxes value={form.amenities} onChange={(next) => setForm(prev => ({ ...prev, amenities: next }))} />
         </div>
 
         {/* ✅ NEW: Latitude & Longitude inputs */}

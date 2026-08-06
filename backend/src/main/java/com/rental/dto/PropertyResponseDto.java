@@ -22,6 +22,7 @@ public class PropertyResponseDto {
     private Visibility visibility;
     @JsonProperty("isActive")
     private boolean isActive;
+    private List<String> amenities;
     private Double latitude;
     private Double longitude;
     private boolean isFavorited;   // ✅ NEW

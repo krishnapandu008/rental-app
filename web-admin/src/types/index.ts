@@ -13,7 +13,8 @@ export interface Property {
   isActive: boolean;
   latitude?: number;
   longitude?: number;
-  isFavorited?: boolean;   // ✅ NEW
+  amenities?: string[];
+  isFavorited?: boolean;
 }
 
 export interface Owner {
@@ -50,4 +51,23 @@ export interface PageResponse<T> {
   number: number;
   first: boolean;
   last: boolean;
+}
+
+// ✅ NEW: AI Voice Search Types
+export interface SearchFilters {
+  location?: string | null;
+  minRent?: number | null;
+  maxRent?: number | null;
+  bedrooms?: number | null;
+  amenities?: string[] | null;
+  explanation?: string | null;
+}
+
+export interface VoiceSearchResponse {
+  transcript: string;
+  explanation: string;
+  filters: SearchFilters;
+  properties: Property[];
+  totalResults: number;
+  aiAvailable: boolean;
 }
