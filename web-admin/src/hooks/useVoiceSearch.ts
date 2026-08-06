@@ -28,7 +28,6 @@ export const useVoiceSearch = ({
   const [error, setError] = useState<string | null>(null);
   const [recognition, setRecognition] = useState<any>(null);
   const [isSupported, setIsSupported] = useState(false);
-  // ✅ FIX: Use number instead of NodeJS.Timeout
   const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -98,7 +97,7 @@ export const useVoiceSearch = ({
         timeoutRef.current = null;
       }
     };
-  }, [lang, onResult, onError]);
+  }, [lang]); // ✅ FIXED: Removed onResult and onError from dependencies
 
   const startListening = useCallback(() => {
     if (!recognition) return;
