@@ -2,11 +2,11 @@ package com.rental.dto;
 
 import com.rental.enums.UserRole;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class UpdateRoleRequestDto {
-    @NotBlank
+    @NotNull
     private UserRole role;
 }
