@@ -1,16 +1,11 @@
  import { StyleSheet } from 'react-native';
 
 export const colors = {
-  // Primary gradient colors
-  primary: '#FF6B6B',
-  primaryDark: '#EE5A6F',
-  
-  // Secondary gradient
-  secondary: '#4ECDC4',
-  secondaryDark: '#45B7B0',
-  
-  // Accent colors
-  accent: '#FFD93D',
+  primary: '#F26B5E',
+  primaryDark: '#D95045',
+  secondary: '#2F8F83',
+  secondaryDark: '#236C63',
+  accent: '#F4C95D',
   danger: '#E63946',
   success: '#06A77D',
   warning: '#FB5607',
@@ -19,25 +14,25 @@ export const colors = {
   whatsapp: '#25D366',
   
   // Neutral colors
-  background: '#F8F9FA',
+  background: '#FCFAF6',
   surfaceLight: '#FFFFFF',
-  surface: '#F5F7FA',
+  surface: '#F2EEE7',
   
   // Text colors
-  textPrimary: '#1A1A2E',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
+  textPrimary: '#102A43',
+  textSecondary: '#52606D',
+  textTertiary: '#829AB1',
   
   // Border & Shadow
-  border: '#E5E7EB',
+  border: '#E5E0D8',
   shadow: '#000000',
   lightGray: '#E0E0E0',
   
   // Gradient pairs
   gradients: {
-    primary: ['#FF6B6B', '#EE5A6F'],
-    secondary: ['#4ECDC4', '#45B7B0'],
-    warm: ['#FFD93D', '#FB5607'],
+    primary: ['#F26B5E', '#D95045'],
+    secondary: ['#2F8F83', '#236C63'],
+    warm: ['#F4C95D', '#F26B5E'],
   },
 };
 

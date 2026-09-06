@@ -23,12 +23,9 @@ ollama:
   enabled: true
 
 app:
-  # Voice search
   voice-search:
     fallback-enabled: true
     ai-timeout-ms: 800
-
-  # CORS allowed origins (comma-separated)
   cors:
     allowed-origins: "http://localhost:5173,http://localhost:5174,https://ksdcnit.com"
 
@@ -50,3 +47,8 @@ management:
   info:
     env:
       enabled: true
+
+# ============ COOKIE SECURE FLAG ============
+# Default for local development (overridden in dev/prod if needed)
+cookie:
+  secure: false

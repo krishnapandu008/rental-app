@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { Property } from '../types';
 import { callOwner, whatsappOwner } from '../utils/phoneHelper';
@@ -41,6 +41,7 @@ const InfoRow = ({
 
 export default function DetailScreen({ route }: DetailScreenProps) {
   const { property } = route.params;
+  const { width } = useWindowDimensions();
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -83,7 +84,7 @@ export default function DetailScreen({ route }: DetailScreenProps) {
         <Text style={styles.contactNumber}>{property.contactNumber}</Text>
       </View>
 
-      <View style={styles.buttonRow}>
+      <View style={[styles.buttonRow, width < 360 && styles.buttonRowCompact]}>
         <TouchableOpacity 
           style={styles.callBtn} 
           onPress={() => callOwner(property.contactNumber)}

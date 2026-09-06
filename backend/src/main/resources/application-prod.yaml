@@ -16,7 +16,7 @@ spring:
 
   flyway:
     enabled: true
-    validate-on-migrate: false   # ✅ Temporarily disable checksum validation
+    validate-on-migrate: false   # Temporarily disabled (you may enable later)
 
 app:
   storage:
@@ -46,3 +46,6 @@ management:
   info:
     env:
       enabled: true
+
+cookie:
+  secure: true   # Set to true for production (HTTPS only)

@@ -18,7 +18,6 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },
-    "usesCleartextTraffic": true,
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -27,6 +26,9 @@
         "projectId": "6de19d63-cbad-45c1-abf5-63008839af3c"
       }
     },
-    "owner": "sravania"
+    "owner": "sravania",
+    "plugins": [
+      "expo-status-bar"
+    ]
   }
 }

@@ -4,21 +4,23 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "@react-navigation/native": "^7.3.4",
-    "@react-navigation/stack": "^7.10.6",
+    "@react-navigation/native": "^7.3.18",
+    "@react-navigation/stack": "^7.10.24",
     "axios": "^1.18.1",
-    "expo": "~54.0.0",
-    "expo-dev-client": "~6.0.0",
-    "expo-status-bar": "~3.0.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-native": "0.81.0",
-    "react-native-gesture-handler": "~2.20.0",
-    "react-native-reanimated": "~3.15.0",
-    "react-native-safe-area-context": "~4.12.0",
-    "react-native-screens": "~4.0.0",
+    "expo": "^57.0.0",
+    "expo-dev-client": "~57.0.18",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
     "react-native-vector-icons": "^10.2.0",
-    "react-native-web": "~0.19.0"
+    "react-native-web": "^0.21.2",
+    "react-native-webview": "13.16.1",
+    "react-native-worklets": "0.10.1"
   },
   "scripts": {
     "start": "expo start",
@@ -29,7 +31,7 @@
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "@types/react": "~18.3.12",
-    "typescript": "~5.3.3"
+    "@types/react": "~19.2.4",
+    "typescript": "~6.0.3"
   }
 }

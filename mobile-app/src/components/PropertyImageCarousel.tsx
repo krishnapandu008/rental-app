@@ -5,12 +5,10 @@ import {
   ActivityIndicator, 
   TouchableOpacity, 
   Text,
-  Dimensions 
+  useWindowDimensions,
 } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { colors, spacing } from '../styles/common';
-
-const { width } = Dimensions.get('window');
 
 interface PropertyImageCarouselProps {
   imageUrls?: string[];
@@ -19,6 +17,7 @@ interface PropertyImageCarouselProps {
 export default function PropertyImageCarousel({ imageUrls }: PropertyImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { width } = useWindowDimensions();
 
   const images = imageUrls?.filter(url => url) || [];
   const hasImages = images.length > 0;
@@ -48,7 +47,7 @@ export default function PropertyImageCarousel({ imageUrls }: PropertyImageCarous
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, { height: Math.min(300, Math.max(190, width * 0.62)) }]}>
         {loading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
@@ -121,7 +120,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 250,
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   image: {
@@ -129,7 +128,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.surface,

@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../utils/constants';
 export const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -14,6 +15,9 @@ export const api = axios.create({
 // 🔍 REQUEST LOGGER: Tracks exactly what leaves the app
 api.interceptors.request.use(
   (config) => {
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     console.log('=== 🚀 OUTGOING REQUEST ===');
     console.log(`URL: ${config.baseURL}${config.url}`);
     console.log('Headers:', JSON.stringify(config.headers, null, 2));

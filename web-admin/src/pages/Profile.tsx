@@ -29,6 +29,7 @@ const Profile: React.FC = () => {
   const loadProfile = async () => {
     try {
       const res = await api.get('/owners/profile');
+      console.log('Profile data:', res.data);
       setProfile(res.data);
       setEditForm({
         email: res.data.email,

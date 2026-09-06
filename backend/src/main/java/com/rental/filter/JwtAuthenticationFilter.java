@@ -2,9 +2,10 @@ package com.rental.filter;
 
 import com.rental.security.OwnerPrincipal;
 import com.rental.util.JwtUtil;
-import com.rental.enums.UserRole;   // ✅ Import enum
+import com.rental.enums.UserRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -54,16 +55,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 3. Extract Authorization header
+        // 3. Extract token from Authorization header OR cookie
+        String token = null;
+
+        // a) Try Authorization header
         String authHeader = request.getHeader("Authorization");
         logger.debug("Authorization header: {}", authHeader);
-
-        String token = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            logger.debug("Extracted token: {}", token);
-        } else {
-            logger.warn("No Bearer token found in Authorization header");
+            logger.debug("Extracted token from header: {}", token);
+        }
+
+        // b) If no header, try cookie
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        logger.debug("Extracted token from cookie: {}", token);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (token == null) {
+            logger.warn("No token found in header or cookie");
         }
 
         // 4. Validate token and set authentication
@@ -105,7 +123,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
             }
         } else {
-            logger.warn("Token is null or invalid");
+            logger.warn("Token is null or invalid, clearing security context");
             SecurityContextHolder.clearContext();
         }
 

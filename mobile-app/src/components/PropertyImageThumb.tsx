@@ -63,9 +63,10 @@ export default function PropertyImageThumb({ imageUrl, title }: PropertyImageThu
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 180,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    aspectRatio: 1.5,
+    minHeight: 180,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
     backgroundColor: colors.surface,
     overflow: 'hidden',
   },
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.surface,
