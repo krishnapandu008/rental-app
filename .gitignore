@@ -131,4 +131,5 @@ tree_*.txt
 
 # Mobile-specific (keystore, package-lock if you don't want it)
 mobile-app/rental-release.keystore
-mobile-app/package-lock.json   # optional – commit or ignore as per team policy
+mobile-app/package-lock.json   # optional – commit or ignore as per team policy*.txt
+test.jpg
