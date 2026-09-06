@@ -9,7 +9,7 @@ interface AuthContextType {
   register: (data: { email: string; password: string; name: string; phone: string }) => Promise<void>;
   logout: () => void;
   loading: boolean;
-  updateOwner: (updated: Owner) => void;   // ✅ NEW
+  updateOwner: (updated: Owner) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,19 +19,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Only restore owner data (no tokens)
     const storedOwner = localStorage.getItem('owner');
-    const token = localStorage.getItem('token');
-    if (storedOwner && token) {
+    if (storedOwner) {
       setOwner(JSON.parse(storedOwner));
     }
     setLoading(false);
   }, []);
 
   const persistSession = (data: Owner) => {
+    // data should not contain token/refreshToken (they are null from backend)
     setOwner(data);
     localStorage.setItem('owner', JSON.stringify(data));
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('refreshToken', data.refreshToken);
   };
 
   const login = async (email: string, password: string) => {
@@ -44,16 +43,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     persistSession(res.data);
   };
 
-  const logout = () => {
-    const rt = localStorage.getItem('refreshToken');
-    if (rt) logoutApi(rt).catch(() => {}); // best-effort server-side revoke
+  const logout = async () => {
+    try {
+      await logoutApi(); // cookie will be cleared by server
+    } catch (e) {
+      // ignore
+    }
     setOwner(null);
     localStorage.removeItem('owner');
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
   };
 
-  // ✅ NEW: update owner in state and localStorage
   const updateOwner = (updated: Owner) => {
     setOwner(updated);
     localStorage.setItem('owner', JSON.stringify(updated));

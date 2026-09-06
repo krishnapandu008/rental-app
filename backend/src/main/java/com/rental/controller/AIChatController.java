@@ -1,6 +1,9 @@
 package com.rental.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,10 +14,9 @@ import com.rental.dto.VoiceSearchRequest;
 import com.rental.dto.VoiceSearchResponse;
 import com.rental.service.AIChatService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -25,7 +27,8 @@ public class AIChatController {
     private final AIChatService aiChatService;
 
     @PostMapping("/voice-search")
-    public ResponseEntity<VoiceSearchResponse> voiceSearch(@RequestBody VoiceSearchRequest request) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<VoiceSearchResponse> voiceSearch(@Valid @RequestBody VoiceSearchRequest request) {
         log.info("🎤 Voice search received: {}", request.getQuery());
         
         VoiceSearchResponse response = aiChatService.processVoiceSearch(request.getQuery());

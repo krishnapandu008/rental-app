@@ -1,0 +1,51 @@
+@use '../../styles' as *;
+
+.banner {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-radius: $radius-lg;
+  padding: $spacing-md $spacing-xl;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-sm $spacing-md;
+    flex-direction: column;
+    gap: $spacing-sm;
+    text-align: center;
+  }
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+.bannerIcon {
+  font-size: 24px;
+}
+
+.bannerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bannerTitle {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.bannerSubtitle {
+  font-size: $font-xs;
+  color: #64748b;
+}

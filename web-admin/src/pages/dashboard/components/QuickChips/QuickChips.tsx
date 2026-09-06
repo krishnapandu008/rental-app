@@ -20,23 +20,31 @@ interface QuickChipsProps {
 }
 
 const QuickChips: React.FC<QuickChipsProps> = ({ chips, activeChips, onChipClick }) => {
-  return (
-    <div className={styles.quickChipsContainer}>
-      {chips.map((chip) => {
-        const isActive = activeChips.includes(chip.label);
+  if (chips.length === 0) return null;
 
-        return (
-          <button
-            key={chip.label}
-            type="button"
-            aria-pressed={isActive}
-            className={`${styles.quickChip} ${isActive ? styles.activeChip : ''}`}
-            onClick={() => onChipClick(chip)}
-          >
-            {chip.icon} {chip.label}
-          </button>
-        );
-      })}
+  return (
+    <div className={styles.chipsContainer}>
+      <div className={styles.chipsScroll}>
+        <div className={styles.chipsWrapper}>
+          <span className={styles.chipsLabel}>Quick Filters</span>
+          {chips.map((chip) => {
+            const isActive = activeChips.includes(chip.label);
+
+            return (
+              <button
+                key={chip.label}
+                type="button"
+                aria-pressed={isActive}
+                className={`${styles.chip} ${isActive ? styles.active : ''}`}
+                onClick={() => onChipClick(chip)}
+              >
+                <span className={styles.chipIcon}>{chip.icon}</span>
+                <span className={styles.chipLabel}>{chip.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

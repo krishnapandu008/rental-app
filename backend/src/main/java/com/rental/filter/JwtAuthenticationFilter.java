@@ -2,6 +2,7 @@ package com.rental.filter;
 
 import com.rental.security.OwnerPrincipal;
 import com.rental.util.JwtUtil;
+import com.rental.enums.UserRole;   // ✅ Import enum
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,19 +71,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Long ownerId = jwtUtil.getOwnerIdFromToken(token);
                 String email = jwtUtil.getEmailFromToken(token);
-                String role = jwtUtil.getRoleFromToken(token);
-                logger.debug("Extracted role from token: {}", role);
+                String roleStr = jwtUtil.getRoleFromToken(token);
+                logger.debug("Extracted role from token: {}", roleStr);
 
-                // Normalize role (default to "OWNER" if missing)
-                if (role == null || role.isBlank()) {
-                    role = "OWNER";
+                // ✅ Convert string to UserRole enum, fallback to USER
+                UserRole role;
+                try {
+                    role = UserRole.valueOf(roleStr.toUpperCase());
+                } catch (IllegalArgumentException | NullPointerException e) {
+                    logger.warn("Invalid role '{}' in token, defaulting to USER", roleStr);
+                    role = UserRole.USER;
                 }
 
-                // ✅ Create authorities ONLY ONCE after normalization
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                // ✅ Create authorities
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
                 logger.debug("Authorities: {}", authorities);
 
-                // Create principal object
+                // Create principal object with enum role
                 OwnerPrincipal principal = new OwnerPrincipal(ownerId, email, role);
 
                 // Set authentication in Spring Security context
@@ -91,7 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // (Optional) Keep request attributes for backward compatibility
                 request.setAttribute("ownerId", ownerId);
-                request.setAttribute("role", role);
+                request.setAttribute("role", role.name());
 
                 logger.info("Authenticated ownerId: {}, role: {}", ownerId, role);
 

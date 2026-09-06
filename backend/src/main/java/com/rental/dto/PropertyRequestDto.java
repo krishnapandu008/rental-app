@@ -14,13 +14,23 @@ import lombok.Data;
 public class PropertyRequestDto {
     @NotBlank private String title;
     private String description;
-    @NotBlank private String location;
+    
+    @NotNull private Long locationId;      // ✅ Changed from String location
+    @NotNull private Long propertyTypeId;  // ✅ NEW
+    private Long addressId;                 // ✅ NEW
+    
     @NotNull @Positive private Double rent;
     @Min(1) private Integer bedrooms;
+    private Double bathrooms;               // ✅ NEW
+    private Integer squareFeet;             // ✅ NEW
+    
     @NotBlank private String contactNumber;
     private Boolean available;
     private Visibility visibility;
-    private List<String> amenities;
-    private Double latitude;   // ✅ NEW
-    private Double longitude;  // ✅ NEW
+    
+    private List<Long> amenityIds;          // ✅ Changed from List<String>
+    private List<Long> imageIds;            // ✅ NEW
+    
+    private Double latitude;
+    private Double longitude;
 }

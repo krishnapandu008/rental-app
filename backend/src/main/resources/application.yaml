@@ -1,25 +1,52 @@
 spring:
-  profiles:
-    active: dev
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    table: flyway_schema_history
 
 server:
   port: 8585
   address: 0.0.0.0
 
+# ============ JWT CONFIG (externalised secret) ============
 jwt:
-  secret: mySecretKeyThatShouldBeAtLeast256BitsLongForHSWithSHA256Algorithm
+  secret: ${JWT_SECRET:mySecretKeyThatShouldBeAtLeast256BitsLongForHSWithSHA256Algorithm}
   expiration: 86400000
   refresh-expiration: 2592000000
 
 ollama:
   url: http://localhost:11434
-  model: phi3:mini
-  timeout: 3000          # ✅ Connection timeout (3 seconds)
+  model: gemma3:1b
+  timeout: 15000
   enabled: true
 
 app:
+  # Voice search
   voice-search:
     fallback-enabled: true
-    ai-timeout-ms: 800   # ✅ AI extraction timeout (800ms)
+    ai-timeout-ms: 800
+
+  # CORS allowed origins (comma-separated)
+  cors:
+    allowed-origins: "http://localhost:5173,http://localhost:5174,https://ksdcnit.com"
+
+geocoding:
+  enabled: true
+  nominatim:
+    url: https://nominatim.openstreetmap.org/search
+    user-agent: rental-app/1.0
+
+# ============ ACTUATOR (Common) ============
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true

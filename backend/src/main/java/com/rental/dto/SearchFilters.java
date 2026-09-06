@@ -12,10 +12,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchFilters {
-    private String location;
+    private Long locationId;
     private Double minRent;
     private Double maxRent;
     private Integer bedrooms;
-    private List<String> amenities;
+    private Double bathrooms;
+    private List<Long> amenityIds;      // ✅ Changed from 'amenities' to 'amenityIds'
     private String explanation;
+
+    // ✅ If you need backward compatibility, add this getter
+    @Deprecated
+    public List<Long> getAmenities() {
+        return amenityIds;
+    }
+
+    // ✅ If you need backward compatibility, add this setter
+    @Deprecated
+    public void setAmenities(List<Long> amenities) {
+        this.amenityIds = amenities;
+    }
 }

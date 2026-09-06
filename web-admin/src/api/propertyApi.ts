@@ -13,11 +13,24 @@ export const getProperties = (params?: {
   page?: number;
   size?: number;
 }) => {
-  const safeParams = { ...(params || {}) } as any;
-  if (Array.isArray(safeParams.amenities)) {
-    if (SEND_AMENITIES_AS_CSV) safeParams.amenities = safeParams.amenities.join(',');
-    // If not CSV, leave as array and let axios serialize (or backend handle repeated params)
+  const safeParams: Record<string, string | number | string[]> = {};
+  if (params?.location) safeParams.location = params.location;
+  if (params?.minPrice !== undefined) safeParams.minPrice = params.minPrice;
+  if (params?.maxPrice !== undefined) safeParams.maxPrice = params.maxPrice;
+  if (params?.bedrooms !== undefined) safeParams.bedrooms = params.bedrooms;
+  if (params?.propertyType) safeParams.propertyType = params.propertyType;
+  if (params?.sortBy) safeParams.sortBy = params.sortBy;
+  if (params?.page !== undefined) safeParams.page = params.page;
+  if (params?.size !== undefined) safeParams.size = params.size;
+  if (params?.amenities?.length) {
+    safeParams.amenities = SEND_AMENITIES_AS_CSV
+      ? params.amenities.join(',')
+      : params.amenities;
   }
+
+  // Debug log (remove in production)
+  console.log('🔍 Sending params to /properties:', safeParams);
+
   return api.get<PageResponse<Property>>('/properties', { params: safeParams });
 };
 
@@ -25,7 +38,24 @@ export const getMyProperties = (ownerId: number) =>
   api.get<Property[]>(`/properties/owner/${ownerId}`);
 
 export const addProperty = (
-  data: Omit<Property, 'id' | 'available' | 'imageUrls' | 'ownerId' | 'isActive'>,
+  data: {
+    title: string;
+    description?: string;
+    location: string;
+    rent: number;
+    bedrooms: number;
+    contactNumber: string;
+    visibility: Property['visibility'];
+    latitude?: number;
+    longitude?: number;
+    amenities?: string[];
+    locationId?: number;
+    propertyTypeId?: number;
+    bathrooms?: number;
+    squareFeet?: number;
+    amenityIds?: number[];
+    available?: boolean;
+  },
   images?: File[]
 ) => {
   const formData = new FormData();
@@ -34,13 +64,18 @@ export const addProperty = (
     title: data.title,
     description: data.description,
     location: data.location,
+    locationId: data.locationId,
+    propertyTypeId: data.propertyTypeId,
     rent: data.rent,
     bedrooms: data.bedrooms,
+    bathrooms: data.bathrooms || 0,
+    squareFeet: data.squareFeet || 0,
     contactNumber: data.contactNumber,
+    available: data.available ?? true,
     visibility: data.visibility || 'PUBLIC',
     latitude: data.latitude,
     longitude: data.longitude,
-    amenities: data.amenities,
+    amenityIds: data.amenityIds || [],
   };
   formData.append('dto', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
 
@@ -48,27 +83,45 @@ export const addProperty = (
     images.forEach((file) => formData.append('images', file));
   }
 
-  return api.post<Property>('/properties', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  return api.post<Property>('/properties', formData);
 };
 
 export const updateProperty = (
   id: number,
   data: Partial<
-    Pick<Property, 'title' | 'description' | 'location' | 'rent' | 'bedrooms' | 'contactNumber' | 'available' | 'visibility' | 'latitude' | 'longitude' | 'amenities'>
+    Pick<Property, 'title' | 'description' | 'rent' | 'bedrooms' | 'contactNumber' | 'available' | 'visibility' | 'latitude' | 'longitude'> & {
+      locationId?: number;
+      propertyTypeId?: number;
+      bathrooms?: number;
+      squareFeet?: number;
+      amenityIds?: number[];
+    }
   >
-) => api.put<Property>(`/properties/${id}`, data);
+) => {
+  const payload = {
+    title: data.title,
+    description: data.description,
+    locationId: data.locationId,
+    propertyTypeId: data.propertyTypeId,
+    rent: data.rent,
+    bedrooms: data.bedrooms,
+    bathrooms: data.bathrooms,
+    squareFeet: data.squareFeet,
+    contactNumber: data.contactNumber,
+    available: data.available,
+    visibility: data.visibility,
+    latitude: data.latitude,
+    longitude: data.longitude,
+    amenityIds: data.amenityIds,
+  };
+  return api.put<Property>(`/properties/${id}`, payload);
+};
 
 export const uploadImages = (id: number, images: File[]) => {
   const formData = new FormData();
   images.forEach((file) => formData.append('images', file));
   return api.post<string[]>(`/properties/${id}/images`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 };
 
@@ -77,9 +130,7 @@ export const deleteProperty = (id: number) => api.delete(`/properties/${id}`);
 export const togglePropertyActive = (id: number, active: boolean) =>
   api.patch(`/properties/admin/${id}/active?active=${active}`);
 
-export const getAllPropertiesAdmin = () => api.get<Property[]>('/properties/admin/all');
-
-// ------ Favorites API ------
+// Favorites
 export const toggleFavorite = (propertyId: number) =>
   api.post<boolean>(`/favorites/${propertyId}`);
 
@@ -89,7 +140,7 @@ export const getFavoriteIds = () =>
 export const isFavorited = (propertyId: number) =>
   api.get<boolean>(`/favorites/${propertyId}/status`);
 
-// ✅ NEW: AI Voice Search API
+// AI Voice Search
 export const voiceSearch = (query: string) =>
   api.post<VoiceSearchResponse>('/ai/voice-search', { query });
 
@@ -102,6 +153,9 @@ export interface AIHealthResponse {
 export const checkAIHealth = () =>
   api.get<AIHealthResponse>('/ai/health');
 
-// ✅ NEW: Get location suggestions (autocomplete)
+// Location suggestions
 export const getLocationSuggestions = (query: string) =>
   api.get<string[]>(`/properties/locations/suggest?q=${query}`);
+
+export const searchLocations = (query: string) =>
+  api.get<string[]>(`/properties/search-locations?q=${encodeURIComponent(query)}`);

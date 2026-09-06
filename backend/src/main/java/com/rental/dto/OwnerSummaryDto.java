@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import com.rental.enums.UserRole;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,8 +17,9 @@ public class OwnerSummaryDto {
     private String email;
     private String name;
     private String phone;
-    private String role;
-    @JsonProperty("isActive") // ✅ force JSON key to "isActive"
+    private UserRole role;
+    @JsonProperty("isActive")
     private boolean isActive;
     private LocalDateTime createdAt;
+    private Integer listingCount;  // ✅ Added
 }

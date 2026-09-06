@@ -1,16 +1,24 @@
 package com.rental.controller;
 
-import com.rental.dto.RefreshTokenRequestDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.rental.dto.TokenRefreshResponseDto;
 import com.rental.entity.Owner;
 import com.rental.entity.RefreshToken;
+import com.rental.exception.UnauthorizedException;
 import com.rental.service.OwnerService;
 import com.rental.service.RefreshTokenService;
+import com.rental.util.CookieUtil;
 import com.rental.util.JwtUtil;
-import jakarta.validation.Valid;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.Cookie;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,35 +28,54 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final OwnerService ownerService;
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
 
-    /**
-     * Exchanges a valid, unexpired refresh token for a brand new access token
-     * (and a rotated refresh token). Called by clients when their access
-     * token has expired, instead of forcing the user to log in again.
-     */
     @PostMapping("/refresh")
-    public TokenRefreshResponseDto refresh(@Valid @RequestBody RefreshTokenRequestDto dto) {
-        RefreshToken stored = refreshTokenService.verifyAndGet(dto.getRefreshToken());
+    public TokenRefreshResponseDto refresh(HttpServletRequest request,
+                                           HttpServletResponse response) {
+        // Extract refresh token from cookie
+        String refreshToken = getCookieValue(request, "refreshToken");
+        if (refreshToken == null) {
+            throw new UnauthorizedException("Refresh token missing");
+        }
+        RefreshToken stored = refreshTokenService.verifyAndGet(refreshToken);
         Owner owner = ownerService.findById(stored.getOwnerId());
 
-        String newAccessToken = jwtUtil.generateToken(owner.getId(), owner.getEmail(), owner.getRole());
+        String newAccessToken = jwtUtil.generateToken(owner.getId(), owner.getEmail(), owner.getRole().name());
         RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(owner.getId());
 
+        // Set new cookies
+        cookieUtil.setTokenCookie(response, newAccessToken);
+        cookieUtil.setRefreshTokenCookie(response, newRefreshToken.getToken());
+
+        // Return only success (or empty)
         return TokenRefreshResponseDto.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken.getToken())
+                .accessToken(null)  // Not needed; cookie will be sent
+                .refreshToken(null)
                 .tokenType("Bearer")
                 .build();
     }
 
-    /**
-     * Revokes a refresh token so it can no longer be used to mint new access
-     * tokens. The access token itself keeps working until it naturally
-     * expires (it's stateless), but the session can't be silently renewed.
-     */
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(@Valid @RequestBody RefreshTokenRequestDto dto) {
-        refreshTokenService.revokeByToken(dto.getRefreshToken());
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // Optional: revoke the refresh token from database
+        String refreshToken = getCookieValue(request, "refreshToken");
+        if (refreshToken != null) {
+            refreshTokenService.revokeByToken(refreshToken);
+        }
+        cookieUtil.clearTokenCookies(response);
+    }
+    
+    private String getCookieValue(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (name.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

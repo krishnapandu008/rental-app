@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -16,73 +17,105 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.rental.dto.PropertyRequestDto;
 import com.rental.dto.PropertyResponseDto;
+import com.rental.entity.Address;
+import com.rental.entity.Amenity;
+import com.rental.entity.Owner;
 import com.rental.entity.Property;
-import com.rental.enums.Visibility;
+import com.rental.entity.PropertyImage;
 import com.rental.exception.ForbiddenException;
 import com.rental.exception.ResourceNotFoundException;
+import com.rental.location.service.LocationService;
+import com.rental.mapper.PropertyMapper;
+import com.rental.repository.AddressRepository;
+import com.rental.repository.AmenityRepository;
+import com.rental.repository.OwnerRepository;
 import com.rental.repository.PropertyRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PropertyService {
 
     private static final Logger log = LoggerFactory.getLogger(PropertyService.class);
 
     private final PropertyRepository propertyRepository;
+    private final OwnerRepository ownerRepository;
+    private final AmenityRepository amenityRepository;
     private final LocalStorageService storageService;
     private final PropertyAccessService accessService;
     private final FavoriteService favoriteService;
-
+    private final LocationService locationService;
+    private final PropertyMapper propertyMapper;
+    private final LocationManagementService locationManagementService;
+    private final AddressRepository addressRepository;
     // ---------- Public / Visible Listings with filters and pagination ----------
     public Page<PropertyResponseDto> getVisibleProperties(Long ownerId, String role, String location, Double minPrice,
-            Double maxPrice, Integer bedrooms, List<String> amenities, Pageable pageable) {
-        try {
-            // ✅ ADD DEBUG LOGGING
-            log.info("🔍 Normal Search - Filters: ownerId={}, role={}, location={}, minPrice={}, maxPrice={}, bedrooms={}, amenities={}, pageable={}",
+        Double maxPrice, Integer bedrooms, List<String> amenities, Pageable pageable) {
+    try {
+        log.info("Normal Search - Filters: ownerId={}, role={}, location={}, minPrice={}, maxPrice={}, bedrooms={}, amenities={}, pageable={}",
                 ownerId, role, location, minPrice, maxPrice, bedrooms, amenities, pageable);
-            
-            List<String> amenityFilter = null;
-            if (amenities != null && !amenities.isEmpty()) {
-                amenityFilter = amenities.stream()
-                    .flatMap(value -> java.util.Arrays.stream(value.split(",")))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .distinct()
-                    .toList();
-                if (amenityFilter.isEmpty()) {
-                    amenityFilter = null;
-                }
-            }
-            Page<Property> page = propertyRepository.findVisibleWithFilters(ownerId, role, location, minPrice, maxPrice,
-                    bedrooms, amenityFilter, pageable);
-            
-            log.info("✅ Normal Search - Found {} properties", page.getTotalElements());
-            
-            return page.map(property -> {
-                PropertyResponseDto dto = toDto(property);
-                if (ownerId != null) {
-                    dto.setFavorited(favoriteService.isFavorited(ownerId, property.getId()));
-                } else {
-                    dto.setFavorited(false);
-                }
-                return dto;
-            });
-        } catch (Exception e) {
-            log.error("Error fetching properties with filters...", e);
-            throw e;
-        }
-    }
 
+        Long locationId = null;
+        if (location != null && !location.isEmpty()) {
+            locationId = locationManagementService.getLocationIdByName(location);
+            // ✅ If location provided but not found → return empty page
+            if (locationId == null) {
+                log.info("Location '{}' not found, returning empty page", location);
+                return Page.empty(pageable);
+            }
+        }
+
+        List<Long> amenityIds = null;
+        if (amenities != null && !amenities.isEmpty()) {
+            amenityIds = amenities.stream()
+                .flatMap(value -> java.util.Arrays.stream(value.split(",")))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(amenityName -> {
+                    return amenityRepository.findByAmenityNameAndIsActiveTrue(amenityName)
+                        .map(Amenity::getId)
+                        .orElse(null);
+                })
+                .filter(id -> id != null)
+                .distinct()
+                .collect(Collectors.toList());
+            
+            if (amenityIds.isEmpty()) {
+                amenityIds = null;
+            }
+        }
+
+        Page<Property> page = propertyRepository.findVisibleWithFilters(
+            ownerId, 
+            role, 
+            locationId,
+            minPrice, 
+            maxPrice,
+            bedrooms, 
+            amenityIds,
+            pageable
+        );
+
+        log.info("✅ Normal Search - Found {} properties", page.getTotalElements());
+
+        return page.map(propertyMapper::toDto);
+    } catch (Exception e) {
+        log.error("Error fetching properties with filters...", e);
+        throw e;
+    }
+}
     // ---------- Single Property with Access Check ----------
     public PropertyResponseDto getPropertyById(Long id, Long ownerId, String role) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+        
         if (!accessService.canView(ownerId, role, property)) {
             throw new ForbiddenException("You don't have permission to view this property");
         }
-        PropertyResponseDto dto = toDto(property);
+        
+        PropertyResponseDto dto = propertyMapper.toDto(property);
         if (ownerId != null) {
             dto.setFavorited(favoriteService.isFavorited(ownerId, id));
         } else {
@@ -93,31 +126,42 @@ public class PropertyService {
 
     // ---------- Owner-specific (for their own management) ----------
     public List<PropertyResponseDto> getByOwner(Long ownerId) {
-        return propertyRepository.findByOwnerId(ownerId).stream().map(this::toDto).collect(Collectors.toList());
+        return propertyRepository.findByOwnerId(ownerId).stream()
+                .map(propertyMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     // ---------- Create (with or without images) ----------
+    @Transactional
     public PropertyResponseDto create(PropertyRequestDto dto, Long authenticatedOwnerId) {
         return create(dto, authenticatedOwnerId, null);
     }
 
+    @Transactional
     public PropertyResponseDto create(PropertyRequestDto dto, Long authenticatedOwnerId, List<MultipartFile> images) {
-        Property property = Property.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .location(dto.getLocation())
-                .rent(dto.getRent())
-                .bedrooms(dto.getBedrooms())
-                .contactNumber(dto.getContactNumber())
-                .ownerId(authenticatedOwnerId)
-                .available(dto.getAvailable() != null ? dto.getAvailable() : true)
-                .visibility(dto.getVisibility() != null ? dto.getVisibility() : Visibility.PUBLIC)
-                .amenities(dto.getAmenities())
-                .isActive(true)
-                .createdAt(LocalDateTime.now())
-                .latitude(dto.getLatitude())
-                .longitude(dto.getLongitude())
-                .build();
+        Owner owner = ownerRepository.findById(authenticatedOwnerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Owner not found with ID: " + authenticatedOwnerId));
+
+        Property property = propertyMapper.toEntity(dto);
+
+        property.setOwner(owner);
+        if (dto.getAddressId() != null) {
+            Address address = addressRepository.findById(dto.getAddressId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + dto.getAddressId()));
+            property.setAddress(address);
+        } else {
+            property.setAddress(null); // explicitly clear if no address provided
+        }
+        property.setIsAvailable(dto.getAvailable() != null ? dto.getAvailable() : true);
+        property.setIsActive(true);
+        property.setCreatedAt(LocalDateTime.now());
+
+        if (dto.getAmenityIds() != null && !dto.getAmenityIds().isEmpty()) {
+            List<Amenity> amenities = amenityRepository.findByIdInAndIsActiveTrue(dto.getAmenityIds());
+            if (!amenities.isEmpty()) {
+                property.setAmenities(amenities);
+            }
+        }
 
         Property saved = propertyRepository.save(property);
 
@@ -131,50 +175,71 @@ public class PropertyService {
                     throw new RuntimeException("Failed to upload image", e);
                 }
             }
-            saved.setImageUrls(imageUrls);
+
+            if (saved.getImages() == null) {
+                saved.setImages(new ArrayList<>());
+            }
+            for (String url : imageUrls) {
+                PropertyImage image = PropertyImage.builder()
+                    .property(saved)
+                    .imageUrl(url)
+                    .isPrimary(saved.getImages().isEmpty())
+                    .displayOrder(saved.getImages().size())
+                    .build();
+                saved.getImages().add(image);
+            }
             propertyRepository.save(saved);
         }
 
-        return toDto(saved);
+        return propertyMapper.toDto(saved);
     }
 
     // ---------- Update ----------
+    @Transactional
     public PropertyResponseDto update(Long id, PropertyRequestDto dto, Long ownerId, String role) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+        
         if (!accessService.canManage(ownerId, role, property)) {
             throw new ForbiddenException("You are not allowed to edit this property");
         }
 
-        property.setTitle(dto.getTitle());
-        property.setDescription(dto.getDescription());
-        property.setLocation(dto.getLocation());
-        property.setRent(dto.getRent());
-        property.setBedrooms(dto.getBedrooms());
-        property.setContactNumber(dto.getContactNumber());
-        property.setAvailable(dto.getAvailable() != null ? dto.getAvailable() : property.getAvailable());
-        if (dto.getVisibility() != null) {
-            property.setVisibility(dto.getVisibility());
+        propertyMapper.updateEntity(property, dto);
+     // ✅ P0-5: Handle address update
+        if (dto.getAddressId() != null) {
+            Address address = addressRepository.findById(dto.getAddressId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Address not found with ID: " + dto.getAddressId()));
+            property.setAddress(address);
+        } else {
+            property.setAddress(null); // remove address if null
         }
-        property.setLatitude(dto.getLatitude());
-        property.setLongitude(dto.getLongitude());
-        if (dto.getAmenities() != null) {
-            property.setAmenities(dto.getAmenities());
+        if (dto.getAmenityIds() != null) {
+            if (dto.getAmenityIds().isEmpty()) {
+                property.getAmenities().clear();
+            } else {
+                List<Amenity> amenities = amenityRepository.findByIdInAndIsActiveTrue(dto.getAmenityIds());
+                property.setAmenities(amenities);
+            }
         }
 
         propertyRepository.save(property);
-        return toDto(property);
+        return propertyMapper.toDto(property);
     }
 
     // ---------- Delete Property (hard delete) ----------
+    @Transactional
     public void delete(Long id, Long ownerId, String role) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+        
         if (!accessService.canManage(ownerId, role, property)) {
             throw new ForbiddenException("You are not allowed to delete this property");
         }
-        for (String url : property.getImageUrls()) {
-            storageService.deleteFile(url);
+
+        if (property.getImages() != null) {
+            for (PropertyImage image : property.getImages()) {
+                storageService.deleteFile(image.getImageUrl());
+            }
         }
         propertyRepository.delete(property);
     }
@@ -183,37 +248,52 @@ public class PropertyService {
     @Transactional
     public void deleteImage(String imageUrl, Long ownerId, String role) {
         log.info("Attempting to delete image: {}", imageUrl);
+        
         Property property = propertyRepository.findByImageUrl(imageUrl).orElseThrow(() -> {
             log.warn("No property found with image URL: {}", imageUrl);
             return new ResourceNotFoundException("Image not found");
         });
+        
         if (!accessService.canManage(ownerId, role, property)) {
             throw new ForbiddenException("You are not allowed to delete this image");
         }
-        if (property.getImageUrls() != null) {
-            boolean removed = property.getImageUrls().remove(imageUrl);
-            log.info("Image removed from list: {}", removed);
+
+        if (property.getImages() != null) {
+            boolean removed = property.getImages().removeIf(img -> img.getImageUrl().equals(imageUrl));
+            log.info("Image removed: {}", removed);
             propertyRepository.save(property);
         }
         storageService.deleteFile(imageUrl);
     }
 
-    // ---------- Admin: soft delete / restore ----------
+    // ---------- Admin: soft delete / restore (toggles isActive flag) ----------
     @Transactional
     public void toggleActive(Long id, boolean active) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
-        property.setActive(active);
+        property.setIsActive(active);  // ✅ This toggles BaseEntity.isActive (soft delete)
+        propertyRepository.save(property);
+    }
+
+    // ---------- Toggle availability (toggles isAvailable flag) ----------
+    @Transactional
+    public void toggleAvailability(Long id, boolean available) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+        property.setIsAvailable(available);  // ✅ This toggles the property availability
         propertyRepository.save(property);
     }
 
     // ---------- Upload additional images ----------
+    @Transactional
     public List<String> uploadImages(Long propertyId, List<MultipartFile> images, Long ownerId, String role) {
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
+        
         if (!accessService.canManage(ownerId, role, property)) {
             throw new ForbiddenException("You can only add images to your own properties");
         }
+
         List<String> imageUrls = new ArrayList<>();
         for (MultipartFile file : images) {
             try {
@@ -223,10 +303,19 @@ public class PropertyService {
                 throw new RuntimeException("Failed to upload image", e);
             }
         }
-        if (property.getImageUrls() == null) {
-            property.setImageUrls(new ArrayList<>());
+
+        if (property.getImages() == null) {
+            property.setImages(new ArrayList<>());
         }
-        property.getImageUrls().addAll(imageUrls);
+        for (String url : imageUrls) {
+            PropertyImage image = PropertyImage.builder()
+                .property(property)
+                .imageUrl(url)
+                .isPrimary(false)
+                .displayOrder(property.getImages().size())
+                .build();
+            property.getImages().add(image);
+        }
         propertyRepository.save(property);
         return imageUrls;
     }
@@ -242,11 +331,11 @@ public class PropertyService {
     public List<PropertyResponseDto> findNearbyProperties(
             Double lat, Double lng, Double radiusKm,
             Double minRent, Double maxRent, Integer bedrooms) {
-        
+
         Double radiusInMeters = radiusKm * 1000;
-        
+
         List<Object[]> results;
-        
+
         if (minRent != null || maxRent != null || bedrooms != null) {
             results = propertyRepository.findNearbyPropertiesWithFilters(
                 lat, lng, radiusInMeters, minRent, maxRent, bedrooms
@@ -254,12 +343,12 @@ public class PropertyService {
         } else {
             results = propertyRepository.findNearbyProperties(lat, lng, radiusInMeters);
         }
-        
+
         return results.stream()
             .map(row -> {
                 Property property = (Property) row[0];
                 Double distance = (Double) row[1];
-                PropertyResponseDto dto = toDto(property);
+                PropertyResponseDto dto = propertyMapper.toDto(property);
                 dto.setDistance(distance);
                 return dto;
             })
@@ -268,41 +357,23 @@ public class PropertyService {
 
     public List<PropertyResponseDto> getAllPropertiesWithCoordinates() {
         return propertyRepository.findAllWithCoordinates().stream()
-            .map(this::toDto)
+            .map(propertyMapper::toDto)
             .collect(Collectors.toList());
     }
-    
-    public PropertyResponseDto toDto(Property property) {
-        if (property == null) return null;
-        
-        PropertyResponseDto dto = new PropertyResponseDto();
-        dto.setId(property.getId());
-        dto.setTitle(property.getTitle());
-        dto.setDescription(property.getDescription());
-        dto.setLocation(property.getLocation());
-        dto.setRent(property.getRent());
-        dto.setBedrooms(property.getBedrooms());
-        dto.setContactNumber(property.getContactNumber());
-        dto.setAvailable(property.getAvailable());
-        dto.setImageUrls(property.getImageUrls());
-        dto.setOwnerId(property.getOwnerId());
-        dto.setVisibility(property.getVisibility());
-        dto.setActive(property.isActive());
-        dto.setAmenities(property.getAmenities());
-        dto.setLatitude(property.getLatitude());
-        dto.setLongitude(property.getLongitude());
-        return dto;
-    }
-    
-    // ✅ NEW: Get location suggestions for autocomplete
+
     public List<String> getLocationSuggestions(String query) {
-        if (query == null || query.length() < 2) {
-            return List.of();
-        }
-        return propertyRepository.findDistinctLocationsStartingWith(query)
-            .stream()
-            .limit(10)
-            .collect(Collectors.toList());
+        return locationService.getLocationSuggestions(query);
     }
-    
+
+    public Map<String, Object> getLocationInfo() {
+        return locationService.getLocationInfo();
+    }
+
+    public boolean isLocationSupported(String query) {
+        return locationService.isLocationSupported(query);
+    }
+
+    public String getLocationDisplay() {
+        return locationService.getLocationDisplay();
+    }
 }

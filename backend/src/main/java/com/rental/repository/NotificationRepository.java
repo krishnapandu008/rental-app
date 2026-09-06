@@ -1,20 +1,26 @@
 package com.rental.repository;
 
-import com.rental.entity.Notification;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.rental.entity.Notification;
+import com.rental.repository.base.BaseRepository;
 
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationRepository extends BaseRepository<Notification, Long> {
 
-    List<Notification> findByOwnerIdOrderByCreatedAtDesc(Long ownerId);
+    // ✅ Fixed: Use ownerId instead of userId
+    @Query("SELECT n FROM Notification n WHERE n.ownerId = :ownerId ORDER BY n.sentAt DESC")
+    List<Notification> findByOwnerIdOrderBySentAtDesc(@Param("ownerId") Long ownerId);
+
+    @Query("SELECT n FROM Notification n WHERE n.ownerId = :ownerId AND n.isRead = false")
+    List<Notification> findByOwnerIdAndIsReadFalse(@Param("ownerId") Long ownerId);
 
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.ownerId = :ownerId AND n.isRead = false")
-    long countUnreadByOwnerId(@Param("ownerId") Long ownerId);
+    long countByOwnerIdAndIsReadFalse(@Param("ownerId") Long ownerId);
 
     @Modifying
     @Transactional

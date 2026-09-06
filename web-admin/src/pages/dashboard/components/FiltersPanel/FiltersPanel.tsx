@@ -46,8 +46,9 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
       <div className={styles.filtersGrid}>
         {filterConfigs.map(({ label, key, placeholder, type }) => (
           <div className={styles.filterGroup} key={key}>
-            <label>{label}</label>
+            <label htmlFor={`filter-${key}`}>{label}</label>
             <input
+              id={`filter-${key}`}
               type={type}
               inputMode="numeric"
               min="0"
@@ -60,8 +61,9 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
         ))}
 
         <div className={styles.filterGroup}>
-          <label>Bedrooms</label>
+          <label htmlFor="filter-bedrooms">Bedrooms</label>
           <select
+            id="filter-bedrooms"
             value={filters.bedrooms ?? ''}
             onChange={(e) => onFilterChange('bedrooms', e.target.value ? Number(e.target.value) : undefined)}
           >
@@ -71,8 +73,9 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
         </div>
 
         <div className={styles.filterGroup}>
-          <label>Property Type</label>
+          <label htmlFor="filter-propertyType">Property Type</label>
           <select
+            id="filter-propertyType"
             value={filters.propertyType}
             onChange={(e) => onFilterChange('propertyType', e.target.value)}
           >
@@ -84,8 +87,9 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
         </div>
 
         <div className={styles.filterGroup}>
-          <label>Sort By</label>
+          <label htmlFor="filter-sortBy">Sort By</label>
           <select
+            id="filter-sortBy"
             value={filters.sortBy}
             onChange={(e) => onFilterChange('sortBy', e.target.value)}
           >
@@ -95,15 +99,24 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
           </select>
         </div>
         
-        <div className={styles.filterGroup}>
+        <div className={`${styles.filterGroup} ${styles.fullWidth}`}>
           <label>Amenities</label>
-          <AmenitiesCheckboxes value={filters.amenities} onChange={(next) => onFilterChange('amenities', next)} />
+          <div className={styles.amenitiesWrapper}>
+            <AmenitiesCheckboxes 
+              value={filters.amenities} 
+              onChange={(next) => onFilterChange('amenities', next)} 
+            />
+          </div>
         </div>
       </div>
 
       <div className={styles.filtersActions}>
-        <button className={styles.applyFiltersBtn} onClick={onApply}>Apply Filters</button>
-        <button className={styles.resetFiltersBtn} onClick={onReset}>Reset All</button>
+        <button className={styles.applyFiltersBtn} onClick={() => onApply()}>
+          Apply Filters
+        </button>
+        <button className={styles.resetFiltersBtn} onClick={onReset}>
+          Reset All
+        </button>
       </div>
     </div>
   );

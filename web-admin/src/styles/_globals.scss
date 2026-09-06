@@ -487,7 +487,7 @@ img {
   }
 }
 
-// ----- RESPONSIVE MAP -----
+// ----- RESPONSIVE MAP (UPDATED: Using variables) -----
 .map-responsive {
   height: $map-height;
 
@@ -782,6 +782,7 @@ img {
   background: $primary;
   color: $white;
 }
+
 // ================================================================
 // FOCUS RING OVERRIDE FOR SEARCH
 // ================================================================
@@ -795,3 +796,4 @@ img {
   outline: none !important;
   box-shadow: 0 0 0 3px rgba($accent1, 0.3);
 }
+

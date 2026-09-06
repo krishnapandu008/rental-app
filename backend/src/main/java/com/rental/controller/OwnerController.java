@@ -1,22 +1,42 @@
 package com.rental.controller;
 
-import com.rental.dto.*;
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.rental.dto.ChangePasswordDto;
+import com.rental.dto.LoginResponseDto;
+import com.rental.dto.OwnerLoginDto;
+import com.rental.dto.OwnerProfileDto;
+import com.rental.dto.OwnerRegisterDto;
+import com.rental.dto.OwnerSummaryDto;
+import com.rental.dto.RegisterResponseDto;
+import com.rental.dto.UpdateProfileDto;
 import com.rental.entity.Owner;
 import com.rental.entity.RefreshToken;
+import com.rental.mapper.OwnerMapper;
 import com.rental.security.OwnerPrincipal;
 import com.rental.service.OwnerService;
 import com.rental.service.RefreshTokenService;
+import com.rental.util.CookieUtil;
 import com.rental.util.JwtUtil;
+
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/owners")
@@ -25,79 +45,58 @@ public class OwnerController {
     private final OwnerService ownerService;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final OwnerMapper ownerMapper;
+    private final CookieUtil cookieUtil;
 
+    // ---- Public endpoints (no auth) ----
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponseDto register(@Valid @RequestBody OwnerRegisterDto dto) {
         Owner owner = ownerService.register(dto);
-        String token = jwtUtil.generateToken(owner.getId(), owner.getEmail(), owner.getRole());
+        String token = jwtUtil.generateToken(owner.getId(), owner.getEmail(), owner.getRole().name());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(owner.getId());
-        return RegisterResponseDto.builder()
-                .id(owner.getId())
-                .email(owner.getEmail())
-                .name(owner.getName())
-                .phone(owner.getPhone())
-                .token(token)
-                .refreshToken(refreshToken.getToken())
-                .role(owner.getRole())
-                .avatarUrl(owner.getAvatarUrl())   // ✅ add this
-                .build();
+        return ownerMapper.toRegisterResponseDto(owner, token, refreshToken.getToken());
     }
 
     @PostMapping("/login")
-    public LoginResponseDto login(@Valid @RequestBody OwnerLoginDto dto) {
+    public LoginResponseDto login(@Valid @RequestBody OwnerLoginDto dto,
+                                  HttpServletResponse response) {
         String token = ownerService.login(dto);
         Owner owner = ownerService.findByEmail(dto.getEmail());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(owner.getId());
-        return LoginResponseDto.builder()
-                .id(owner.getId())
-                .email(owner.getEmail())
-                .name(owner.getName())
-                .phone(owner.getPhone())
-                .token(token)
-                .refreshToken(refreshToken.getToken())
-                .role(owner.getRole())
-                .avatarUrl(owner.getAvatarUrl())   // ✅ add this
-                .build();
+
+        // Set HttpOnly cookies
+        cookieUtil.setTokenCookie(response, token);
+        cookieUtil.setRefreshTokenCookie(response, refreshToken.getToken());
+
+        // Return owner data without tokens (or keep them for backward compatibility)
+        return ownerMapper.toLoginResponseDto(owner, null, null);
     }
 
-    // Admin-only: list every owner account
+    // ---- Admin-only ----
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<OwnerSummaryDto> getAllOwners() {
         return ownerService.getAllOwners();
     }
 
-    // ---------- Profile endpoints ----------
+    // ---- Authenticated user endpoints ----
     @GetMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
     public OwnerProfileDto getProfile(@AuthenticationPrincipal OwnerPrincipal principal) {
-        Owner owner = ownerService.findById(principal.getId());
-        return OwnerProfileDto.builder()
-                .id(owner.getId())
-                .email(owner.getEmail())
-                .name(owner.getName())
-                .phone(owner.getPhone())
-                .role(owner.getRole())
-                .avatarUrl(owner.getAvatarUrl())
-                .createdAt(owner.getCreatedAt())
-                .build();
+        return ownerService.getOwnerProfile(principal.getId());
     }
 
     @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
     public OwnerProfileDto updateProfile(@Valid @RequestBody UpdateProfileDto dto,
                                          @AuthenticationPrincipal OwnerPrincipal principal) {
         Owner updated = ownerService.updateProfile(principal.getId(), dto);
-        return OwnerProfileDto.builder()
-                .id(updated.getId())
-                .email(updated.getEmail())
-                .name(updated.getName())
-                .phone(updated.getPhone())
-                .role(updated.getRole())
-                .avatarUrl(updated.getAvatarUrl())
-                .createdAt(updated.getCreatedAt())
-                .build();
+        return ownerMapper.toProfileDto(updated);
     }
 
     @PutMapping("/password")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDto dto,
                                                @AuthenticationPrincipal OwnerPrincipal principal) {
         ownerService.changePassword(principal.getId(), dto);
@@ -105,6 +104,7 @@ public class OwnerController {
     }
 
     @PostMapping("/avatar")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> uploadAvatar(@RequestParam("avatar") MultipartFile file,
                                                @AuthenticationPrincipal OwnerPrincipal principal) throws IOException {
         String avatarUrl = ownerService.uploadAvatar(principal.getId(), file);

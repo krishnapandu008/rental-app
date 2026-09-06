@@ -37,7 +37,9 @@
 
   @media (max-width: $breakpoint-md) {
     width: 100%;
-    justify-content: stretch;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
   }
 }
 

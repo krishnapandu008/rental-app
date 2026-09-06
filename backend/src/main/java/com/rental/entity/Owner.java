@@ -2,21 +2,24 @@ package com.rental.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.rental.entity.base.BaseEntity;
+import com.rental.enums.UserRole;   // ✅ Import the enum
 
 @Entity
 @Table(name = "owners")
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Owner {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@EqualsAndHashCode(callSuper = true)
+public class Owner extends BaseEntity {
+    private static final long serialVersionUID = 1L;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -24,26 +27,87 @@ public class Owner {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String name;
+
     private String phone;
 
-    @Column(nullable = false, columnDefinition = "varchar(255) default 'USER'")
-    private String role;   // USER, ADMIN, SUPER_ADMIN
+    // ✅ Changed to UserRole enum
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 
-    @Column(nullable = false, columnDefinition = "boolean default true")
-    private boolean isActive = true;
+    @Builder.Default
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean isLocked = false;
+    @Builder.Default
+    @Column(name = "is_locked")
+    private Boolean isLocked = false;
 
-    @Column(nullable = true)
-    private String avatarUrl;   // ✅ NEW
+    @Builder.Default
+    private LocalDateTime lastLoginAt = LocalDateTime.now();
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @Builder.Default
+    @Column(name = "avatar_url")
+    private String avatarUrl = "";
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    @Builder.Default
+    @Column(name = "joined_date")
+    private LocalDateTime joinedDate = LocalDateTime.now();
 
-    private LocalDateTime lastLoginAt;
+    /* @Builder.Default
+    @Column(name = "listing_count")
+    private Integer listingCount = 0; */
+
+    @Builder.Default
+    private Double rating = 0.0;
+
+    @Builder.Default
+    @Column(name = "response_rate")
+    private Double responseRate = 0.0;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Property> properties = new ArrayList<>();
+
+    // ================================================================
+    // HELPER METHODS
+    // ================================================================
+
+    /* public void addProperty(Property property) {
+        properties.add(property);
+        property.setOwner(this);
+        listingCount = properties.size();
+    } */
+
+    /* public void removeProperty(Property property) {
+        properties.remove(property);
+        property.setOwner(null);
+        listingCount = properties.size();
+    } */
+
+    public boolean isActive() {
+        return isActive != null && isActive;
+    }
+
+    public boolean isLocked() {
+        return isLocked != null && isLocked;
+    }
+
+    // ✅ Updated to use enum
+    public boolean isOwner() {
+        return role == UserRole.OWNER || role == UserRole.ADMIN; // ADMIN is also considered owner for some permissions
+    }
+
+    public boolean isAdmin() {
+    	return role == UserRole.ADMIN || role == UserRole.SUPER_ADMIN;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Owner{id=%d, email='%s', name='%s', role='%s'}", 
+            getId(), email, name, role);
+    }
 }

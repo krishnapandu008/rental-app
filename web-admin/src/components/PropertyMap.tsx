@@ -1,15 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-
-interface Property {
-  id: number;
-  title: string;
-  location: string;
-  rent: number;
-  bedrooms: number;
-  latitude?: number;  // ✅ Make it optional
-  longitude?: number; // ✅ Make it optional
-  imageUrls: string[];
-}
+import { Property } from '../types';
 
 interface PropertyMapProps {
   properties: Property[];
@@ -18,95 +8,71 @@ interface PropertyMapProps {
   onPropertyClick: (id: number) => void;
 }
 
-const PropertyMap: React.FC<PropertyMapProps> = ({
-  properties,
-  center,
-  zoom,
-  onPropertyClick,
-}) => {
+const PropertyMap: React.FC<PropertyMapProps> = ({ properties, center, zoom, onPropertyClick }) => {
   const [mapReady, setMapReady] = useState(false);
   const mapInitialized = useRef(false);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
 
-  // ✅ Filter properties that have both latitude and longitude
   const propsWithCoords = properties.filter(
-    (p): p is Property & { latitude: number; longitude: number } =>
-      p.latitude !== undefined && p.longitude !== undefined && p.latitude !== null && p.longitude !== null
+    (property): property is Property & { latitude: number; longitude: number } =>
+      property.latitude !== undefined && property.longitude !== undefined &&
+      property.latitude !== null && property.longitude !== null
   );
 
   useEffect(() => {
-    if (mapInitialized.current) {
-      console.log('⏭️ Map already initialized, skipping...');
-      return;
-    }
-
+    if (mapInitialized.current) return;
     let isMounted = true;
 
     const loadMap = async () => {
       try {
-        console.log('📦 Loading Leaflet dynamically...');
-        
         const L = (await import('leaflet')).default;
         await import('leaflet/dist/leaflet.css');
-
-        console.log('✅ Leaflet loaded successfully');
-
-        delete (L.Icon.Default.prototype as any)._getIconUrl;
-        L.Icon.Default.mergeOptions({
-          iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-        });
-
         if (!isMounted) return;
 
         const container = document.getElementById('map-container');
-        if (!container) {
-          console.error('❌ Map container not found');
-          return;
-        }
+        if (!container) return;
 
-        const map = L.map(container, {
-          center: center,
-          zoom: zoom,
-          zoomControl: true,
-          fadeAnimation: true,
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        const map = L.map(container, { center, zoom, zoomControl: true, fadeAnimation: true });
+        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          attribution: 'Tiles &copy; Esri',
+        });
+        const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          attribution: 'Map data &copy; OpenStreetMap contributors, SRTM | Map style &copy; OpenTopoMap',
+        });
+        L.control.layers({
+          Street: streetLayer,
+          Satellite: satelliteLayer,
+          Terrain: terrainLayer,
+        }, undefined, { collapsed: true, position: 'topright' }).addTo(map);
 
         const createPriceMarker = (rent: number) => {
           const canvas = document.createElement('canvas');
           canvas.width = 41;
           canvas.height = 50;
-          const ctx = canvas.getContext('2d')!;
-
-          ctx.fillStyle = '#f4511e';
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(20.5, 49);
-          ctx.lineTo(1, 20.5);
-          ctx.quadraticCurveTo(1, 1, 20.5, 1);
-          ctx.quadraticCurveTo(40, 1, 40, 20.5);
-          ctx.lineTo(20.5, 49);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 11px Arial';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          const priceText = `₹${Math.round(rent / 1000)}k`;
-          ctx.fillText(priceText, 20.5, 28);
-
-          const iconUrl = canvas.toDataURL('image/png');
+          const context = canvas.getContext('2d')!;
+          context.fillStyle = '#f4511e';
+          context.strokeStyle = '#ffffff';
+          context.lineWidth = 2;
+          context.beginPath();
+          context.moveTo(20.5, 49);
+          context.lineTo(1, 20.5);
+          context.quadraticCurveTo(1, 1, 20.5, 1);
+          context.quadraticCurveTo(40, 1, 40, 20.5);
+          context.lineTo(20.5, 49);
+          context.closePath();
+          context.fill();
+          context.stroke();
+          context.fillStyle = '#ffffff';
+          context.font = 'bold 11px Arial';
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.fillText(`₹${Math.round(rent / 1000)}k`, 20.5, 28);
           return L.icon({
-            iconUrl: iconUrl,
+            iconUrl: canvas.toDataURL('image/png'),
             iconSize: [41, 50],
             iconAnchor: [20.5, 50],
             popupAnchor: [0, -45],
@@ -114,157 +80,60 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         };
 
         const markers: any[] = [];
-        propsWithCoords.forEach((p) => {
-          const marker = L.marker([p.latitude, p.longitude], {
-            icon: createPriceMarker(p.rent),
-          })
-            .addTo(map)
-            .bindPopup(`
-              <div style="padding: 4px; min-width: 180px;">
-                <strong>${p.title}</strong><br />
-                ${p.location}<br />
-                <strong>₹${p.rent.toLocaleString()}</strong> / month<br />
-                ${p.bedrooms} BHK<br />
-                <button 
-                  style="
-                    margin-top: 8px;
-                    padding: 4px 16px;
-                    background: #f4511e;
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 12px;
-                    font-weight: 600;
-                  "
-                  onclick="window.__mapPropertyClick(${p.id})"
-                >
-                  View Details
-                </button>
-              </div>
-            `);
+        propsWithCoords.forEach((property) => {
+          const marker = L.marker([property.latitude, property.longitude], {
+            icon: createPriceMarker(property.rent),
+          }).addTo(map).bindPopup(`
+            <div style="padding: 4px; min-width: 180px;">
+              <strong>${property.title}</strong><br />
+              ${property.location?.displayName || 'Location unavailable'}<br />
+              <strong>₹${property.rent.toLocaleString()}</strong> / month<br />
+              ${property.bedrooms} BHK<br />
+              <button style="margin-top: 8px; padding: 4px 16px; background: #f4511e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="window.__mapPropertyClick(${property.id})">
+                View Details
+              </button>
+            </div>
+          `);
+          marker.on('mouseover', () => marker.openPopup());
           markers.push(marker);
         });
 
-        (window as any).__mapPropertyClick = (id: number) => {
-          onPropertyClick(id);
-        };
-
+        (window as any).__mapPropertyClick = (id: number) => onPropertyClick(id);
         mapRef.current = map;
         markersRef.current = markers;
         setMapReady(true);
         mapInitialized.current = true;
 
         if (propsWithCoords.length > 1) {
-          const group = L.featureGroup(markers);
-          map.fitBounds(group.getBounds(), { padding: [50, 50] });
+          map.fitBounds(L.featureGroup(markers).getBounds(), { padding: [50, 50] });
         }
-
-        console.log('✅ Map initialized with', propsWithCoords.length, 'markers');
-
-        const handleResize = () => {
-          setTimeout(() => {
-            if (mapRef.current) {
-              mapRef.current.invalidateSize();
-            }
-          }, 100);
-        };
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-          window.removeEventListener('resize', handleResize);
-        };
       } catch (error) {
-        console.error('❌ Failed to load Leaflet:', error);
+        console.error('Failed to load Leaflet:', error);
       }
     };
 
     loadMap();
-
     return () => {
       isMounted = false;
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-      if (markersRef.current.length > 0) {
-        markersRef.current.forEach(m => m.remove());
-        markersRef.current = [];
-      }
+      if (mapRef.current) mapRef.current.remove();
+      mapRef.current = null;
+      markersRef.current = [];
       delete (window as any).__mapPropertyClick;
       mapInitialized.current = false;
     };
   }, [center, zoom, propsWithCoords, onPropertyClick]);
 
   if (propsWithCoords.length === 0) {
-    return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '500px',
-        background: '#f8f9fa',
-        borderRadius: '12px',
-        border: '2px dashed #dee2e6',
-        padding: '2rem',
-        textAlign: 'center',
-        color: '#6c757d'
-      }}>
-        <p>No properties with location data available</p>
-        <p style={{ fontSize: '0.9rem', color: '#adb5bd' }}>
-          Add latitude and longitude to your properties to see them on the map.
-        </p>
-      </div>
-    );
+    return <div style={{ display: 'grid', placeItems: 'center', height: '500px', background: '#f8f9fa', color: '#6c757d' }}>No properties with location data available</div>;
   }
 
   return (
-    <div style={{
-      height: '500px',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      border: '1px solid #e5e7eb',
-      position: 'relative',
-      background: '#f0f0f0'
-    }}>
-      {!mapReady && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          background: '#f8f9fa',
-          fontSize: '16px',
-          color: '#6c757d'
-        }}>
-          <span>Loading map...</span>
-        </div>
-      )}
-      <div
-        id="map-container"
-        style={{
-          height: '100%',
-          width: '100%',
-          display: mapReady ? 'block' : 'none',
-        }}
-      />
-      <div style={{
-        padding: '8px 16px',
-        fontSize: '0.85rem',
-        color: '#6b7280',
-        background: '#f9fafb',
-        borderTop: '1px solid #e5e7eb',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-      }}>
+    <div style={{ height: '500px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', position: 'relative', background: '#f0f0f0' }}>
+      {!mapReady && <div style={{ display: 'grid', placeItems: 'center', height: '100%', background: '#f8f9fa', color: '#6c757d' }}>Loading map...</div>}
+      <div id="map-container" style={{ height: '100%', width: '100%', display: mapReady ? 'block' : 'none' }} />
+      <div style={{ padding: '8px 16px', fontSize: '0.85rem', color: '#6b7280', background: '#f9fafb', position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000 }}>
         Showing {propsWithCoords.length} properties on map
-        {propsWithCoords.length !== properties.length &&
-          ` (${properties.length - propsWithCoords.length} without location)`
-        }
+        {propsWithCoords.length !== properties.length && ` (${properties.length - propsWithCoords.length} without location)`}
       </div>
     </div>
   );

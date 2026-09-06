@@ -1,4 +1,5 @@
 package com.rental.dto;
+import com.rental.enums.UserRole;
 
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,8 @@ public class OwnerProfileDto {
     private String email;
     private String name;
     private String phone;
-    private String role;
+    private UserRole role;
     private String avatarUrl;
     private LocalDateTime createdAt;
+    private Integer listingCount;
 }

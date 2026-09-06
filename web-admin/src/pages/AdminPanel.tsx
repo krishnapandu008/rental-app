@@ -80,7 +80,7 @@ const AdminPanel: React.FC = () => {
       await updateUser(editingUser.id, {
         email: editingUser.email,
         name: editingUser.name,
-        phone: editingUser.phone,
+        phone: editingUser.phone || '',
       });
       setEditingUser(null);
       loadUsers();

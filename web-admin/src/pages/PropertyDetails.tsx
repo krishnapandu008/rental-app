@@ -8,6 +8,34 @@ import { useAuth } from '../contexts/AuthContext';
 import styles from './PropertyDetails.module.scss';
 import AmenityBadges from '../components/AmenityBadges/AmenityBadges';
 
+const normalizeProperty = (value: any): Property => {
+  const images = Array.isArray(value?.images)
+    ? value.images
+    : (value?.imageUrls || []).map((imageUrl: string, index: number) => ({
+        id: index,
+        imageUrl,
+        isPrimary: index === 0,
+        displayOrder: index,
+      }));
+  const location = typeof value?.location === 'string'
+    ? { id: 0, displayName: value.location }
+    : value?.location || { id: 0, displayName: 'Location unavailable' };
+  const amenities = Array.isArray(value?.amenities)
+    ? value.amenities.map((amenity: any, index: number) => typeof amenity === 'string'
+        ? { id: index, amenityName: amenity }
+        : amenity)
+    : [];
+
+  return {
+    ...value,
+    images,
+    location,
+    amenities,
+    propertyType: value?.propertyType || { id: 0, typeName: 'Property' },
+    owner: value?.owner || { id: 0, email: '', name: '', token: '', refreshToken: '', role: '' },
+  } as Property;
+};
+
 // ===== ICON COMPONENTS =====
 const BackIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -190,7 +218,7 @@ const PropertyDetails: React.FC = () => {
   const { owner } = useAuth();
 
   const [property, setProperty] = useState<Property | null>(
-    location.state?.property || null
+    location.state?.property ? normalizeProperty(location.state.property) : null
   );
   const [loading, setLoading] = useState(!property);
   const [error, setError] = useState('');
@@ -209,7 +237,7 @@ const PropertyDetails: React.FC = () => {
 
   useEffect(() => {
     if (property) {
-      setMainImage(property.imageUrls?.[0] || '');
+      setMainImage(property.images?.[0]?.imageUrl || '');
       return;
     }
 
@@ -223,8 +251,9 @@ const PropertyDetails: React.FC = () => {
       try {
         const res = await api.get(`/properties/${id}`);
         const data = res.data;
-        setProperty(data);
-        setMainImage(data.imageUrls?.[0] || '');
+        const normalizedProperty = normalizeProperty(data);
+        setProperty(normalizedProperty);
+        setMainImage(normalizedProperty.images[0]?.imageUrl || '');
       } catch (err) {
         setError('Failed to load property details');
       } finally {
@@ -254,10 +283,10 @@ const PropertyDetails: React.FC = () => {
         await api.delete('/properties/images', { data: { url: imageUrl } });
         setProperty((prev) => prev ? {
           ...prev,
-          imageUrls: prev.imageUrls.filter((url) => url !== imageUrl)
+          images: prev.images.filter((image) => image.imageUrl !== imageUrl)
         } : null);
         if (mainImage === imageUrl) {
-          setMainImage(property.imageUrls[0] || '');
+          setMainImage(property.images.find((image) => image.imageUrl !== imageUrl)?.imageUrl || '');
         }
       } catch (err) {
         alert('Failed to delete image.');
@@ -283,7 +312,9 @@ const PropertyDetails: React.FC = () => {
           const newUrl = res.data?.[0] || URL.createObjectURL(file);
           setProperty((prev) => prev ? {
             ...prev,
-            imageUrls: prev.imageUrls.map((url) => url === oldImageUrl ? newUrl : url)
+            images: prev.images.map((image) => image.imageUrl === oldImageUrl
+              ? { ...image, imageUrl: newUrl }
+              : image)
           } : null);
           if (mainImage === oldImageUrl) {
             setMainImage(newUrl);
@@ -393,7 +424,7 @@ const PropertyDetails: React.FC = () => {
         </div>
 
         <div className={styles.imageGallery}>
-          {property.imageUrls && property.imageUrls.length > 0 ? (
+          {property.images && property.images.length > 0 ? (
             <>
               <img
                 src={mainImage}
@@ -402,9 +433,10 @@ const PropertyDetails: React.FC = () => {
                 onClick={() => openLightbox(0)}
                 style={{ cursor: 'zoom-in' }}
               />
-              {property.imageUrls.length > 1 && (
+              {property.images.length > 1 && (
                 <div className={styles.thumbnailGrid}>
-                  {property.imageUrls.map((url, idx) => {
+                  {property.images.map((image, idx) => {
+                    const url = image.imageUrl;
                     const isMain = mainImage === url;
                     return (
                       <div
@@ -458,7 +490,7 @@ const PropertyDetails: React.FC = () => {
         </div>
 
         <div className={styles.detailsGrid}>
-          <p><strong>📍 Location:</strong> {property.location}</p>
+          <p><strong>📍 Location:</strong> {property.location.displayName}</p>
           <p><strong>💰 Rent:</strong> {formatCurrency(property.rent)} / month</p>
           <p><strong>🛏️ Bedrooms:</strong> {property.bedrooms} BHK</p>
           {property.description && (
@@ -468,7 +500,7 @@ const PropertyDetails: React.FC = () => {
           <div>
             <strong>🏷️ Amenities:</strong>
             <span style={{ marginLeft: 8 }}>
-              <AmenityBadges amenities={property.amenities} />
+              <AmenityBadges amenities={property.amenities.map((amenity) => amenity.amenityName)} />
             </span>
           </div>
           <p>
@@ -522,7 +554,7 @@ const PropertyDetails: React.FC = () => {
 
       {lightboxOpen && (
         <ImageLightbox
-          images={property.imageUrls}
+          images={property.images.map((image) => image.imageUrl)}
           initialIndex={lightboxIndex}
           onClose={() => setLightboxOpen(false)}
         />

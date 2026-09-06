@@ -41,6 +41,8 @@ const EditProperty: React.FC = () => {
     title: '',
     description: '',
     location: '',
+    locationId: 0,
+    propertyTypeId: 0,
     rent: 0,
     bedrooms: 1,
     contactNumber: '',
@@ -65,7 +67,9 @@ const EditProperty: React.FC = () => {
         setForm({
           title: data.title || '',
           description: data.description || '',
-          location: data.location || '',
+          location: typeof data.location === 'string' ? data.location : data.location?.displayName || '',
+          locationId: data.locationId || data.location?.id || 0,
+          propertyTypeId: data.propertyTypeId || data.propertyType?.id || 0,
           rent: data.rent || 0,
           bedrooms: data.bedrooms || 1,
           contactNumber: data.contactNumber || '',
@@ -73,7 +77,9 @@ const EditProperty: React.FC = () => {
           visibility: data.visibility || 'PUBLIC',
           latitude: data.latitude || 0,   // ✅ NEW
           longitude: data.longitude || 0, // ✅ NEW
-          amenities: data.amenities || [],
+          amenities: (data.amenities || []).map((amenity: any) =>
+            typeof amenity === 'string' ? amenity : amenity.amenityName
+          ),
         });
         setExistingImages(data.imageUrls || []);
         setLoading(false);
@@ -158,7 +164,19 @@ const EditProperty: React.FC = () => {
       setError('');
 
       // 1. Update property details
-      await api.put(`/properties/${id}`, form);
+      await api.put(`/properties/${id}`, {
+        title: form.title,
+        description: form.description,
+        locationId: form.locationId,
+        propertyTypeId: form.propertyTypeId,
+        rent: form.rent,
+        bedrooms: form.bedrooms,
+        contactNumber: form.contactNumber,
+        available: form.available,
+        visibility: form.visibility,
+        latitude: form.latitude,
+        longitude: form.longitude,
+      });
 
       // 2. Upload new images (if any)
       if (newFiles.length > 0) {

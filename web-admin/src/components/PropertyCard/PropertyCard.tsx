@@ -14,12 +14,17 @@ interface Props {
 
 const PropertyCard: React.FC<Props> = ({ property, onOpen, onFavoriteToggle }) => {
   const { owner } = useAuth();
-  const [favorited, setFavorited] = useState(property.isFavorited || false);
+  const runtimeProperty = property as Property & {
+    imageUrls?: string[];
+    location?: Property['location'] | string | null;
+    amenities?: Property['amenities'] | string[] | null;
+  };
+  const [favorited, setFavorited] = useState(property.favorited || false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setFavorited(property.isFavorited || false);
-  }, [property.isFavorited]);
+    setFavorited(property.favorited || false);
+  }, [property.favorited]);
 
   const handleFavoriteToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -52,11 +57,17 @@ const PropertyCard: React.FC<Props> = ({ property, onOpen, onFavoriteToggle }) =
     }
   };
 
-  const imageUrl = property.imageUrls && property.imageUrls.length > 0 
-    ? property.imageUrls[0] 
-    : null;
-
-  const imageCount = property.imageUrls?.length || 0;
+  const imageUrls = Array.isArray(property.images) && property.images.length > 0
+    ? property.images.map((image) => image.imageUrl)
+    : runtimeProperty.imageUrls || [];
+  const imageUrl = imageUrls[0] || null;
+  const imageCount = imageUrls.length;
+  const locationLabel = typeof runtimeProperty.location === 'string'
+    ? runtimeProperty.location
+    : runtimeProperty.location?.displayName || 'Location unavailable';
+  const amenityNames = Array.isArray(runtimeProperty.amenities)
+    ? runtimeProperty.amenities.map((amenity) => typeof amenity === 'string' ? amenity : amenity.amenityName)
+    : [];
 
   return (
     <div className={styles.card} onClick={() => onOpen(property)}>
@@ -124,7 +135,7 @@ const PropertyCard: React.FC<Props> = ({ property, onOpen, onFavoriteToggle }) =
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <span>{property.location}</span>
+          <span>{locationLabel}</span>
         </div>
         
         <div className={styles.details}>
@@ -154,7 +165,7 @@ const PropertyCard: React.FC<Props> = ({ property, onOpen, onFavoriteToggle }) =
           </svg>
           {property.contactNumber}
         </div>
-              <AmenityBadges amenities={property.amenities} />
+              <AmenityBadges amenities={amenityNames} />
             </div>
     </div>
   );

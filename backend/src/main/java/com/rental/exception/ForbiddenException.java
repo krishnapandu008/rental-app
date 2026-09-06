@@ -6,7 +6,12 @@ package com.rental.exception;
  * Maps to HTTP 403.
  */
 public class ForbiddenException extends RuntimeException {
-    public ForbiddenException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ForbiddenException(String message) {
         super(message);
     }
 }

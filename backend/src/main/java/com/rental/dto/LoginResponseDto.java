@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.rental.enums.UserRole;
 
 @Data
 @Builder
@@ -16,6 +17,6 @@ public class LoginResponseDto {
     private String phone;
     private String token;
     private String refreshToken;
-    private String role;
+    private UserRole role;
     private String avatarUrl;   // ✅ NEW
 }

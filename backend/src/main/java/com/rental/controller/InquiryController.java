@@ -17,7 +17,9 @@ import com.rental.dto.InquiryRequestDto;
 import com.rental.dto.InquiryResponseDto;
 import com.rental.entity.Inquiry;
 import com.rental.entity.Property;
+import com.rental.enums.UserRole;
 import com.rental.exception.ForbiddenException;
+import com.rental.mapper.InquiryMapper;
 import com.rental.security.OwnerPrincipal;
 import com.rental.service.InquiryService;
 import com.rental.service.PropertyService;
@@ -32,6 +34,7 @@ public class InquiryController {
 
     private final InquiryService inquiryService;
     private final PropertyService propertyService;
+    private final InquiryMapper inquiryMapper;
     
     @PostMapping("/{propertyId}")
     public ResponseEntity<Inquiry> createInquiry(
@@ -47,8 +50,21 @@ public class InquiryController {
     }
 
     @GetMapping("/property/{propertyId}")
-    public List<Inquiry> getInquiriesForProperty(@PathVariable Long propertyId) {
-        return inquiryService.getInquiriesForProperty(propertyId);
+    public List<InquiryResponseDto> getInquiriesForProperty(
+            @PathVariable Long propertyId,
+            @AuthenticationPrincipal OwnerPrincipal principal) {
+        
+        // 1. Fetch property to check ownership
+        Property property = propertyService.getPropertyEntityById(propertyId);
+        
+        // 2. Authorization check: only property owner or ADMIN can view
+        if (!principal.getId().equals(property.getOwnerId()) && 
+            !principal.getRole().equals(UserRole.ADMIN)) {
+            throw new ForbiddenException("You are not authorized to view inquiries for this property");
+        }
+        
+        // 3. Return DTOs instead of raw entities
+        return inquiryService.getInquiryDtosForProperty(propertyId);
     }
 
     @GetMapping("/my-inquiries")
@@ -100,6 +116,8 @@ public class InquiryController {
         InquiryResponseDto response = inquiryService.getInquiryResponseDto(inquiry);
         return ResponseEntity.ok(response);
     }
+    
+    
     @GetMapping("/sent")
     public List<InquiryResponseDto> getSentInquiries(@AuthenticationPrincipal OwnerPrincipal principal) {
         return inquiryService.getSentInquiries(principal.getId());

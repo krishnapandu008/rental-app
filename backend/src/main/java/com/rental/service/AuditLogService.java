@@ -1,15 +1,19 @@
 package com.rental.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.rental.dto.AuditLogDto;
 import com.rental.entity.AuditLog;
 import com.rental.entity.Owner;
 import com.rental.repository.AuditLogRepository;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +50,19 @@ public class AuditLogService {
                         log.getTimestamp()
                 ))
                 .collect(Collectors.toList());
+    }
+    
+ // ✅ NEW: Paginated version (Recommended)
+    public Page<AuditLogDto> getAllLogs(Pageable pageable) {
+        return auditLogRepository.findAll(pageable)
+                .map(log -> new AuditLogDto(
+                        log.getId(),
+                        log.getAdminId(),
+                        log.getAdminEmail(),
+                        log.getAction(),
+                        log.getDetails(),
+                        log.getIpAddress(),
+                        log.getTimestamp()
+                ));
     }
 }

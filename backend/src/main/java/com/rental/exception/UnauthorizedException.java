@@ -5,7 +5,12 @@ package com.rental.exception;
  * (missing/invalid JWT, bad login). Maps to HTTP 401.
  */
 public class UnauthorizedException extends RuntimeException {
-    public UnauthorizedException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public UnauthorizedException(String message) {
         super(message);
     }
 }

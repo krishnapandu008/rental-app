@@ -1,24 +1,63 @@
-// ✅ Use centralized styles
 @use '../../../../styles' as *;
 
+// ================================================================
+// FILTERS PANEL - Modern Rental App Style
+// ================================================================
+
 .filtersPanel {
-  @include filter-panel;
+  background: $bg-white;
+  border-radius: $radius-2xl;
+  padding: $spacing-2xl $spacing-2xl;
+  box-shadow: $shadow-filter-panel;
+  border: 1px solid $border-color;
+  transition: all $transition-slow;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-xl;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
 }
+
+// ================================================================
+// FILTERS GRID
+// ================================================================
 
 .filtersGrid {
-  @include filter-grid;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
 }
 
+// ================================================================
+// FILTER GROUP
+// ================================================================
+
 .filterGroup {
-  @include form-group;
-  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 
   label {
-    font-size: 11px;
+    font-size: $font-xs;
     font-weight: 700;
-    color: #64748b;
+    color: $text-muted;
     text-transform: uppercase;
     letter-spacing: 0.8px;
+    margin-bottom: 2px;
   }
 
   input,
@@ -28,36 +67,155 @@
     border-radius: $radius-lg;
     font-size: $font-sm;
     background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    transition: all $transition-fast;
+    width: 100%;
+    color: $text-dark;
+    appearance: auto;
 
     &:focus {
       border-color: $accent1;
       box-shadow: 0 0 0 4px rgba($accent1, 0.1);
+      background: $bg-white;
+    }
+
+    &:hover {
+      border-color: #cbd5e1;
+    }
+
+    &::placeholder {
+      color: $text-light;
+    }
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    appearance: none;
+  }
+
+  // Full width for amenities
+  &.fullWidth {
+    grid-column: 1 / -1;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-column: 1 / -1;
     }
   }
 }
 
-.filtersActions {
-  @include filter-actions;
+// ================================================================
+// AMENITIES WRAPPER
+// ================================================================
+
+.amenitiesWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: $spacing-sm 0;
+  background: #f8fafc;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  border: 2px solid #e2e8f0;
+  transition: all $transition-fast;
+
+  &:focus-within {
+    border-color: $accent1;
+    box-shadow: 0 0 0 4px rgba($accent1, 0.1);
+    background: $bg-white;
+  }
+
+  // Style the checkboxes inside
+  :global {
+    .amenitiesCheckboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-sm;
+      width: 100%;
+    }
+
+    .amenityCheckbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: $radius-lg;
+      background: $bg-white;
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      transition: all $transition-fast;
+      font-size: $font-sm;
+      color: $text-muted;
+      user-select: none;
+
+      &:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+      }
+
+      input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: $accent1;
+        cursor: pointer;
+        margin: 0;
+      }
+
+      &.checked {
+        background: rgba($accent1, 0.08);
+        border-color: $accent1;
+        color: $accent1;
+
+        &:hover {
+          background: rgba($accent1, 0.12);
+        }
+      }
+    }
+  }
 }
+
+// ================================================================
+// FILTERS ACTIONS
+// ================================================================
+
+.filtersActions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: flex-end;
+  padding-top: $spacing-xl;
+  border-top: 2px solid #f1f5f9;
+
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+// ================================================================
+// BUTTONS
+// ================================================================
 
 .applyFiltersBtn {
   @include apply-filter-btn;
+  padding: 12px 32px;
+  min-width: 140px;
+
+  @media (max-width: $breakpoint-sm) {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .resetFiltersBtn {
   @include reset-filter-btn;
-}
+  padding: 12px 32px;
+  min-width: 140px;
 
-.amenitiesRow {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.checkboxLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: $font-sm;
-  color: $text-dark;
+  @media (max-width: $breakpoint-sm) {
+    width: 100%;
+    justify-content: center;
+  }
 }

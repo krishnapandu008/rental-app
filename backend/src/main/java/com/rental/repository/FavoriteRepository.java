@@ -1,23 +1,74 @@
 package com.rental.repository;
 
 import com.rental.entity.Favorite;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.rental.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
+@Repository
+public interface FavoriteRepository extends BaseRepository<Favorite, Long> {
 
-    Optional<Favorite> findByOwnerIdAndPropertyId(Long ownerId, Long propertyId);
+    // ================================================================
+    // FIND BY OWNER (FIXED: Use ownerId instead of userId)
+    // ================================================================
 
-    List<Favorite> findByOwnerId(Long ownerId);
+    @Query("SELECT f FROM Favorite f WHERE f.ownerId = :ownerId")
+    List<Favorite> findByOwnerId(@Param("ownerId") Long ownerId);
 
-    @Modifying(clearAutomatically = true)
+    @Query("SELECT f FROM Favorite f WHERE f.ownerId = :ownerId AND f.propertyId = :propertyId")
+    List<Favorite> findByOwnerIdAndPropertyId(@Param("ownerId") Long ownerId, @Param("propertyId") Long propertyId);
+
+    @Query("SELECT f FROM Favorite f WHERE f.ownerId = :ownerId AND f.isActive = true")
+    List<Favorite> findByOwnerIdAndIsActiveTrue(@Param("ownerId") Long ownerId);
+
+    // ================================================================
+    // COUNT METHODS
+    // ================================================================
+
+    @Query("SELECT COUNT(f) FROM Favorite f WHERE f.ownerId = :ownerId AND f.isActive = true")
+    long countByOwnerId(@Param("ownerId") Long ownerId);
+
+    @Query("SELECT COUNT(f) FROM Favorite f WHERE f.propertyId = :propertyId AND f.isActive = true")
+    long countByPropertyId(@Param("propertyId") Long propertyId);
+
+    @Query("SELECT COUNT(f) FROM Favorite f WHERE f.ownerId = :ownerId")
+    long countByOwnerIdTotal(@Param("ownerId") Long ownerId);
+
+    // ================================================================
+    // FIND PROPERTY IDs
+    // ================================================================
+
+    @Query("SELECT f.propertyId FROM Favorite f WHERE f.ownerId = :ownerId AND f.isActive = true")
+    List<Long> findPropertyIdsByOwnerId(@Param("ownerId") Long ownerId);
+
+    // ================================================================
+    // DELETE
+    // ================================================================
+
+    @Modifying
     @Transactional
-    @Query(value = "DELETE FROM favorites WHERE owner_id = :ownerId AND property_id = :propertyId", nativeQuery = true)
-    int deleteByOwnerIdAndPropertyIdNative(@Param("ownerId") Long ownerId, @Param("propertyId") Long propertyId);
+    @Query("DELETE FROM Favorite f WHERE f.ownerId = :ownerId AND f.propertyId = :propertyId")
+    void deleteByOwnerIdAndPropertyId(@Param("ownerId") Long ownerId, @Param("propertyId") Long propertyId);
+
+    // ================================================================
+    // EXISTS
+    // ================================================================
+
+    @Query("SELECT COUNT(f) > 0 FROM Favorite f WHERE f.ownerId = :ownerId AND f.propertyId = :propertyId")
+    boolean existsByOwnerIdAndPropertyId(@Param("ownerId") Long ownerId, @Param("propertyId") Long propertyId);
+
+    Optional<Favorite> findByOwnerIdAndPropertyIdAndIsActiveTrue(Long ownerId, Long propertyId);
+
+    // ================================================================
+    // ORDER BY FAVORITED AT (FIXED: Use ownerId)
+    // ================================================================
+
+    @Query("SELECT f FROM Favorite f WHERE f.ownerId = :ownerId AND f.isActive = true ORDER BY f.favoritedAt DESC")
+    List<Favorite> findFavoritesByOwnerIdOrderByFavoritedAtDesc(@Param("ownerId") Long ownerId);
 }

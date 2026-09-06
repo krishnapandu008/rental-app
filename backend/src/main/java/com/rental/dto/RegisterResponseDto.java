@@ -1,5 +1,5 @@
 package com.rental.dto;
-
+import com.rental.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +16,6 @@ public class RegisterResponseDto {
     private String phone;
     private String token;
     private String refreshToken;
-    private String role;
+    private UserRole role;
     private String avatarUrl;   // ✅ NEW
 }

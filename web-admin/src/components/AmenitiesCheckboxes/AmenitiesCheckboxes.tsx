@@ -13,14 +13,39 @@ const AmenitiesCheckboxes: React.FC<Props> = ({ value = [], onChange }) => {
     onChange(next);
   };
 
+  const amenities = [
+    { id: 'parking', label: '🅿️ Parking' },
+    { id: 'furnished', label: '🛋️ Furnished' },
+    { id: 'ac', label: '❄️ AC' },
+    { id: 'security', label: '🔒 Security' },
+    { id: 'gym', label: '💪 Gym' },
+    { id: 'swimming_pool', label: '🏊 Pool' },
+    { id: 'garden', label: '🌿 Garden' },
+    { id: 'wifi', label: '📶 WiFi' },
+    { id: 'pet_friendly', label: '🐾 Pet Friendly' },
+    { id: 'water_supply', label: '💧 Water Supply' },
+    { id: 'power_backup', label: '⚡ Power Backup' },
+    { id: 'lift', label: '🛗 Lift' },
+  ];
+
   return (
-    <div className={styles.row}>
-      <label className={styles.label}>
-        <input type="checkbox" checked={value.includes('parking')} onChange={() => toggle('parking')} /> Parking
-      </label>
-      <label className={styles.label}>
-        <input type="checkbox" checked={value.includes('furnished')} onChange={() => toggle('furnished')} /> Furnished
-      </label>
+    <div className={styles.amenitiesContainer}>
+      {amenities.map((amenity) => {
+        const isChecked = value.includes(amenity.id);
+        return (
+          <label
+            key={amenity.id}
+            className={`${styles.amenityCheckbox} ${isChecked ? styles.checked : ''}`}
+          >
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={() => toggle(amenity.id)}
+            />
+            <span>{amenity.label}</span>
+          </label>
+        );
+      })}
     </div>
   );
 };

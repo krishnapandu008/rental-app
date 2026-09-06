@@ -1,8 +1,7 @@
-// api/authApi.ts (new file)
 import { api } from './client';
 
-export const refreshToken = (refreshToken: string) =>
-  api.post<{ accessToken: string; refreshToken: string; tokenType: string }>('/auth/refresh', { refreshToken });
+// ✅ Refresh – no body needed; browser sends cookie automatically
+export const refreshToken = () => api.post('/auth/refresh');
 
-export const logout = (refreshToken: string) =>
-  api.post('/auth/logout', { refreshToken });
+// ✅ Logout – no body needed; cookie will be cleared by server
+export const logout = () => api.post('/auth/logout');

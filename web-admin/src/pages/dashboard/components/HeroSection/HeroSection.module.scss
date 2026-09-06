@@ -1,122 +1,208 @@
-// ✅ Use centralized styles
 @use '../../../../styles' as *;
 
-.heroSection {
-  @include hero-section;
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: $spacing-2xl;
-  align-items: center;
+// ================================================================
+// HERO SECTION - Simple & Feature-Focused
+// ================================================================
 
-  @media (max-width: $breakpoint-lg) {
-    grid-template-columns: 1fr;
+.heroSection {
+  background: $gradient-hero;
+  border-radius: $radius-2xl;
+  padding: 48px 56px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid $border-hero;
+  box-shadow: $shadow-hero;
+
+  // Background decoration
+  &::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba($accent1, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding: 32px 24px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 24px 16px;
+    border-radius: $radius-xl;
   }
 }
+
+// ================================================================
+// HERO CONTENT
+// ================================================================
 
 .heroContent {
-  @include hero-text;
-  max-width: 640px;
-}
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
 
-.heroEyebrow {
-  display: inline-flex;
-  align-self: flex-start;
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: $font-sm;
-  font-weight: 600;
-  margin-bottom: $spacing-md;
-}
-
-.heroActions {
-  display: flex;
-  gap: $spacing-md;
-  margin-top: $spacing-xl;
-  flex-wrap: wrap;
-}
-
-.primaryBtn,
-.secondaryBtn {
-  border: none;
-  border-radius: 999px;
-  padding: 0.8rem 1.2rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform $transition-base, box-shadow $transition-base;
-}
-
-.primaryBtn {
-  background: $gradient-search-btn;
-  color: $white;
-  box-shadow: $shadow-search-btn;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-search-btn-hover;
-  }
-}
-
-.secondaryBtn {
-  background: rgba(255, 255, 255, 0.12);
-  color: $white;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
-  &:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.2);
-  }
-}
-
-.heroBadges {
-  display: flex;
-  gap: $spacing-sm;
-  flex-wrap: wrap;
-  margin-top: $spacing-lg;
-
-  span {
-    padding: 0.45rem 0.7rem;
+  .heroBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.11);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
     font-size: $font-sm;
-    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    margin-bottom: $spacing-lg;
+    backdrop-filter: blur(10px);
+
+    .badgePulse {
+      width: 8px;
+      height: 8px;
+      background: #34d399;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
   }
-}
 
-.heroPanel {
-  display: grid;
-  gap: $spacing-lg;
-}
 
-.heroPanelCard {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: $radius-xl;
-  padding: $spacing-xl;
-  backdrop-filter: blur(10px);
-
-  strong {
-    display: block;
-    font-size: $font-3xl;
+  h1 {
+    margin: 0 0 $spacing-md;
+    font-size: 2.8rem;
+    line-height: 1.1;
     color: $white;
-    margin: $spacing-sm 0;
+    font-weight: 700;
+
+    .highlight {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 2.2rem;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 1.6rem;
+    }
   }
 
   p {
-    margin: 0;
+    margin: 0 0 $spacing-xl;
     color: rgba(255, 255, 255, 0.8);
-    font-size: $font-sm;
-    line-height: 1.5;
+    font-size: $font-lg;
+    line-height: 1.6;
+    max-width: 540px;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-base;
+    }
   }
 }
 
-.heroPanelLabel {
-  font-size: $font-sm;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.75);
+// ================================================================
+// FEATURE GRID
+// ================================================================
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+    gap: $spacing-sm;
+  }
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: $radius-lg;
+  transition: all $transition-slow;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba($accent1, 0.3);
+  }
+
+  .featureIcon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      color: $white;
+      font-size: $font-sm;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    span {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: $font-xs;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-sm $spacing-md;
+
+    .featureIcon {
+      font-size: 16px;
+    }
+
+    strong {
+      font-size: $font-xs;
+    }
+
+    span {
+      font-size: 10px;
+    }
+  }
 }

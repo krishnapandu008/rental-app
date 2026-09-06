@@ -12,6 +12,7 @@ public class InquiryResponseDto {
     private Long propertyId;
     private String propertyTitle;
     private String senderName;
+    private Long senderId;
     private String senderEmail;
     private String message;
     private String reply;

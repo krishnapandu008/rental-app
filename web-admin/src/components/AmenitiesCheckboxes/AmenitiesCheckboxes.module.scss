@@ -1,13 +1,109 @@
-.row {
+@use '../../styles' as *;
+
+// ================================================================
+// AMENITIES CONTAINER
+// ================================================================
+
+.amenitiesContainer {
   display: flex;
-  gap: 12px;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+
+  @media (max-width: $breakpoint-sm) {
+    gap: 6px;
+  }
 }
 
-.label {
-  display: inline-flex;
+// ================================================================
+// AMENITY CHECKBOX
+// ================================================================
+
+.amenityCheckbox {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
-  color: #111827;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: $radius-lg;
+  background: $bg-white;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  transition: all $transition-fast;
+  font-size: $font-sm;
+  color: $text-muted;
+  user-select: none;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    transform: translateY(-1px);
+  }
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: $accent1;
+    cursor: pointer;
+    margin: 0;
+    flex-shrink: 0;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($accent1, 0.2);
+    }
+  }
+
+  span {
+    font-size: $font-sm;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  // Active/Checked state
+  &.checked {
+    background: rgba($accent1, 0.08);
+    border-color: $accent1;
+    color: $accent1;
+
+    &:hover {
+      background: rgba($accent1, 0.12);
+    }
+
+    input[type="checkbox"] {
+      accent-color: $accent1;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: $breakpoint-sm) {
+    padding: 6px 10px;
+    font-size: $font-xs;
+
+    span {
+      font-size: $font-xs;
+    }
+  }
+}
+
+// ================================================================
+// KEYFRAME ANIMATIONS (Optional)
+// ================================================================
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.amenityCheckbox.checked {
+  animation: checkPop 0.2s ease-out;
 }

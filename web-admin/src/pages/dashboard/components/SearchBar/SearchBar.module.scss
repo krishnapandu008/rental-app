@@ -1,5 +1,29 @@
-// ✅ Use centralized styles
 @use '../../../../styles' as *;
+
+// ================================================================
+// SEARCH CONTAINER
+// ================================================================
+
+.searchContainer {
+  position: relative;
+  z-index: 1000;
+  margin: 0 0 $spacing-lg;
+  padding: 0 4px;
+
+  @media (max-width: $breakpoint-md) {
+    margin: 0 0 $spacing-md;
+    padding: 0 2px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    margin: 0 0 $spacing-sm;
+    padding: 0 2px;
+  }
+}
+
+// ================================================================
+// SEARCH BAR - Restored hero-side search style
+// ================================================================
 
 .searchBar {
   position: relative;
@@ -14,6 +38,38 @@
   }
 }
 
+// ================================================================
+// LOCATION ICON
+// ================================================================
+
+.locationIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 $spacing-sm 0 $spacing-md;
+  color: #f97316;
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.4s ease;
+  }
+
+  .searchBar:focus-within & {
+    color: #fbbf24;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+// ================================================================
+// SEARCH INPUT WRAPPER
+// ================================================================
+
 .searchInputWrapper {
   flex: 1;
   position: relative !important;
@@ -25,109 +81,502 @@
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 58, 138, 0.95));
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  gap: $spacing-sm;
+
+  &:focus-within {
+    outline: none !important;
+    border-color: rgba(249, 115, 22, 0.45);
+    box-shadow: 0 20px 55px rgba(249, 115, 22, 0.16) !important;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 58, 138, 0.96));
+  }
 
   @media (max-width: $breakpoint-md) {
     width: 100%;
   }
+}
 
-  // ✅ Remove all outlines from wrapper
-  &:focus,
-  &:focus-within,
-  &:focus-visible {
-    outline: none !important;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15) !important;
+.tooltipVisible .locationTooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0) scale(1);
+  pointer-events: auto;
+}
+
+.locationTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, 0) scale(0.96);
+  width: auto;
+  min-width: 320px;
+  max-width: 560px;
+  padding: $spacing-sm $spacing-lg;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  color: #ffffff;
+  font-size: $font-xs;
+  line-height: 1.5;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  border-radius: $radius-xl;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(24px);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
+  z-index: 1100;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 28px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid rgba(15, 23, 42, 0.96);
   }
 }
 
-.searchIcon {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.8);
-  margin-right: 10px;
-  transition: color 0.3s;
+.locationTooltipIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: $radius-full;
+  background: rgba(249, 115, 22, 0.16);
+  color: #f97316;
+  font-size: 0.95rem;
+}
 
-  .searchInputWrapper:focus-within & {
-    color: #fbbf24;
-  }
+.locationTooltipText {
+  display: block;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
 }
 
 .searchInput {
   flex: 1;
   border: none;
   outline: none;
-  padding: 16px 8px;
-  font-size: 15px;
+  padding: $spacing-md 0;
+  font-size: $font-base;
   background: transparent;
   color: #ffffff;
   min-width: 0;
   font-weight: 500;
+  letter-spacing: -0.2px;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.72);
+    font-weight: 400;
+    letter-spacing: 0;
+    opacity: 0.9;
   }
 
   &:focus::placeholder {
-    color: rgba(255, 255, 255, 0.45);
-  }
-
-  // ✅ Remove all outlines from input
-  &:focus,
-  &:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
+    opacity: 0.6;
   }
 
   @media (max-width: $breakpoint-sm) {
-    font-size: 14px;
-    padding: 14px 4px;
+    font-size: $font-sm;
+    padding: $spacing-sm 0;
   }
 }
 
-.clearSearchBtn {
+// ================================================================
+// DIVIDER
+// ================================================================
+
+// ================================================================
+// DIVIDER
+// ================================================================
+
+.divider {
+  width: 1.5px;
+  height: 28px;
+  background: linear-gradient(180deg, transparent, rgba(226, 232, 240, 0.8) 20%, rgba(226, 232, 240, 0.8) 80%, transparent);
+  flex-shrink: 0;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+// ================================================================
+// CLEAR BUTTON
+// ================================================================
+
+.clearBtn {
   background: rgba(255, 255, 255, 0.12);
   border: none;
   color: #ffffff;
   cursor: pointer;
   font-size: 16px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  transition: all 0.3s;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);
     color: #ffffff;
+    transform: translateY(-1px);
   }
 
   &:focus,
   &:focus-visible {
-    outline: none !important;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
   }
 }
+
+// ================================================================
+// VOICE WRAPPER
+// ================================================================
+
+.voiceWrapper {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  @media (max-width: $breakpoint-md) {
+    margin-left: auto;
+  }
+}
+
+// ================================================================
+// SEARCH ACTIONS
+// ================================================================
+
+.searchActions {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+  flex-shrink: 0;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    padding: 0 4px 4px 4px;
+  }
+}
+
+// ================================================================
+// SEARCH BUTTON
+// ================================================================
 
 .searchBtn {
   @include search-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 120px;
+  white-space: nowrap;
 
-  &:focus,
-  &:focus-visible {
-    outline: none !important;
-    box-shadow: 0 4px 20px rgba($accent1, 0.3) !important;
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex: 1;
+    height: 44px;
+    min-width: 80px;
+    font-size: $font-sm;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 $spacing-md;
+    font-size: $font-xs;
+    min-width: 60px;
   }
 }
 
-.filterToggleBtn {
-  @include filter-toggle-btn;
+// ================================================================
+// FILTER BUTTON
+// ================================================================
 
-  &:focus,
-  &:focus-visible {
-    outline: none !important;
-    box-shadow: 0 0 30px rgba($accent1, 0.1) !important;
+.filterBtn {
+  @include filter-toggle-btn;
+  gap: 6px;
+  padding: 0 $spacing-lg;
+  font-weight: 500;
+  font-size: $font-sm;
+  color: #475569;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0 $spacing-md;
+    font-size: $font-sm;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 $spacing-sm;
+    font-size: $font-xs;
+    gap: 4px;
+  }
+}
+
+.filterLabel {
+  @media (max-width: $breakpoint-sm) {
+    display: none;
   }
 }
 
 .filterBadge {
-  @include filter-badge;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+
+  .filterBtn.active & {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    min-width: 16px;
+    height: 16px;
+    font-size: 9px;
+  }
 }
 
-// ✅ IMPORTANT: Override the global :focus-visible for this component
-.searchInputWrapper *:focus-visible {
-  outline: none !important;
+// ================================================================
+// SUGGESTIONS DROPDOWN - FIXED VISIBILITY
+// ================================================================
+
+.suggestions {
+    @include suggestions-dropdown;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    padding: 8px;
+    animation: slideDown 0.2s ease-out;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+.suggestionsHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: $spacing-sm $spacing-md $spacing-xs;
+  font-size: $font-xs;
+  color: #94a3b8;
+  font-weight: 500;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 4px;
+
+  .aiBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: $radius-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  span:last-child {
+    color: #64748b;
+    font-weight: 400;
+  }
+}
+
+.suggestionItem {
+  @include suggestion-item;
+  gap: $spacing-md;
+  border-radius: $radius-lg;
+  transition: all 0.2s ease;
+  color: #0f172a;
+  font-size: $font-sm;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.06), rgba(251, 146, 60, 0.03));
+    color: #f97316;
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(251, 146, 60, 0.05));
+    color: #f97316;
+  }
+
+  .suggestionIcon {
+    font-size: 14px;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .suggestionText {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .suggestionArrow {
+    font-size: 14px;
+    color: #cbd5e1;
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+
+  &:hover .suggestionArrow {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+
+  &.selected .suggestionArrow {
+    opacity: 1;
+    transform: translateX(4px);
+    color: #f97316;
+  }
+}
+
+.suggestionHint {
+  font-size: $font-xs;
+  color: #94a3b8;
+  font-weight: 400;
+  background: #f1f5f9;
+  padding: 2px 10px;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+
+  @media (max-width: $breakpoint-sm) {
+    display: none;
+  }
+}
+
+// ================================================================
+// LOADING INDICATOR
+// ================================================================
+
+.loadingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.loadingDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #94a3b8;
+  border-radius: 50%;
+  animation: loadingDot 1.4s ease-in-out infinite both;
+
+  &:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0s;
+  }
+}
+
+@keyframes loadingDot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.highlightText {
+  color: #f97316;
+  font-weight: 700;
+  background: rgba(249, 115, 22, 0.08);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+// ================================================================
+// ANIMATIONS
+// ================================================================
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+// ================================================================
+// LOCATION LABEL - Static Kuppam
+// ================================================================
+
+.locationLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+  padding: $spacing-sm 0;
+}
+
+.locationPin {
+  font-size: 18px;
+}
+
+.locationText {
+  font-size: $font-base;
+  font-weight: 500;
+  color: #0f172a;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-sm;
+  }
 }
