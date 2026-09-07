@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import DetailScreen from '../screens/DetailScreen';
 import MapScreen from '../screens/MapScreen';
 import OwnerLoginScreen from '../screens/OwnerLoginScreen';
+import OwnerRegisterScreen from '../screens/OwnerRegisterScreen';
 import MyPropertiesScreen from '../screens/MyPropertiesScreen';
 import PropertyFormScreen from '../screens/PropertyFormScreen';
 import { Property } from '../types';
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   Detail: { property: Property };
   Map: undefined;
   OwnerLogin: undefined;
+  OwnerRegister: undefined;
   MyProperties: { ownerId: number };
   PropertyForm: { ownerId: number; property?: Property };
 };
@@ -49,6 +51,7 @@ export default function AppNavigator() {
           options={{ title: 'NEIGHBORHOOD MAP' }}
         />
         <Stack.Screen name="OwnerLogin" component={OwnerLoginScreen} options={{ title: 'OWNER LOGIN' }} />
+        <Stack.Screen name="OwnerRegister" component={OwnerRegisterScreen} options={{ title: 'OWNER REGISTRATION' }} />
         <Stack.Screen name="MyProperties" component={MyPropertiesScreen} options={{ title: 'MY PROPERTIES' }} />
         <Stack.Screen name="PropertyForm" component={PropertyFormScreen} options={{ title: 'PROPERTY FORM' }} />
       </Stack.Navigator>

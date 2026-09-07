@@ -5,7 +5,10 @@ export interface LoginResponse {
   email: string;
   name: string;
   phone: string;
-  token: string;
+  token?: string;
+  refreshToken?: string;
+  role?: string;
+  avatarUrl?: string;
 }
 
 export const loginOwner = (credentials: { email: string; password: string }) =>

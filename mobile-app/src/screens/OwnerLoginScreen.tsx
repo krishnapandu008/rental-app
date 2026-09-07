@@ -34,6 +34,12 @@ export default function OwnerLoginScreen({ navigation }: { navigation: any }) {
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
         {loading ? <ActivityIndicator color={colors.surfaceLight} /> : <Text style={styles.buttonText}>Sign in</Text>}
       </TouchableOpacity>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Don't have an account?</Text>
+        <TouchableOpacity onPress={() => navigation.replace('OwnerRegister')}>
+          <Text style={styles.link}> Register</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -46,4 +52,7 @@ const styles = StyleSheet.create({
   input: { backgroundColor: colors.surfaceLight, borderColor: colors.border, borderWidth: 1, borderRadius: 14, padding: 14, marginBottom: 12, color: colors.textPrimary },
   button: { backgroundColor: colors.primary, borderRadius: 999, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
   buttonText: { color: colors.surfaceLight, fontWeight: '800', fontSize: 15 },
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
+  footerText: { color: colors.textSecondary },
+  link: { color: colors.primaryDark, fontWeight: '800' },
 });
