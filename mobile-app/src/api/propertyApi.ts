@@ -3,6 +3,7 @@ import { Property } from '../types';
 
 type BackendProperty = Omit<Property, 'location' | 'imageUrls'> & {
   location?: {
+    id?: number;
     name?: string;
     city?: string;
     displayName?: string;
@@ -62,12 +63,24 @@ const toCoordinate = (value: number | string | undefined) => {
 
 const normalizeProperty = (property: BackendProperty): Property => {
   const location = typeof property.location === 'string' ? undefined : property.location;
+  const propertyType = typeof property.propertyType === 'string'
+    ? property.propertyType
+    : property.propertyType?.typeName;
+  const locationId = typeof property.location === 'string'
+    ? property.locationId
+    : property.location?.id || property.locationId;
+  const propertyTypeId = typeof property.propertyType === 'string'
+    ? undefined
+    : property.propertyType?.id;
 
   return {
     ...property,
     location: typeof property.location === 'string'
       ? property.location
       : location?.displayName || location?.name || location?.city || 'Unknown location',
+    locationId,
+    propertyTypeId,
+    propertyType: propertyTypeId || propertyType ? { id: propertyTypeId, typeName: propertyType } : undefined,
     latitude: toCoordinate(property.latitude) ?? toCoordinate(location?.latitude),
     longitude: toCoordinate(property.longitude) ?? toCoordinate(location?.longitude),
     imageUrls: (property.imageUrls || property.images?.flatMap((image) =>
@@ -139,3 +152,6 @@ export const uploadPropertyImages = (id: number, images: Array<{ uri: string; na
   images.forEach((image) => formData.append('images', image as unknown as Blob));
   return api.post<string[]>(`/properties/${id}/images`, formData);
 };
+
+export const deletePropertyImage = (url: string) =>
+  api.delete('/properties/images', { data: { url } });

@@ -5,11 +5,25 @@ export interface LoginResponse {
   email: string;
   name: string;
   phone: string;
-  token: string;
+  role: string;
+  isActive?: boolean;
+  isLocked?: boolean;
+  token?: string;
+  refreshToken?: string;
 }
 
-export const loginOwner = (credentials: { email: string; password: string }) =>
+export type OwnerCredentials = {
+  email: string;
+  password: string;
+};
+
+export type OwnerRegistration = OwnerCredentials & {
+  name: string;
+  phone: string;
+};
+
+export const loginOwner = (credentials: OwnerCredentials) =>
   api.post<LoginResponse>('/owners/login', credentials);
 
-export const registerOwner = (data: { email: string; password: string; name: string; phone: string }) =>
+export const registerOwner = (data: OwnerRegistration) =>
   api.post<LoginResponse>('/owners/register', data);

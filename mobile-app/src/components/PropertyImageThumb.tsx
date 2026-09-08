@@ -11,16 +11,17 @@ import { colors, spacing } from '../styles/common';
 interface PropertyImageThumbProps {
   imageUrl?: string;
   title?: string;
+  compact?: boolean;
 }
 
-export default function PropertyImageThumb({ imageUrl, title }: PropertyImageThumbProps) {
+export default function PropertyImageThumb({ imageUrl, title, compact = false }: PropertyImageThumbProps) {
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
   // No image provided - show placeholder
   if (!imageUrl) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, compact && styles.compactContainer]}>
         <View style={styles.placeholderContainer}>
           <Text style={styles.placeholderIcon}>🏠</Text>
         </View>
@@ -31,7 +32,7 @@ export default function PropertyImageThumb({ imageUrl, title }: PropertyImageThu
   // Image failed to load - show placeholder
   if (hasError) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, compact && styles.compactContainer]}>
         <View style={styles.placeholderContainer}>
           <Text style={styles.placeholderIcon}>🏠</Text>
         </View>
@@ -40,7 +41,7 @@ export default function PropertyImageThumb({ imageUrl, title }: PropertyImageThu
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, compact && styles.compactContainer]}>
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.primary} />
@@ -69,6 +70,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 18,
     backgroundColor: colors.surface,
     overflow: 'hidden',
+  },
+  compactContainer: {
+    width: 132,
+    height: 112,
+    minHeight: 0,
+    aspectRatio: undefined,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 16,
   },
   image: {
     width: '100%',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { loginOwner } from '../api/ownerApi';
+import { saveOwnerSession } from '../api/session';
 import { colors } from '../styles/common';
 
 export default function OwnerLoginScreen({ navigation }: { navigation: any }) {
@@ -16,6 +17,7 @@ export default function OwnerLoginScreen({ navigation }: { navigation: any }) {
     setLoading(true);
     try {
       const response = await loginOwner({ email: email.trim(), password });
+      await saveOwnerSession(response.data);
       navigation.replace('MyProperties', { ownerId: response.data.id });
     } catch (error: any) {
       Alert.alert('Login failed', error.response?.data?.message || 'Check your credentials and try again.');
@@ -34,6 +36,9 @@ export default function OwnerLoginScreen({ navigation }: { navigation: any }) {
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
         {loading ? <ActivityIndicator color={colors.surfaceLight} /> : <Text style={styles.buttonText}>Sign in</Text>}
       </TouchableOpacity>
+      <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('OwnerRegister')} disabled={loading}>
+        <Text style={styles.linkText}>Don't have an account? Register</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -46,4 +51,6 @@ const styles = StyleSheet.create({
   input: { backgroundColor: colors.surfaceLight, borderColor: colors.border, borderWidth: 1, borderRadius: 14, padding: 14, marginBottom: 12, color: colors.textPrimary },
   button: { backgroundColor: colors.primary, borderRadius: 999, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
   buttonText: { color: colors.surfaceLight, fontWeight: '800', fontSize: 15 },
+  linkButton: { alignItems: 'center' as const, paddingVertical: 16 },
+  linkText: { color: colors.primaryDark, fontWeight: '700' as const },
 });

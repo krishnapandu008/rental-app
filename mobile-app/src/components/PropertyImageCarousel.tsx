@@ -47,7 +47,7 @@ export default function PropertyImageCarousel({ imageUrls }: PropertyImageCarous
 
   return (
     <View style={styles.container}>
-      <View style={[styles.imageContainer, { height: Math.min(300, Math.max(190, width * 0.62)) }]}>
+      <View style={[styles.imageContainer, { height: Math.min(200, Math.max(120, width * 0.40)) }]}>
         {loading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
@@ -113,14 +113,14 @@ export default function PropertyImageCarousel({ imageUrls }: PropertyImageCarous
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.sm,
   },
   imageContainer: {
     position: 'relative',
     width: '100%',
     height: 250,
     backgroundColor: colors.surface,
-    borderRadius: 20,
+    borderRadius: 14,
     overflow: 'hidden',
   },
   image: {
@@ -166,13 +166,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
   navButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   navButtonText: {
     color: colors.surfaceLight,
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '600',
   },
   dotsContainer: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useNavigation } from '@react-navigation/native';
 import { getMapProperties } from '../api/propertyApi';
@@ -92,6 +92,7 @@ export default function MapScreen() {
   const [error, setError] = useState('');
   const [mapReady, setMapReady] = useState(false);
   const navigation = useNavigation<any>();
+  const { height } = useWindowDimensions();
 
   const loadProperties = async () => {
     setLoading(true);
@@ -176,7 +177,7 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.mapStage}>
+      <View style={[styles.mapStage, { height: Math.min(360, Math.max(230, height * 0.42)) }]}>
         <WebView
           style={styles.map}
           originWhitelist={['*']}

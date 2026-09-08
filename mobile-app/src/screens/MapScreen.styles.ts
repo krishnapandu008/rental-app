@@ -7,8 +7,9 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   mapStage: {
-    flex: 1,
-    minHeight: 240,
+    width: '100%',
+    minHeight: 230,
+    maxHeight: 360,
   },
   map: {
     flex: 1,

@@ -1,0 +1,14 @@
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { api } from '../api/client';
+import { colors } from '../styles/common';
+
+type User = { id: number; name?: string; email?: string; role?: string; isActive?: boolean };
+export default function AdminPanelScreen() {
+  const [users, setUsers] = useState<User[]>([]); const [loading, setLoading] = useState(true);
+  useEffect(() => { api.get<User[]>('/admin/users').then(({ data }) => setUsers(data || [])).catch(() => Alert.alert('Admin unavailable', 'You may not have admin access.')).finally(() => setLoading(false)); }, []);
+  const toggleActive = async (id: number) => { try { const { data } = await api.patch<User>(`/admin/users/${id}/toggle-active`); setUsers((current) => current.map((user) => user.id === id ? { ...user, ...data } : user)); } catch (error: any) { Alert.alert('Update failed', error.response?.data?.message || 'Could not update user.'); } };
+  if (loading) return <View style={styles.center}><ActivityIndicator color={colors.primary} /></View>;
+  return <ScrollView contentContainerStyle={styles.container}><Text style={styles.eyebrow}>ADMINISTRATION</Text><Text style={styles.title}>Admin panel</Text><Text style={styles.summary}>{users.length} users</Text>{users.map((user) => <View style={styles.card} key={user.id}><Text style={styles.name}>{user.name || 'Unnamed user'}</Text><Text style={styles.email}>{user.email}</Text><Text style={styles.meta}>{user.role || 'USER'} · {user.isActive === false ? 'Inactive' : 'Active'}</Text><TouchableOpacity style={styles.toggleButton} onPress={() => toggleActive(user.id)}><Text style={styles.toggleText}>{user.isActive === false ? 'Activate user' : 'Deactivate user'}</Text></TouchableOpacity></View>)}</ScrollView>;
+}
+const styles = StyleSheet.create({ container: { flexGrow: 1, padding: 16, backgroundColor: colors.background }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }, eyebrow: { color: colors.primaryDark, fontSize: 10, fontWeight: '800', letterSpacing: 1.1 }, title: { color: colors.textPrimary, fontSize: 24, fontWeight: '800', marginTop: 4 }, summary: { color: colors.textSecondary, fontSize: 12, marginVertical: 14 }, card: { backgroundColor: colors.surfaceLight, borderColor: colors.border, borderWidth: 1, borderRadius: 10, padding: 13, marginBottom: 9 }, name: { color: colors.textPrimary, fontSize: 15, fontWeight: '800' }, email: { color: colors.textSecondary, fontSize: 12, marginTop: 4 }, meta: { color: colors.primaryDark, fontSize: 11, fontWeight: '700', marginTop: 7 }, toggleButton: { alignSelf: 'flex-start', borderColor: colors.border, borderWidth: 1, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 6, marginTop: 10 }, toggleText: { color: colors.textSecondary, fontSize: 11, fontWeight: '700' } });

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Rental Finder",
-    "slug": "mobileapp",
+    "slug": "rental-finder-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,14 +21,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "extra": {
-      "eas": {
-        "projectId": "6de19d63-cbad-45c1-abf5-63008839af3c"
-      }
-    },
     "owner": "sravania",
     "plugins": [
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d1d111e0-90bb-4d76-b69b-f45774c1d665"
+      }
+    }
   }
 }

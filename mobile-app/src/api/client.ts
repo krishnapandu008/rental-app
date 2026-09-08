@@ -1,6 +1,7 @@
 // src/api/client.ts
 import axios from 'axios';
 import { API_BASE_URL } from '../utils/constants';
+import { getOwnerSession } from './session';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,7 +15,11 @@ export const api = axios.create({
 
 // 🔍 REQUEST LOGGER: Tracks exactly what leaves the app
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    const session = await getOwnerSession();
+    if (session?.token) {
+      config.headers.Authorization = `Bearer ${session.token}`;
+    }
     if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }

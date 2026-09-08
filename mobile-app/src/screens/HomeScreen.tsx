@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, ScrollView, useWindowDimensions } from 'react-native';
+import { Alert, Image, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, ScrollView, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { getProperties, PropertyQuery } from '../api/propertyApi';
+import { getLocationSuggestions, getProperties, PropertyQuery } from '../api/propertyApi';
+import { api } from '../api/client';
 import { Property } from '../types';
 import { callOwner, whatsappOwner } from '../utils/phoneHelper';
 import { styles } from './HomeScreen.styles';
 import { colors } from '../styles/common';
 import PropertyImageThumb from '../components/PropertyImageThumb';
+import { clearOwnerSession, getOwnerSession } from '../api/session';
+import type { LoginResponse } from '../api/ownerApi';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+const NavIcon = ({ name, size = 21, color = colors.textPrimary }: { name: React.ComponentProps<typeof MaterialCommunityIcons>['name']; size?: number; color?: string }) => (
+  <MaterialCommunityIcons name={name} size={size} color={color} />
+);
 
 const quickFilters = [
   { label: 'Under ₹10K', icon: '💰', maxPrice: 10000 },
@@ -32,12 +40,34 @@ export default function HomeScreen() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [ownerSession, setOwnerSession] = useState<LoginResponse | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   const navigation = useNavigation<any>();
   const { width } = useWindowDimensions();
 
   useEffect(() => {
     loadProperties();
-  }, []);
+    const syncSession = async () => setOwnerSession(await getOwnerSession());
+    syncSession();
+    const unsubscribe = navigation.addListener('focus', syncSession);
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (!ownerSession) { setFavoriteIds([]); return; }
+    api.get<number[]>('/favorites').then(({ data }) => setFavoriteIds(data || [])).catch(() => setFavoriteIds([]));
+  }, [ownerSession]);
+
+  const toggleFavorite = async (propertyId: number) => {
+    if (!ownerSession) { navigation.navigate('OwnerLogin'); return; }
+    try {
+      const { data } = await api.post<boolean>(`/favorites/${propertyId}`);
+      setFavoriteIds((current) => data ? [...new Set([...current, propertyId])] : current.filter((id) => id !== propertyId));
+    } catch { Alert.alert('Favorites unavailable', 'Could not update favorites.'); }
+  };
 
   const loadProperties = async (query?: PropertyQuery) => {
     setLoading(true);
@@ -72,6 +102,40 @@ export default function HomeScreen() {
     if (amenities.length) query.amenities = amenities;
     Keyboard.dismiss();
     loadProperties(query);
+  };
+
+  const updateSearch = async (value: string) => {
+    setSearch(value);
+    const query = value.trim();
+    if (!query) {
+      setSuggestions([]);
+      return;
+    }
+    setSuggestionsLoading(true);
+    try {
+      const response = await getLocationSuggestions(query);
+      setSuggestions((response.data || []).slice(0, 6));
+    } catch {
+      setSuggestions([]);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
+  const selectSuggestion = (value: string) => {
+    setSearch(value);
+    setSuggestions([]);
+    loadProperties({ location: value, sortBy });
+  };
+
+  const clearSearch = () => {
+    setSearch('');
+    setSuggestions([]);
+    loadProperties();
+  };
+
+  const startVoiceSearch = () => {
+    Alert.alert('Voice search', 'Expo Go does not provide speech recognition. Tap the microphone on the Android keyboard while entering your location.');
   };
 
   const clearFilters = () => {
@@ -128,6 +192,38 @@ export default function HomeScreen() {
       : [...current, amenity]);
   };
 
+  const openOwnerFeature = (label: string) => {
+    setMenuOpen(false);
+    if (!ownerSession) {
+      Alert.alert(label, 'Sign in to the owner workspace to continue.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign in', onPress: () => navigation.navigate('OwnerLogin') },
+      ]);
+      return;
+    }
+    if (label === 'Add Property') navigation.navigate('PropertyForm', { ownerId: ownerSession.id });
+    if (label === 'Favorites') navigation.navigate('OwnerFavorites');
+    if (label === 'Inquiries') navigation.navigate('OwnerInquiries');
+    if (label === 'Profile') navigation.navigate('OwnerProfile');
+    if (label === 'Admin Panel') navigation.navigate('AdminPanel');
+  };
+
+  const logout = async () => {
+    await clearOwnerSession();
+    setOwnerSession(null);
+    setMenuOpen(false);
+    Alert.alert('Signed out', 'Your mobile owner session has been cleared.');
+  };
+
+  const openOwnerWorkspace = async () => {
+    const session = await getOwnerSession();
+    if (session) {
+      navigation.navigate('MyProperties', { ownerId: session.id });
+    } else {
+      navigation.navigate('OwnerLogin');
+    }
+  };
+
   const renderPropertyCard = ({ item }: { item: Property }) => (
     <TouchableOpacity 
       activeOpacity={0.7}
@@ -138,50 +234,36 @@ export default function HomeScreen() {
         <PropertyImageThumb 
           imageUrl={item.imageUrls?.[0]} 
           title={item.title}
+          compact
         />
 
         {/* Card Content */}
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
             <View style={styles.cardTitleRow}>
-              <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
+              <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
               <View style={styles.priceBadge}>
-                <Text style={styles.priceText}>₹{item.rent}</Text>
+                <Text style={styles.priceText}>₹{item.rent.toLocaleString()}</Text>
+                <Text style={styles.pricePeriod}>/ month</Text>
               </View>
             </View>
           </View>
 
+          <TouchableOpacity style={styles.favoriteButton} onPress={(event) => { event.stopPropagation(); toggleFavorite(item.id); }} accessibilityLabel="Toggle favorite">
+            <NavIcon name={favoriteIds.includes(item.id) ? 'heart' : 'heart-outline'} size={20} color={favoriteIds.includes(item.id) ? colors.danger : colors.primaryDark} />
+          </TouchableOpacity>
+
           <View style={styles.cardMeta}>
             <View style={styles.metaItem}>
               <Text style={styles.metaIcon}>📍</Text>
-              <Text style={styles.metaText}>{item.location}</Text>
+              <Text style={styles.metaText} numberOfLines={1}>{item.location}</Text>
             </View>
           </View>
 
-          <View style={styles.cardMeta}>
-            <View style={styles.metaItem}>
-              <Text style={styles.metaIcon}>🛏️</Text>
-              <Text style={styles.cardBedrooms}>{item.bedrooms} BHK</Text>
-            </View>
-          </View>
-
-          {item.description ? (
-            <Text style={styles.cardDescription} numberOfLines={2}>{item.description}</Text>
-          ) : null}
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.callBtn}
-              onPress={(e) => { e.stopPropagation(); callOwner(item.contactNumber); }}
-            >
-              <Text style={styles.btnText}>📞 Call</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.whatsappBtn}
-              onPress={(e) => { e.stopPropagation(); whatsappOwner(item.contactNumber); }}
-            >
-              <Text style={styles.btnText}>💬 WhatsApp</Text>
-            </TouchableOpacity>
+          <View style={styles.compactDetails}>
+            <Text style={styles.cardBedrooms}>{item.bedrooms} BHK</Text>
+            {item.bathrooms ? <Text style={styles.compactDetail}>{item.bathrooms} bath</Text> : null}
+            {item.propertyType ? <Text style={styles.compactDetail} numberOfLines={1}>{typeof item.propertyType === 'string' ? item.propertyType : item.propertyType.typeName}</Text> : null}
           </View>
         </View>
       </View>
@@ -212,15 +294,60 @@ export default function HomeScreen() {
   );
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.screenContent,
-        { paddingHorizontal: Math.max(12, Math.min(24, width * 0.05)) },
-      ]}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.appShell}>
+      <View style={styles.appBar}>
+        <TouchableOpacity style={styles.brand} onPress={() => { setMenuOpen(false); loadProperties(); }}>
+          <Image source={require('../../assets/icon.png')} style={styles.brandLogo} />
+          <View>
+            <Text style={styles.brandName}>ATLAS</Text>
+            <Text style={styles.brandSubname}>RENTALS</Text>
+          </View>
+        </TouchableOpacity>
+        <View style={styles.appBarActions}>
+          {ownerSession ? (
+            <>
+              <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Notifications')} accessibilityLabel="Notifications">
+                <NavIcon name="bell-outline" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.profileButton} onPress={() => openOwnerFeature('Profile')} accessibilityLabel="Profile">
+                <NavIcon name="account-circle-outline" size={25} color={colors.surfaceLight} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton} onPress={() => setMenuOpen((current) => !current)} accessibilityLabel="Open menu">
+                <NavIcon name={menuOpen ? 'close' : 'menu'} />
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity style={styles.authLink} onPress={() => navigation.navigate('OwnerLogin')}>
+                <Text style={styles.authLinkText}>Login</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('OwnerRegister')}>
+                <Text style={styles.registerLinkText}>Register</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </View>
+      {menuOpen && ownerSession ? (
+        <View style={styles.menuPanel}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuOpen(false); loadProperties(); }}><NavIcon name="view-dashboard-outline" size={19} color={colors.primaryDark} /><Text style={styles.menuText}>Dashboard</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => openOwnerFeature('Add Property')}><NavIcon name="home-plus-outline" size={19} color={colors.primaryDark} /><Text style={styles.menuText}>Add Property</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => openOwnerFeature('Favorites')}><NavIcon name="heart-outline" size={19} color={colors.primaryDark} /><Text style={styles.menuText}>Favorites</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => openOwnerFeature('Inquiries')}><NavIcon name="email-outline" size={19} color={colors.primaryDark} /><Text style={styles.menuText}>Inquiries</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => openOwnerFeature('Profile')}><NavIcon name="account-outline" size={19} color={colors.primaryDark} /><Text style={styles.menuText}>Profile</Text></TouchableOpacity>
+          {ownerSession.role === 'ADMIN' || ownerSession.role === 'SUPER_ADMIN' ? <TouchableOpacity style={styles.menuItem} onPress={() => openOwnerFeature('Admin Panel')}><NavIcon name="cog-outline" size={19} color={colors.primaryDark} /><Text style={styles.menuText}>Admin Panel</Text></TouchableOpacity> : null}
+          <TouchableOpacity style={styles.menuItem} onPress={logout}><NavIcon name="logout-variant" size={19} color={colors.primaryDark} /><Text style={styles.menuText}>Logout</Text></TouchableOpacity>
+        </View>
+      ) : null}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={[
+          styles.screenContent,
+          { paddingHorizontal: Math.max(12, Math.min(24, width * 0.05)) },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
       <View style={styles.heroBanner}>
         <View style={styles.heroBadge}>
           <Text style={styles.heroBadgeDot}>●</Text>
@@ -276,19 +403,37 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by location..."
-          placeholderTextColor="rgba(255, 255, 255, 0.72)"
-          value={search}
-          onChangeText={setSearch}
-          returnKeyType="search"
-        />
+        <View style={styles.searchInputWrapper}>
+          <NavIcon name="map-marker-outline" size={20} color={colors.accent} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search supports only in Kuppam, Andhra Pradesh"
+            placeholderTextColor="rgba(255, 255, 255, 0.72)"
+            value={search}
+            onChangeText={updateSearch}
+            autoCorrect={false}
+            returnKeyType="search"
+            onSubmitEditing={applyFilters}
+          />
+          <View style={styles.searchInputActions}>
+            {suggestionsLoading ? <ActivityIndicator size="small" color={colors.accent} /> : null}
+            {search ? <TouchableOpacity style={styles.searchIconButton} onPress={clearSearch} accessibilityLabel="Clear search"><NavIcon name="close-circle-outline" size={19} color={colors.surfaceLight} /></TouchableOpacity> : null}
+            <TouchableOpacity style={styles.searchIconButton} onPress={startVoiceSearch} accessibilityLabel="Voice search"><NavIcon name="microphone-outline" size={20} color={colors.accent} /></TouchableOpacity>
+          </View>
+        </View>
+        {suggestions.length > 0 ? (
+          <View style={styles.suggestionsPanel}>
+            <Text style={styles.suggestionsHeader}>Suggestions for "{search}"</Text>
+            {suggestions.map((suggestion) => <TouchableOpacity key={suggestion} style={styles.suggestionItem} onPress={() => selectSuggestion(suggestion)}><NavIcon name="map-marker-outline" size={17} color={colors.primaryDark} /><Text style={styles.suggestionText}>{suggestion}</Text><NavIcon name="arrow-right" size={16} color={colors.textTertiary} /></TouchableOpacity>)}
+          </View>
+        ) : null}
         <View style={styles.filterActions}>
           <TouchableOpacity style={styles.filterToggle} onPress={() => setFiltersOpen(!filtersOpen)}>
+            <NavIcon name="tune-variant" size={16} color={colors.surfaceLight} />
             <Text style={styles.filterToggleText}>{filtersOpen ? 'Hide filters' : 'Filters'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
+            <NavIcon name="magnify" size={16} color={colors.surfaceLight} />
             <Text style={styles.applyButtonText}>Search</Text>
           </TouchableOpacity>
         </View>
@@ -392,6 +537,7 @@ export default function HomeScreen() {
       ) : (
         renderEmpty()
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

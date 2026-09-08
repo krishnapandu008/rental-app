@@ -1,0 +1,16 @@
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { api } from '../api/client';
+import { colors } from '../styles/common';
+
+type NotificationItem = { id: number; title?: string; message?: string; type?: string; isRead?: boolean; createdAt?: string };
+export default function NotificationsScreen() {
+  const [items, setItems] = useState<NotificationItem[]>([]); const [loading, setLoading] = useState(true);
+  const load = async () => { try { const { data } = await api.get<NotificationItem[]>('/notifications'); setItems(data || []); } catch { Alert.alert('Notifications unavailable', 'Could not load notifications.'); } finally { setLoading(false); } };
+  useEffect(() => { load(); }, []);
+  const markRead = async (id: number) => { try { await api.patch(`/notifications/${id}/read`); setItems((current) => current.map((item) => item.id === id ? { ...item, isRead: true } : item)); } catch { Alert.alert('Update failed', 'Could not mark notification as read.'); } };
+  const markAll = async () => { try { await api.patch('/notifications/mark-all-read'); setItems((current) => current.map((item) => ({ ...item, isRead: true }))); } catch { Alert.alert('Update failed', 'Could not mark notifications as read.'); } };
+  if (loading) return <View style={styles.center}><ActivityIndicator color={colors.primary} /></View>;
+  return <ScrollView contentContainerStyle={styles.container}><View style={styles.heading}><View><Text style={styles.eyebrow}>OWNER WORKSPACE</Text><Text style={styles.title}>Notifications</Text></View><TouchableOpacity onPress={markAll}><Text style={styles.markAll}>Mark all read</Text></TouchableOpacity></View>{items.length === 0 ? <Text style={styles.empty}>No notifications yet.</Text> : items.map((item) => <TouchableOpacity key={item.id} style={[styles.card, !item.isRead && styles.unread]} onPress={() => markRead(item.id)}><Text style={styles.cardTitle}>{item.title || item.type || 'Notification'}</Text><Text style={styles.message}>{item.message || ''}</Text><Text style={styles.date}>{item.createdAt ? new Date(item.createdAt).toLocaleString() : ''}</Text></TouchableOpacity>)}</ScrollView>;
+}
+const styles = StyleSheet.create({ container: { flexGrow: 1, padding: 16, backgroundColor: colors.background }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }, heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }, eyebrow: { color: colors.primaryDark, fontSize: 10, fontWeight: '800', letterSpacing: 1.1 }, title: { color: colors.textPrimary, fontSize: 24, fontWeight: '800', marginTop: 4 }, markAll: { color: colors.primaryDark, fontSize: 11, fontWeight: '800' }, empty: { color: colors.textSecondary, textAlign: 'center', marginTop: 32 }, card: { backgroundColor: colors.surfaceLight, borderColor: colors.border, borderWidth: 1, borderRadius: 10, padding: 13, marginBottom: 9 }, unread: { borderColor: colors.primary, borderLeftWidth: 4 }, cardTitle: { color: colors.textPrimary, fontSize: 14, fontWeight: '800' }, message: { color: colors.textSecondary, fontSize: 12, lineHeight: 17, marginTop: 5 }, date: { color: colors.textTertiary, fontSize: 10, marginTop: 8 } });

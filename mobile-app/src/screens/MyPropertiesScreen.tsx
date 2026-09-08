@@ -54,15 +54,15 @@ export default function MyPropertiesScreen({ route, navigation }: { route: any; 
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-            <View style={styles.card}>
+            <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => navigation.navigate('PropertyForm', { ownerId, property: item })}>
               <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
               <Text style={styles.meta}>{item.location} · {item.bedrooms} BHK</Text>
               <Text style={styles.price}>₹{item.rent.toLocaleString()} / month</Text>
               <View style={styles.actions}>
-                <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('PropertyForm', { ownerId, property: item })}><Text style={styles.editText}>Edit</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.deleteButton} onPress={() => removeProperty(item)}><Text style={styles.deleteText}>Delete</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.editButton} onPress={(event) => { event.stopPropagation(); navigation.navigate('PropertyForm', { ownerId, property: item }); }}><Text style={styles.editText}>Edit</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.deleteButton} onPress={(event) => { event.stopPropagation(); removeProperty(item); }}><Text style={styles.deleteText}>Delete</Text></TouchableOpacity>
               </View>
-            </View>
+            </TouchableOpacity>
           )}
         />
       )}
@@ -73,20 +73,20 @@ export default function MyPropertiesScreen({ route, navigation }: { route: any; 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: colors.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
-  headingRow: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between' as const, marginBottom: 16 },
+  headingRow: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between' as const, marginBottom: 10 },
   eyebrow: { color: colors.primaryDark, fontSize: 10, fontWeight: '800' as const, letterSpacing: 1.1 },
-  title: { color: colors.textPrimary, fontSize: 25, fontWeight: '800' as const, marginTop: 4 },
-  addButton: { backgroundColor: colors.primary, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 10 },
-  addButtonText: { color: colors.surfaceLight, fontWeight: '800' as const },
-  list: { paddingBottom: 24 },
+  title: { color: colors.textPrimary, fontSize: 21, fontWeight: '800' as const, marginTop: 2 },
+  addButton: { backgroundColor: colors.primary, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7 },
+  addButtonText: { color: colors.surfaceLight, fontSize: 12, fontWeight: '800' as const },
+  list: { paddingBottom: 16 },
   empty: { color: colors.textSecondary, textAlign: 'center' as const, marginTop: 48 },
-  card: { backgroundColor: colors.surfaceLight, borderColor: colors.border, borderWidth: 1, borderRadius: 18, padding: 16, marginBottom: 12 },
-  cardTitle: { color: colors.textPrimary, fontSize: 17, fontWeight: '800' as const },
-  meta: { color: colors.textSecondary, fontSize: 13, marginTop: 8 },
-  price: { color: colors.primaryDark, fontWeight: '800' as const, fontSize: 16, marginTop: 8 },
-  actions: { flexDirection: 'row' as const, gap: 8, marginTop: 14 },
-  editButton: { flex: 1, borderColor: colors.primary, borderWidth: 1, borderRadius: 999, paddingVertical: 9, alignItems: 'center' as const },
-  editText: { color: colors.primaryDark, fontWeight: '800' as const },
-  deleteButton: { flex: 1, backgroundColor: '#FDE8E7', borderRadius: 999, paddingVertical: 9, alignItems: 'center' as const },
-  deleteText: { color: colors.danger, fontWeight: '800' as const },
+  card: { backgroundColor: colors.surfaceLight, borderColor: colors.border, borderWidth: 1, borderRadius: 12, padding: 10, marginBottom: 8 },
+  cardTitle: { color: colors.textPrimary, fontSize: 14, lineHeight: 18, fontWeight: '800' as const },
+  meta: { color: colors.textSecondary, fontSize: 11, marginTop: 4 },
+  price: { color: colors.primaryDark, fontWeight: '800' as const, fontSize: 13, marginTop: 4 },
+  actions: { flexDirection: 'row' as const, gap: 6, marginTop: 8 },
+  editButton: { flex: 1, borderColor: colors.primary, borderWidth: 1, borderRadius: 8, paddingVertical: 6, alignItems: 'center' as const },
+  editText: { color: colors.primaryDark, fontSize: 12, fontWeight: '800' as const },
+  deleteButton: { flex: 1, backgroundColor: '#FDE8E7', borderRadius: 8, paddingVertical: 6, alignItems: 'center' as const },
+  deleteText: { color: colors.danger, fontSize: 12, fontWeight: '800' as const },
 });
